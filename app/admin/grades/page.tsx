@@ -203,9 +203,9 @@ export default function GradesAdminPage() {
           className="flex-1 overflow-y-auto bg-no-repeat px-4 py-5 md:px-6 md:py-6"
           style={{
             backgroundImage:
-              "linear-gradient(rgba(8, 14, 30, 0.9), rgba(8, 12, 24, 0.95)), url('/indra-bg.jpg')",
+              "linear-gradient(rgba(8, 14, 30, 0.75), rgba(8, 12, 24, 0.8)), url('/indra-bg.jpg')",
             backgroundPosition: "center center",
-            backgroundSize: "72%",
+            backgroundSize: "cover",
           }}
         >
           <div className="mx-auto max-w-7xl space-y-6">
