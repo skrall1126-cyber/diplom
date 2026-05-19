@@ -93,15 +93,6 @@ const studentMenuItems = [
     ),
   },
   {
-    label: "Дотуур байр",
-    href: "/student/dormitory",
-    icon: (
-      <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
-        <path d="M3 2h9a1 1 0 011 1v10l-4.5-2.5L4 13V3a1 1 0 011-1z" stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round" />
-      </svg>
-    ),
-  },
-  {
     label: "Дадлага",
     href: "/student/internship",
     icon: (
@@ -433,13 +424,7 @@ const financeMenuItems = [
     href: null,
     sub: [
       { label: "Оюутны жагсаалт", href: "/admin/students" },
-      { label: "Төлбөрийн нэхэмжлэх", href: "/admin/tuition-invoices" },
-      { label: "Төлбөрийн үлдэгдэл", href: "/admin/payment-balance" },
-      { label: "Төлбөр төлөлтийн явц", href: "/admin/payment-progress" },
-      { label: "Хугацаа хэтэрсэн төлбөр", href: "/admin/overdue-payments" },
-      { label: "Гүйлгээний түүх", href: "/admin/payment-history" },
-      { label: "Хөнгөлөлтийн удирдлага", href: "/admin/discount-management" },
-      { label: "Тэтгэлгийн жагсаалт", href: "/admin/scholarship-list" },
+      { label: "Оюутны төлбөр", href: "/admin/student-payments" },
     ],
     icon: (
       <svg width="15" height="15" viewBox="0 0 15 15" fill="none">

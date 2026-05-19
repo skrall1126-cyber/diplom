@@ -1,10 +1,14 @@
 "use client";
 
+
+import Navbar from "@/components/Navbar";
+import Sidebar from "@/components/Sidebar";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 export default function PaymentBalancePage() {
+  const [activeMenu, setActiveMenu] = useState("Оюутан");
   const router = useRouter();
   const [userType, setUserType] = useState<string | null>(null);
 
@@ -37,8 +41,21 @@ export default function PaymentBalancePage() {
     .reduce((sum, item) => sum + item.balance, 0);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#0a0118] to-[#1a0b2e] p-6">
-      <div className="mx-auto max-w-6xl">
+    <div className="min-h-screen font-sans text-white">
+      
+      <Navbar />
+      <div className="flex">
+        <Sidebar activeMenu={activeMenu} onMenuChange={setActiveMenu} />
+        <main
+          className="flex-1 overflow-y-auto bg-no-repeat px-4 py-5 md:px-6 md:py-6"
+          style={{
+            backgroundImage:
+              "linear-gradient(rgba(8, 14, 30, 0.9), rgba(8, 12, 24, 0.95)), url('/indra-bg.jpg')",
+            backgroundPosition: "center center",
+            backgroundSize: "72%",
+          }}
+        >
+          <div className="mx-auto max-w-7xl space-y-5">
         {/* Буцах холбоос */}
         <div className="mb-6">
           <Link
@@ -176,7 +193,9 @@ export default function PaymentBalancePage() {
             <li>• Төлбөр төлөлтийн явцыг бодит цагт хянана</li>
             <li>• Оюутнуудын төлбөрийн түүхийг хадгална</li>
           </ul>
-        </div>
+                </div>
+          </div>
+        </main>
       </div>
     </div>
   );

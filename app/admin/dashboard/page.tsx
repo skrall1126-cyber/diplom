@@ -100,7 +100,17 @@ export default function AdminDashboard() {
       <Navbar />
       <div className="flex">
         <Sidebar activeMenu={activeMenu} onMenuChange={setActiveMenu} />
-        <main className="flex-1 overflow-y-auto bg-no-repeat px-4 py-5 md:px-6 md:py-6" role="main" aria-label="Үндсэн контент">
+        <main 
+          className="flex-1 overflow-y-auto bg-no-repeat px-4 py-5 md:px-6 md:py-6" 
+          style={{
+            backgroundImage:
+              "linear-gradient(rgba(8, 14, 30, 0.9), rgba(8, 12, 24, 0.95)), url('/indra-bg.jpg')",
+            backgroundPosition: "center center",
+            backgroundSize: "72%",
+          }}
+          role="main" 
+          aria-label="Үндсэн контент"
+        >
           <div className="mx-auto max-w-7xl space-y-5">
             {/* Header */}
             <div className="rounded-[24px] border border-white/10 bg-[#081120]/70 p-5 backdrop-blur-md">
