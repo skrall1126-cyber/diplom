@@ -34,7 +34,7 @@ export default function HomePage() {
             backgroundImage:
               "linear-gradient(rgba(8, 14, 30, 0.75), rgba(8, 12, 24, 0.8)), url('/indra-bg.jpg')",
             backgroundPosition: "center center",
-            backgroundSize: "cover",
+            backgroundSize: "72%",
           }}
           role="main"
           aria-label="Үндсэн контент"
