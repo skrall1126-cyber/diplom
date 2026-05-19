@@ -114,7 +114,8 @@ export default function RegisterPage() {
             style={{
               backgroundImage: "linear-gradient(rgba(8, 14, 30, 0.85), rgba(8, 12, 24, 0.9)), url('/indra-building.jpg')",
               backgroundPosition: "center center",
-              backgroundSize: "72%",
+              backgroundAttachment: "scroll",
+            backgroundSize: "72%",
             }}
           />
         </div>
@@ -153,6 +154,7 @@ export default function RegisterPage() {
           style={{
             backgroundImage: "linear-gradient(rgba(8, 14, 30, 0.85), rgba(8, 12, 24, 0.9)), url('/indra-building.jpg')",
             backgroundPosition: "center center",
+            backgroundAttachment: "scroll",
             backgroundSize: "72%",
           }}
         />

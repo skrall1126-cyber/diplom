@@ -169,7 +169,8 @@ export default function TimetablePage() {
   const backgroundStyle = useMemo(() => ({
     backgroundImage: "linear-gradient(rgba(8,14,30,0.9),rgba(8,12,24,0.95)),url('/indra-bg.jpg')",
     backgroundPosition: "center center",
-    backgroundSize: "72%",
+    backgroundAttachment: "scroll",
+            backgroundSize: "72%",
   }), []);
 
   // Table view component

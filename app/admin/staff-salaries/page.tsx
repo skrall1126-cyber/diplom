@@ -218,6 +218,7 @@ export default function StaffSalaries() {
             backgroundImage:
               "linear-gradient(rgba(8, 14, 30, 0.75), rgba(8, 12, 24, 0.8)), url('/indra-bg.jpg')",
             backgroundPosition: "center center",
+            backgroundAttachment: "scroll",
             backgroundSize: "72%",
           }}
         >

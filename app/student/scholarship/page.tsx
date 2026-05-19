@@ -77,6 +77,7 @@ export default function ScholarshipPage() {
           style={{
             backgroundImage: "linear-gradient(rgba(8,14,30,0.9),rgba(8,12,24,0.95)),url('/indra-bg.jpg')",
             backgroundPosition: "center center",
+            backgroundAttachment: "scroll",
             backgroundSize: "72%",
           }}
         >
