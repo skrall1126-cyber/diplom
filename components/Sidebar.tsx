@@ -439,7 +439,6 @@ const financeMenuItems = [
     sub: [
       { label: "Багшийн жагсаалт", href: "/admin/teachers" },
       { label: "Багш, ажилчдын цалин", href: "/admin/staff-salaries" },
-      { label: "Урамшуулал, суутгал", href: "/admin/bonus-deductions" },
       { label: "НДШ, ХХОАТ бүртгэл", href: "/admin/tax-records" },
     ],
     icon: (
