@@ -175,40 +175,6 @@ export default function ClassesAdminPage() {
                 ))}
               </div>
             </div>
-
-            {/* Quick Actions */}
-            <div className="rounded-[24px] border border-white/10 bg-[#081120]/70 p-5 backdrop-blur-md">
-              <h2 className="text-sm font-medium uppercase tracking-[0.28em] text-white/70 mb-4">Түргэн үйлдлүүд</h2>
-              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                {[
-                  { label: "Ангийн хуваарь", description: "Үүсгэх", icon: "📅", color: "from-blue-500 to-cyan-600" },
-                  { label: "Оюутны бүртгэл", description: "Нэмэх", icon: "👨‍🎓", color: "from-emerald-500 to-teal-600" },
-                  { label: "Багшийн хуваарилалт", description: "Засах", icon: "👨‍🏫", color: "from-amber-500 to-orange-600" },
-                  { label: "Өрөөний хуваарь", description: "Харах", icon: "🏫", color: "from-purple-500 to-pink-600" },
-                ].map((action, index) => (
-                  <div key={index} className="rounded-xl border border-white/10 bg-white/5 p-4">
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className={`h-12 w-12 rounded-full bg-gradient-to-br ${action.color} flex items-center justify-center`}>
-                        <span className="text-xl">{action.icon}</span>
-                      </div>
-                      <div>
-                        <h3 className="font-bold text-white">{action.label}</h3>
-                        <p className="text-sm text-white/50">{action.description}</p>
-                      </div>
-                    </div>
-                    <button 
-                      onClick={() => {
-                        setSelectedQuickAction(action.label);
-                        setShowQuickActionModal(true);
-                      }}
-                      className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/70 hover:text-white"
-                    >
-                      Ашиглах
-                    </button>
-                  </div>
-                ))}
-              </div>
-            </div>
           </div>
         </main>
       </div>
