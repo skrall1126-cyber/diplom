@@ -368,19 +368,16 @@ export default function StaffSalaries() {
             {/* Stats */}
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
               {[
-                { label: "Нийт цалин", value: "₮ 30.3M", icon: "💰", color: "bg-blue-500" },
-                { label: "Нийт ажилчин", value: "10", icon: "👥", color: "bg-emerald-500" },
-                { label: "Төлсөн цалин", value: "₮ 13.1M", icon: "✅", color: "bg-amber-500" },
-                { label: "Хүлээгдэж байгаа", value: "₮ 17.2M", icon: "⏳", color: "bg-purple-500" },
+                { label: "Нийт цалин", value: "₮ 30.3M", color: "bg-blue-500" },
+                { label: "Нийт ажилчин", value: "10", color: "bg-emerald-500" },
+                { label: "Төлсөн цалин", value: "₮ 13.1M", color: "bg-amber-500" },
+                { label: "Хүлээгдэж байгаа", value: "₮ 17.2M", color: "bg-purple-500" },
               ].map((stat, index) => (
                 <div key={index} className="rounded-2xl border border-white/10 bg-[#081120]/70 p-5 backdrop-blur-md">
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm text-white/50">{stat.label}</p>
                       <p className="mt-2 text-2xl font-bold text-white">{stat.value}</p>
-                    </div>
-                    <div className={`h-12 w-12 rounded-full ${stat.color} flex items-center justify-center`}>
-                      <span className="text-lg">{stat.icon}</span>
                     </div>
                   </div>
                 </div>
@@ -413,14 +410,9 @@ export default function StaffSalaries() {
                     {filteredSalaries.map(salary => (
                       <tr key={salary.id} className="border-b border-white/5 hover:bg-white/[0.02]">
                         <td className="py-4">
-                          <div className="flex items-center gap-3">
-                            <div className={`h-10 w-10 rounded-full bg-gradient-to-br ${salary.color} flex items-center justify-center`}>
-                              <span className="text-lg">💰</span>
-                            </div>
-                            <div>
-                              <p className="font-medium text-white">{salary.id}</p>
-                              <p className="text-xs text-white/50">{salary.department}</p>
-                            </div>
+                          <div>
+                            <p className="font-medium text-white">{salary.id}</p>
+                            <p className="text-xs text-white/50">{salary.department}</p>
                           </div>
                         </td>
                         <td className="py-4">
@@ -476,9 +468,6 @@ export default function StaffSalaries() {
               
               {filteredSalaries.length === 0 && (
                 <div className="py-12 text-center">
-                  <div className="h-16 w-16 rounded-full bg-gradient-to-br from-blue-600 to-cyan-800 flex items-center justify-center mx-auto mb-4">
-                    <span className="text-2xl">🔍</span>
-                  </div>
                   <h3 className="text-lg font-semibold text-white mb-2">Цалин олдсонгүй</h3>
                   <p className="text-sm text-white/50">Хайлтын үр дүнд тохирох цалин олдсонгүй</p>
                 </div>
@@ -526,14 +515,9 @@ export default function StaffSalaries() {
                     { component: "Цэвэр цалин", amount: "₮ 30,290,000", percentage: 100, color: "bg-purple-500" },
                   ].map((item, index) => (
                     <div key={index} className="rounded-xl border border-white/10 bg-white/[0.06] p-4">
-                      <div className="flex items-center justify-between mb-3">
-                        <div>
-                          <p className="font-medium text-white">{item.component}</p>
-                          <p className="text-2xl font-bold text-white">{item.amount}</p>
-                        </div>
-                        <div className={`h-10 w-10 rounded-full ${item.color} flex items-center justify-center`}>
-                          <span className="text-lg">💰</span>
-                        </div>
+                      <div className="mb-3">
+                        <p className="font-medium text-white">{item.component}</p>
+                        <p className="text-2xl font-bold text-white">{item.amount}</p>
                       </div>
                       <div className="h-2 w-full rounded-full bg-white/[0.06] overflow-hidden">
                         <div 
@@ -556,49 +540,38 @@ export default function StaffSalaries() {
                   { 
                     name: "Ирцийн мэдээлэл", 
                     description: "Сургалтын албаны ирцийн мэдээлэл авах",
-                    icon: "📅",
                     color: "from-blue-500 to-cyan-600"
                   },
                   { 
                     name: "Цагийн ачаалал", 
                     description: "Багш нарын цагийн ачааллын мэдээлэл",
-                    icon: "⏰",
                     color: "from-emerald-500 to-teal-600"
                   },
                   { 
                     name: "Цалин тооцоолол", 
                     description: "Цалингийн автомат тооцоолол хийх",
-                    icon: "🧮",
                     color: "from-amber-500 to-orange-600"
                   },
                   { 
                     name: "Урамшуулал тооцоолол", 
                     description: "Урамшууллын тооцоолол хийх",
-                    icon: "⭐",
                     color: "from-purple-500 to-pink-600"
                   },
                   { 
                     name: "Суутгал тооцоолол", 
                     description: "НДШ, ХХОАТ-ын тооцоолол хийх",
-                    icon: "📋",
                     color: "from-indigo-500 to-blue-600"
                   },
                   { 
                     name: "Цалингийн тайлан", 
                     description: "Цалингийн тайлан үүсгэх, хэвлэх",
-                    icon: "📊",
                     color: "from-rose-500 to-red-600"
                   },
                 ].map((tool, index) => (
                   <div key={index} className="rounded-xl border border-white/10 bg-white/[0.06] p-4">
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className={`h-12 w-12 rounded-full bg-gradient-to-br ${tool.color} flex items-center justify-center`}>
-                        <span className="text-xl">{tool.icon}</span>
-                      </div>
-                      <div>
-                        <h3 className="font-bold text-white">{tool.name}</h3>
-                        <p className="text-sm text-white/50">{tool.description}</p>
-                      </div>
+                    <div className="mb-4">
+                      <h3 className="font-bold text-white">{tool.name}</h3>
+                      <p className="text-sm text-white/50">{tool.description}</p>
                     </div>
                     <button className="w-full rounded-lg border border-white/10 bg-white/[0.06] px-4 py-2 text-sm text-white/70 hover:text-white">
                       Ашиглах
@@ -732,22 +705,12 @@ export default function StaffSalaries() {
                 </div>
                 <div className="grid gap-4 md:grid-cols-2">
                   <div className="rounded-xl border border-white/10 bg-gradient-to-br from-blue-500/10 to-blue-600/5 p-5">
-                    <div className="flex items-center justify-between mb-3">
-                      <p className="text-sm text-white/60">Үндсэн цалин</p>
-                      <div className="h-10 w-10 rounded-full bg-blue-500/20 flex items-center justify-center">
-                        <span className="text-lg">💰</span>
-                      </div>
-                    </div>
+                    <p className="text-sm text-white/60 mb-3">Үндсэн цалин</p>
                     <p className="text-2xl font-bold text-white">₮ {selectedEmployee.baseSalary.toLocaleString()}</p>
                   </div>
                   
                   <div className="rounded-xl border border-white/10 bg-gradient-to-br from-emerald-500/10 to-emerald-600/5 p-5">
-                    <div className="flex items-center justify-between mb-3">
-                      <p className="text-sm text-white/60">Урамшуулал</p>
-                      <div className="h-10 w-10 rounded-full bg-emerald-500/20 flex items-center justify-center">
-                        <span className="text-lg">⭐</span>
-                      </div>
-                    </div>
+                    <p className="text-sm text-white/60 mb-3">Урамшуулал</p>
                     <p className="text-2xl font-bold text-emerald-300">₮ {selectedEmployee.bonus.toLocaleString()}</p>
                     {selectedEmployee.bonusReason && (
                       <p className="text-xs text-white/50 mt-2">{selectedEmployee.bonusReason}</p>
@@ -755,12 +718,7 @@ export default function StaffSalaries() {
                   </div>
                   
                   <div className="rounded-xl border border-white/10 bg-gradient-to-br from-amber-500/10 to-amber-600/5 p-5">
-                    <div className="flex items-center justify-between mb-3">
-                      <p className="text-sm text-white/60">Суутгал</p>
-                      <div className="h-10 w-10 rounded-full bg-amber-500/20 flex items-center justify-center">
-                        <span className="text-lg">📋</span>
-                      </div>
-                    </div>
+                    <p className="text-sm text-white/60 mb-3">Суутгал</p>
                     <p className="text-2xl font-bold text-amber-300">₮ {selectedEmployee.deductions.toLocaleString()}</p>
                     {selectedEmployee.socialInsurance && (
                       <div className="mt-3 space-y-1 text-xs text-white/50">
@@ -773,12 +731,7 @@ export default function StaffSalaries() {
                   </div>
                   
                   <div className="rounded-xl border border-emerald-400/30 bg-gradient-to-br from-emerald-500/20 to-emerald-600/10 p-5">
-                    <div className="flex items-center justify-between mb-3">
-                      <p className="text-sm text-emerald-300">Цэвэр цалин</p>
-                      <div className="h-10 w-10 rounded-full bg-emerald-500/30 flex items-center justify-center">
-                        <span className="text-lg">✅</span>
-                      </div>
-                    </div>
+                    <p className="text-sm text-emerald-300 mb-3">Цэвэр цалин</p>
                     <p className="text-3xl font-bold text-emerald-300">₮ {selectedEmployee.netSalary.toLocaleString()}</p>
                     <p className="text-xs text-emerald-300/70 mt-2">Төлөх: {selectedEmployee.paymentDate}</p>
                   </div>
