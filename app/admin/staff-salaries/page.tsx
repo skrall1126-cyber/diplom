@@ -610,16 +610,6 @@ export default function StaffSalaries() {
               {/* Header */}
               <div className="sticky top-0 z-10 border-b border-white/10 bg-gradient-to-r from-emerald-600/20 via-blue-600/20 to-emerald-600/20 backdrop-blur-xl px-8 py-6">
                 <div className="flex items-center gap-5">
-                  <div className="relative">
-                    <div className="h-20 w-20 rounded-2xl bg-gradient-to-br from-emerald-500 via-emerald-600 to-blue-600 flex items-center justify-center ring-4 ring-emerald-500/30 shadow-xl">
-                      <span className="text-3xl font-bold text-white">{selectedEmployee.employee.charAt(0)}</span>
-                    </div>
-                    <div className="absolute -bottom-1 -right-1 h-6 w-6 rounded-full bg-emerald-500 border-2 border-[#081120] flex items-center justify-center">
-                      <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-                        <path d="M3 6l2 2 4-4" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                      </svg>
-                    </div>
-                  </div>
                   <div className="flex-1">
                     <h2 className="text-2xl font-bold text-white mb-1">{selectedEmployee.employee}</h2>
                     <div className="flex items-center gap-3 flex-wrap">
