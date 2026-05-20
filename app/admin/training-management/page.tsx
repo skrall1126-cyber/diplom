@@ -1,99 +1,141 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import Navbar from "@/components/Navbar";
-import Sidebar from "@/components/Sidebar";
-import Link from "next/link";
+import { useState } from "react";
+import Navbar from "../../../components/Navbar";
+import Sidebar from "../../../components/Sidebar";
+
+// Мэргэжлийн төрөл
+interface Major {
+  id: string;
+  name: string;
+  description: string;
+  color: string;
+  icon: string;
+}
+
+// Хичээлийн төрөл
+interface Course {
+  id: string;
+  name: string;
+  majorId: string;
+  level: string;
+  semester: string;
+  status: string;
+  students: number;
+  teachers: number;
+  hours: number;
+  duration: string;
+  startDate: string;
+  endDate: string;
+  instructor: string;
+}
 
 export default function TrainingManagement() {
   const [activeMenu, setActiveMenu] = useState("Хөтөлбөр / Сургалтын төлөвлөгөө");
-  
-  // Set user type to admin in localStorage (бүрэн эрхт админ)
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      localStorage.setItem("userType", "admin");
-      localStorage.setItem("adminType", "full-admin");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedMajor, setSelectedMajor] = useState<string>("all");
+  const [showAddMajorModal, setShowAddMajorModal] = useState(false);
+  const [showAddCourseModal, setShowAddCourseModal] = useState(false);
+  const [showEditCourseModal, setShowEditCourseModal] = useState(false);
+  const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
+  const [editCourseData, setEditCourseData] = useState<Course | null>(null);
+  const [newMajorName, setNewMajorName] = useState("");
+  const [newMajorDesc, setNewMajorDesc] = useState("");
+  const [newCourseName, setNewCourseName] = useState("");
+  const [newCourseMajor, setNewCourseMajor] = useState("");
+  const [newCourseLevel, setNewCourseLevel] = useState("");
+  const [newCourseHours, setNewCourseHours] = useState("");
+
+  // Мэргэжлүүд
+  const [majors, setMajors] = useState<Major[]>([
+    { id: "prog", name: "Програм хангамж", description: "Програмчлал, веб хөгжүүлэлт", color: "from-blue-500 to-cyan-600", icon: "💻" },
+    { id: "cyber", name: "Кибер аюулгүй байдал", description: "Сүлжээний аюулгүй байдал, мэдээллийн хамгаалалт", color: "from-red-500 to-orange-600", icon: "🔒" },
+    { id: "data", name: "Өгөгдлийн шинжилгээ", description: "Өгөгдлийн сан, шинжилгээ", color: "from-purple-500 to-pink-600", icon: "📊" },
+    { id: "network", name: "Сүлжээний технологи", description: "Сүлжээний удирдлага, архитектур", color: "from-emerald-500 to-teal-600", icon: "🌐" },
+  ]);
+
+  // Хичээлүүд
+  const [courses, setCourses] = useState<Course[]>([
+    { id: "C001", name: "Програмчлалын үндэс", majorId: "prog", level: "Анхан", semester: "2026-2027 намар", status: "Баталгаажсан", students: 45, teachers: 3, hours: 120, duration: "12 долоо хоног", startDate: "2026-03-01", endDate: "2026-05-24", instructor: "Б.Батбаяр" },
+    { id: "C002", name: "JavaScript", majorId: "prog", level: "Дунд", semester: "2026-2027 намар", status: "Явж байгаа", students: 20, teachers: 2, hours: 100, duration: "10 долоо хоног", startDate: "2026-03-15", endDate: "2026-05-31", instructor: "Д.Дорж" },
+    { id: "C003", name: "React Development", majorId: "prog", level: "Дунд", semester: "2026-2027 хавар", status: "Төлөвлөгдсөн", students: 18, teachers: 1, hours: 115, duration: "10 долоо хоног", startDate: "2026-05-15", endDate: "2026-07-24", instructor: "А.Ариунаа" },
+    { id: "C004", name: "Сүлжээний аюулгүй байдал", majorId: "cyber", level: "Ахисан", semester: "2026-2027 намар", status: "Хүлээгдэж байна", students: 32, teachers: 2, hours: 90, duration: "10 долоо хоног", startDate: "2026-03-15", endDate: "2026-05-31", instructor: "Д.Дорж" },
+    { id: "C005", name: "Cyber Security", majorId: "cyber", level: "Ахисан", semester: "2026-2027 намар", status: "Явж байгаа", students: 20, teachers: 2, hours: 120, duration: "12 долоо хоног", startDate: "2026-03-20", endDate: "2026-06-12", instructor: "Т.Түмэнбаяр" },
+    { id: "C006", name: "Өгөгдлийн сангийн удирдлага", majorId: "data", level: "Дунд", semester: "2026-2027 хавар", status: "Баталгаажсан", students: 38, teachers: 2, hours: 105, duration: "10 долоо хоног", startDate: "2026-03-10", endDate: "2026-05-19", instructor: "Г.Ганбаяр" },
+  ]);
+
+  // Шүүлтүүрлэх
+  const filteredCourses = courses.filter(course => {
+    const matchesSearch = course.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         course.instructor.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         course.id.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesMajor = selectedMajor === "all" || course.majorId === selectedMajor;
+    return matchesSearch && matchesMajor;
+  });
+
+  // Мэргэжил нэмэх
+  const handleAddMajor = () => {
+    if (newMajorName.trim()) {
+      const newMajor: Major = {
+        id: `major_${Date.now()}`,
+        name: newMajorName,
+        description: newMajorDesc,
+        color: "from-indigo-500 to-blue-600",
+        icon: "🎓"
+      };
+      setMajors([...majors, newMajor]);
+      setNewMajorName("");
+      setNewMajorDesc("");
+      setShowAddMajorModal(false);
     }
-  }, []);
-
-  const trainingPrograms = [
-    {
-      id: 1,
-      name: "Програм хангамжийн инженерчлэл",
-      department: "Програм хангамжийн тэнхим",
-      duration: "4 жил",
-      students: 420,
-      teachers: 12,
-      status: "active",
-      budget: "₮ 1.2 тэрбум",
-      color: "from-blue-500 to-cyan-600"
-    },
-    {
-      id: 2,
-      name: "Сүлжээний технологи",
-      department: "Сүлжээний технологийн тэнхим",
-      duration: "4 жил",
-      students: 380,
-      teachers: 10,
-      status: "active",
-      budget: "₮ 1.1 тэрбум",
-      color: "from-emerald-500 to-teal-600"
-    },
-    {
-      id: 3,
-      name: "Мэдээллийн аюулгүй байдал",
-      department: "Мэдээллийн аюулгүй байдлын тэнхим",
-      duration: "4 жил",
-      students: 280,
-      teachers: 8,
-      status: "active",
-      budget: "₮ 900 сая",
-      color: "from-amber-500 to-orange-600"
-    },
-    {
-      id: 4,
-      name: "Мэдээлэл зүй",
-      department: "Мэдээлэл зүйн тэнхим",
-      duration: "4 жил",
-      students: 320,
-      teachers: 9,
-      status: "active",
-      budget: "₮ 950 сая",
-      color: "from-purple-500 to-pink-600"
-    },
-    {
-      id: 5,
-      name: "Дижитал маркетинг",
-      department: "Дижитал маркетингийн тэнхим",
-      duration: "3 жил",
-      students: 240,
-      teachers: 7,
-      status: "active",
-      budget: "₮ 750 сая",
-      color: "from-indigo-500 to-blue-600"
-    },
-    {
-      id: 6,
-      name: "Системийн инженеринг",
-      department: "Системийн инженерийн тэнхим",
-      duration: "4 жил",
-      students: 190,
-      teachers: 6,
-      status: "planning",
-      budget: "₮ 650 сая",
-      color: "from-rose-500 to-red-600"
-    },
-  ];
-
-  const getStatusColor = (status: string) => {
-    return status === "active" 
-      ? "bg-emerald-500/10 text-emerald-400" 
-      : "bg-amber-500/10 text-amber-400";
   };
 
-  const getStatusText = (status: string) => {
-    return status === "active" ? "Идэвхтэй" : "Төлөвлөгдөж байгаа";
+  // Хичээл нэмэх
+  const handleAddCourse = () => {
+    if (newCourseName.trim() && newCourseMajor && newCourseLevel && newCourseHours) {
+      const newCourse: Course = {
+        id: `C${String(courses.length + 1).padStart(3, '0')}`,
+        name: newCourseName,
+        majorId: newCourseMajor,
+        level: newCourseLevel,
+        semester: "2026-2027 намар",
+        status: "Ноорог",
+        students: 0,
+        teachers: 1,
+        hours: parseInt(newCourseHours),
+        duration: "10 долоо хоног",
+        startDate: "2026-03-01",
+        endDate: "2026-05-24",
+        instructor: "Багш томилогдоогүй"
+      };
+      setCourses([...courses, newCourse]);
+      setNewCourseName("");
+      setNewCourseMajor("");
+      setNewCourseLevel("");
+      setNewCourseHours("");
+      setShowAddCourseModal(false);
+    }
   };
+
+  // Хичээл засах
+  const handleEditCourse = () => {
+    if (editCourseData) {
+      const updatedCourses = courses.map(c => 
+        c.id === editCourseData.id ? editCourseData : c
+      );
+      setCourses(updatedCourses);
+      setShowEditCourseModal(false);
+      setEditCourseData(null);
+      setSelectedCourse(null);
+      alert(`${editCourseData.name} хичээл амжилттай шинэчлэгдлээ!`);
+    }
+  };
+
+  // Статистик
+  const totalCourses = courses.length;
+  const ongoingCourses = courses.filter(c => c.status === "Явж байгаа").length;
+  const totalStudents = courses.reduce((sum, c) => sum + c.students, 0);
+  const selectedCourseMajor = selectedCourse ? majors.find((major) => major.id === selectedCourse.majorId) : null;
 
   return (
     <div className="min-h-screen font-sans text-white">
@@ -112,34 +154,30 @@ export default function TrainingManagement() {
         >
           <div className="mx-auto max-w-7xl space-y-6">
             {/* Header */}
-            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+            <div className="flex items-center justify-between">
               <div>
-                <h1 className="text-sm font-medium uppercase tracking-[0.28em] text-white/70">Хөтөлбөр / Сургалтын төлөвлөгөө</h1>
-                <p className="mt-1 text-xs text-white/45">Бүрэн эрхт админы сургалтын хөтөлбөр, төлөвлөгөөний удирдлага</p>
+                <h1 className="text-2xl font-bold text-white">Хөтөлбөр / Сургалтын төлөвлөгөө</h1>
+                <p className="mt-1 text-sm text-white/50">Мэргэжил, хичээлийн удирдлага</p>
               </div>
               <div className="flex items-center gap-3">
-                <div className="rounded-lg border border-white/10 bg-white/[0.06] px-4 py-2">
-                  <p className="text-sm font-medium text-white">Бүрэн эрхт админ</p>
-                  <p className="text-xs text-white/40">Сургалтын удирдлага</p>
-                </div>
-                <button className="rounded-lg border border-white/10 bg-white/[0.06] px-4 py-2 text-sm text-white/70 hover:text-white">
-                  Шинэ хөтөлбөр нэмэх
+                <button 
+                  onClick={() => setShowAddMajorModal(true)}
+                  className="rounded-lg border border-blue-400/30 bg-gradient-to-b from-blue-500 to-blue-700 px-4 py-2 text-sm font-medium text-white hover:opacity-90"
+                >
+                  Мэргэжил нэмэх
                 </button>
-                <Link href="/admin/dashboard" className="rounded-lg border border-white/10 bg-white/[0.06] px-4 py-2 text-sm text-white/70 hover:text-white">
-                  Буцах
-                </Link>
               </div>
             </div>
 
             {/* Stats */}
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
               {[
-                { label: "Нийт хөтөлбөр", value: "6", icon: "📚", color: "bg-blue-500" },
-                { label: "Нийт оюутан", value: "1,830", icon: "👨‍🎓", color: "bg-emerald-500" },
-                { label: "Нийт багш", value: "52", icon: "👨‍🏫", color: "bg-amber-500" },
-                { label: "Нийт төсөв", value: "₮ 5.6 тэрбум", icon: "💰", color: "bg-purple-500" },
+                { label: "Нийт мэргэжил", value: majors.length, color: "bg-blue-500", icon: "🎓" },
+                { label: "Нийт хичээл", value: totalCourses, color: "bg-purple-500", icon: "📚" },
+                { label: "Явж байгаа", value: ongoingCourses, color: "bg-emerald-500", icon: "✅" },
+                { label: "Нийт оюутан", value: totalStudents, color: "bg-amber-500", icon: "👥" },
               ].map((stat, index) => (
-                <div key={index} className="rounded-[24px] border border-white/10 bg-[#081120]/70 p-5 backdrop-blur-md">
+                <div key={index} className="rounded-2xl border border-white/10 bg-white/[0.04] p-5 backdrop-blur-sm">
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm text-white/50">{stat.label}</p>
@@ -153,162 +191,455 @@ export default function TrainingManagement() {
               ))}
             </div>
 
-            {/* Training Programs List */}
-            <div className="rounded-[24px] border border-white/10 bg-[#081120]/70 p-5 backdrop-blur-md">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-sm font-medium uppercase tracking-[0.28em] text-white/70">Сургалтын хөтөлбөрүүд</h2>
-                <p className="text-sm text-white/50">{trainingPrograms.length} хөтөлбөр</p>
-              </div>
-              
-              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                {trainingPrograms.map(program => (
-                  <div key={program.id} className="rounded-[22px] border border-white/10 bg-white/[0.06] p-5">
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="flex items-center gap-3">
-                        <div className={`h-10 w-10 rounded-full bg-gradient-to-br ${program.color} flex items-center justify-center`}>
-                          <span className="text-lg">📚</span>
-                        </div>
-                        <div>
-                          <h3 className="font-bold text-white">{program.name}</h3>
-                          <p className="text-sm text-white/50">{program.department}</p>
-                        </div>
-                      </div>
-                      <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${getStatusColor(program.status)}`}>
-                        {getStatusText(program.status)}
-                      </span>
-                    </div>
-                    
-                    <div className="space-y-3">
-                      <div className="flex justify-between">
-                        <span className="text-sm text-white/50">Хугацаа:</span>
-                        <span className="text-sm text-white">{program.duration}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-sm text-white/50">Оюутнууд:</span>
-                        <span className="text-sm text-white">{program.students}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-sm text-white/50">Багш нар:</span>
-                        <span className="text-sm text-white">{program.teachers}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-sm text-white/50">Төсөв:</span>
-                        <span className="text-sm text-white">{program.budget}</span>
-                      </div>
-                    </div>
-                    
-                    <div className="mt-4 flex gap-2">
-                      <button className="flex-1 rounded-lg border border-white/10 bg-white/[0.06] px-3 py-1.5 text-xs text-white/70 hover:text-white">
-                        Дэлгэрэнгүй
-                      </button>
-                      <button className="flex-1 rounded-lg border border-white/10 bg-white/[0.06] px-3 py-1.5 text-xs text-white/70 hover:text-white">
-                        Засах
-                      </button>
-                    </div>
-                  </div>
-                ))}
+            {/* Search */}
+            <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-5 backdrop-blur-sm">
+              <div className="relative">
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40"
+                >
+                  <circle cx="6.5" cy="6.5" r="5" stroke="currentColor" strokeWidth="1.2" />
+                  <path d="M11 11l4 4" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+                </svg>
+                <input
+                  type="text"
+                  placeholder="Хичээлийн нэр, багш, ID-аар хайх..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full rounded-lg border border-white/10 bg-white/[0.06] py-2.5 pl-10 pr-4 text-sm text-white placeholder-white/30 focus:outline-none focus:border-emerald-400/40"
+                />
               </div>
             </div>
 
-            {/* Department Distribution */}
-            <div className="rounded-[24px] border border-white/10 bg-[#081120]/70 p-5 backdrop-blur-md">
-              <h2 className="text-sm font-medium uppercase tracking-[0.28em] text-white/70 mb-4">Тэнхимийн сургалтын тархалт</h2>
-              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                {[
-                  { department: "Програм хангамжийн тэнхим", programs: 3, students: 420, budget: "₮ 1.2 тэрбум", color: "bg-blue-500" },
-                  { department: "Сүлжээний технологийн тэнхим", programs: 2, students: 380, budget: "₮ 1.1 тэрбум", color: "bg-emerald-500" },
-                  { department: "Мэдээллийн аюулгүй байдлын тэнхим", programs: 2, students: 280, budget: "₮ 900 сая", color: "bg-amber-500" },
-                  { department: "Мэдээлэл зүйн тэнхим", programs: 2, students: 320, budget: "₮ 950 сая", color: "bg-purple-500" },
-                  { department: "Дижитал маркетингийн тэнхим", programs: 1, students: 240, budget: "₮ 750 сая", color: "bg-indigo-500" },
-                  { department: "Системийн инженерийн тэнхим", programs: 1, students: 190, budget: "₮ 650 сая", color: "bg-rose-500" },
-                ].map((item, index) => (
-                  <div key={index} className="rounded-xl border border-white/10 bg-white/[0.06] p-4">
-                    <div className="flex items-center justify-between mb-3">
-                      <div>
-                        <p className="font-medium text-white">{item.department}</p>
-                        <p className="text-sm text-white/50">{item.programs} хөтөлбөр</p>
-                      </div>
-                      <div className={`h-10 w-10 rounded-full ${item.color} flex items-center justify-center`}>
-                        <span className="text-lg">🏛️</span>
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <div className="flex justify-between">
-                        <span className="text-sm text-white/50">Оюутнууд:</span>
-                        <span className="text-sm text-white">{item.students}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-sm text-white/50">Төсөв:</span>
-                        <span className="text-sm text-white">{item.budget}</span>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
+            {/* Courses by Major */}
+            {(selectedMajor === "all" ? majors : majors.filter(m => m.id === selectedMajor)).map((major) => {
+              const majorCourses = filteredCourses.filter(c => c.majorId === major.id);
+              if (majorCourses.length === 0) return null;
 
-            {/* Management Tools */}
-            <div className="rounded-[24px] border border-white/10 bg-[#081120]/70 p-5 backdrop-blur-md">
-              <h2 className="text-sm font-medium uppercase tracking-[0.28em] text-white/70 mb-4">Сургалтын удирдлагын хэрэгслүүд</h2>
-              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                {[
-                  { 
-                    name: "Хөтөлбөр бүртгэл", 
-                    description: "Шинэ сургалтын хөтөлбөр бүртгэх, засах",
-                    icon: "📝",
-                    color: "from-blue-500 to-cyan-600"
-                  },
-                  { 
-                    name: "Төлөвлөгөө үүсгэх", 
-                    description: "Сургалтын төлөвлөгөө, хуваарь үүсгэх",
-                    icon: "📅",
-                    color: "from-emerald-500 to-teal-600"
-                  },
-                  { 
-                    name: "Нөөцийн хуваарилалт", 
-                    description: "Багш, анги, тоног төхөөрөмжийн хуваарилалт",
-                    icon: "👨‍🏫",
-                    color: "from-amber-500 to-orange-600"
-                  },
-                  { 
-                    name: "Төсөв төлөвлөлт", 
-                    description: "Сургалтын төсөв төлөвлөх, хянах",
-                    icon: "💰",
-                    color: "from-purple-500 to-pink-600"
-                  },
-                  { 
-                    name: "Гүйцэтгэлийн үнэлгээ", 
-                    description: "Сургалтын гүйцэтгэлийн үнэлгээ хийх",
-                    icon: "📊",
-                    color: "from-indigo-500 to-blue-600"
-                  },
-                  { 
-                    name: "Тайлан үүсгэх", 
-                    description: "Сургалтын тайлан, статистик үүсгэх",
-                    icon: "📈",
-                    color: "from-rose-500 to-red-600"
-                  },
-                ].map((tool, index) => (
-                  <div key={index} className="rounded-xl border border-white/10 bg-white/[0.06] p-4">
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className={`h-12 w-12 rounded-full bg-gradient-to-br ${tool.color} flex items-center justify-center`}>
-                        <span className="text-xl">{tool.icon}</span>
-                      </div>
-                      <div>
-                        <h3 className="font-bold text-white">{tool.name}</h3>
-                        <p className="text-sm text-white/50">{tool.description}</p>
-                      </div>
+              return (
+                <div key={major.id} className="rounded-2xl border border-white/10 bg-white/[0.04] p-5 backdrop-blur-sm">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className={`h-10 w-10 rounded-lg bg-gradient-to-br ${major.color} flex items-center justify-center`}>
+                      <span className="text-xl">{major.icon}</span>
                     </div>
-                    <button className="w-full rounded-lg border border-white/10 bg-white/[0.06] px-4 py-2 text-sm text-white/70 hover:text-white">
-                      Ашиглах
+                    <div>
+                      <h2 className="text-lg font-semibold text-white">{major.name}</h2>
+                      <p className="text-xs text-white/50">{majorCourses.length} хичээл</p>
+                    </div>
+                    <button
+                      onClick={() => {
+                        setNewCourseMajor(major.id);
+                        setShowAddCourseModal(true);
+                      }}
+                      className="ml-auto rounded-lg border border-emerald-400/30 bg-emerald-500/15 px-3 py-1.5 text-xs font-medium text-emerald-300 hover:bg-emerald-500/25"
+                    >
+                      Хичээл нэмэх
                     </button>
                   </div>
-                ))}
-              </div>
-            </div>
+                  
+                  <div className="space-y-3">
+                    {majorCourses.map((course) => (
+                      <div key={course.id} className="rounded-xl border border-white/5 bg-white/[0.02] p-4 hover:bg-white/[0.04] transition-colors">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3 flex-1">
+                            <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-amber-600 to-orange-800 flex items-center justify-center">
+                              <span className="text-sm font-semibold text-white">{course.name.charAt(0)}</span>
+                            </div>
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2">
+                                <p className="text-sm font-medium text-white">{course.name}</p>
+                                <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
+                                  course.level === "Анхан" ? "bg-blue-500/20 text-blue-300" :
+                                  course.level === "Дунд" ? "bg-amber-500/20 text-amber-300" :
+                                  "bg-red-500/20 text-red-300"
+                                }`}>
+                                  {course.level}
+                                </span>
+                                <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
+                                  course.status === "Баталгаажсан" || course.status === "Явж байгаа"
+                                    ? "bg-emerald-500/20 text-emerald-300" 
+                                    : course.status === "Хүлээгдэж байна"
+                                    ? "bg-amber-500/20 text-amber-300"
+                                    : course.status === "Төлөвлөгдсөн"
+                                    ? "bg-blue-500/20 text-blue-300"
+                                    : "bg-gray-500/20 text-gray-300"
+                                }`}>
+                                  {course.status}
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-4 mt-1">
+                                <span className="text-xs text-white/40">{course.id}</span>
+                                <span className="text-xs text-white/40">👨‍🏫 {course.instructor}</span>
+                                <span className="text-xs text-white/40">👥 {course.students} оюутан</span>
+                                <span className="text-xs text-white/40">⏱️ {course.hours} цаг</span>
+                              </div>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <button 
+                              onClick={() => setSelectedCourse(course)}
+                              className="rounded-lg border border-white/10 bg-white/[0.06] px-3 py-1.5 text-xs text-white/70 hover:text-white"
+                            >
+                              Дэлгэрэнгүй
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </main>
       </div>
+
+      {/* Add Major Modal */}
+      {showAddMajorModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
+          <div className="relative w-full max-w-md rounded-2xl border border-white/20 bg-[#081120] p-6">
+            <div className="flex items-center justify-between mb-5">
+              <h2 className="text-xl font-bold text-white">Шинэ мэргэжил нэмэх</h2>
+              <button
+                onClick={() => setShowAddMajorModal(false)}
+                className="rounded-lg border border-white/10 bg-white/5 p-2 text-white/70 hover:text-white"
+              >
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                  <path d="M5 5l10 10M15 5l-10 10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                </svg>
+              </button>
+            </div>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm text-white/60 mb-2">Мэргэжлийн нэр *</label>
+                <input
+                  type="text"
+                  placeholder="Жишээ: Digital Marketing"
+                  value={newMajorName}
+                  onChange={(e) => setNewMajorName(e.target.value)}
+                  className="w-full rounded-lg border border-white/10 bg-white/[0.06] px-3 py-2.5 text-sm text-white placeholder-white/30 focus:outline-none focus:border-emerald-400/40"
+                />
+              </div>
+              <div>
+                <label className="block text-sm text-white/60 mb-2">Тайлбар</label>
+                <textarea
+                  placeholder="Мэргэжлийн товч тайлбар"
+                  value={newMajorDesc}
+                  onChange={(e) => setNewMajorDesc(e.target.value)}
+                  rows={3}
+                  className="w-full rounded-lg border border-white/10 bg-white/[0.06] px-3 py-2.5 text-sm text-white placeholder-white/30 focus:outline-none focus:border-emerald-400/40"
+                />
+              </div>
+              <div className="flex gap-3 pt-2">
+                <button
+                  onClick={() => setShowAddMajorModal(false)}
+                  className="flex-1 rounded-lg border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white/70 hover:text-white"
+                >
+                  Цуцлах
+                </button>
+                <button
+                  onClick={handleAddMajor}
+                  className="flex-1 rounded-lg border border-emerald-400/30 bg-gradient-to-b from-emerald-500 to-emerald-700 px-4 py-2.5 text-sm font-medium text-white hover:opacity-90"
+                >
+                  Нэмэх
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Add Course Modal */}
+      {showAddCourseModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
+          <div className="relative w-full max-w-md rounded-2xl border border-white/20 bg-[#081120] p-6">
+            <div className="flex items-center justify-between mb-5">
+              <h2 className="text-xl font-bold text-white">Шинэ хичээл нэмэх</h2>
+              <button
+                onClick={() => setShowAddCourseModal(false)}
+                className="rounded-lg border border-white/10 bg-white/5 p-2 text-white/70 hover:text-white"
+              >
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                  <path d="M5 5l10 10M15 5l-10 10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                </svg>
+              </button>
+            </div>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm text-white/60 mb-2">Хичээлийн нэр *</label>
+                <input
+                  type="text"
+                  placeholder="Жишээ: Social Media Marketing"
+                  value={newCourseName}
+                  onChange={(e) => setNewCourseName(e.target.value)}
+                  className="w-full rounded-lg border border-white/10 bg-white/[0.06] px-3 py-2.5 text-sm text-white placeholder-white/30 focus:outline-none focus:border-emerald-400/40"
+                />
+              </div>
+              <div>
+                <label className="block text-sm text-white/60 mb-2">Мэргэжил *</label>
+                <select
+                  value={newCourseMajor}
+                  onChange={(e) => setNewCourseMajor(e.target.value)}
+                  className="w-full rounded-lg border border-white/10 bg-white/[0.06] px-3 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-400/40"
+                >
+                  <option value="">Мэргэжил сонгох</option>
+                  {majors.map((major) => (
+                    <option key={major.id} value={major.id}>{major.name}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm text-white/60 mb-2">Түвшин *</label>
+                <select
+                  value={newCourseLevel}
+                  onChange={(e) => setNewCourseLevel(e.target.value)}
+                  className="w-full rounded-lg border border-white/10 bg-white/[0.06] px-3 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-400/40"
+                >
+                  <option value="">Түвшин сонгох</option>
+                  <option value="Анхан">Анхан</option>
+                  <option value="Дунд">Дунд</option>
+                  <option value="Ахисан">Ахисан</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm text-white/60 mb-2">Нийт цаг *</label>
+                <input
+                  type="number"
+                  placeholder="Жишээ: 120"
+                  value={newCourseHours}
+                  onChange={(e) => setNewCourseHours(e.target.value)}
+                  className="w-full rounded-lg border border-white/10 bg-white/[0.06] px-3 py-2.5 text-sm text-white placeholder-white/30 focus:outline-none focus:border-emerald-400/40"
+                />
+              </div>
+              <div className="flex gap-3 pt-2">
+                <button
+                  onClick={() => setShowAddCourseModal(false)}
+                  className="flex-1 rounded-lg border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white/70 hover:text-white"
+                >
+                  Цуцлах
+                </button>
+                <button
+                  onClick={handleAddCourse}
+                  className="flex-1 rounded-lg border border-emerald-400/30 bg-gradient-to-b from-emerald-500 to-emerald-700 px-4 py-2.5 text-sm font-medium text-white hover:opacity-90"
+                >
+                  Нэмэх
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Course Detail Modal */}
+      {selectedCourse && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-md">
+          <div className="relative w-full max-w-2xl rounded-2xl border border-white/20 bg-[#081120] p-6">
+            <div className="mb-5 flex items-start justify-between gap-4">
+              <div>
+                <p className="text-xs font-medium uppercase tracking-[0.22em] text-white/40">{selectedCourse.id}</p>
+                <h2 className="mt-1 text-xl font-bold text-white">{selectedCourse.name}</h2>
+                <p className="mt-1 text-sm text-white/50">{selectedCourseMajor?.name ?? "Мэргэжил тодорхойгүй"}</p>
+              </div>
+              <button
+                onClick={() => setSelectedCourse(null)}
+                className="rounded-lg border border-white/10 bg-white/5 p-2 text-white/70 hover:text-white"
+                aria-label="Хаах"
+              >
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                  <path d="M5 5l10 10M15 5l-10 10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                </svg>
+              </button>
+            </div>
+
+            <div className="grid gap-3 sm:grid-cols-2">
+              {[
+                { label: "Түвшин", value: selectedCourse.level },
+                { label: "Төлөв", value: selectedCourse.status },
+                { label: "Багш", value: selectedCourse.instructor },
+                { label: "Оюутан", value: `${selectedCourse.students} оюутан` },
+                { label: "Нийт цаг", value: `${selectedCourse.hours} цаг` },
+                { label: "Үргэлжлэх хугацаа", value: selectedCourse.duration },
+                { label: "Эхлэх огноо", value: selectedCourse.startDate },
+                { label: "Дуусах огноо", value: selectedCourse.endDate },
+              ].map((item) => (
+                <div key={item.label} className="rounded-xl border border-white/10 bg-white/[0.04] p-4">
+                  <p className="text-xs text-white/40">{item.label}</p>
+                  <p className="mt-1 text-sm font-medium text-white/90">{item.value}</p>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-6 flex justify-end gap-3">
+              <button
+                onClick={() => setSelectedCourse(null)}
+                className="rounded-lg border border-white/10 bg-white/[0.06] px-4 py-2 text-sm text-white/70 hover:text-white"
+              >
+                Хаах
+              </button>
+              <button
+                onClick={() => {
+                  setEditCourseData(selectedCourse);
+                  setShowEditCourseModal(true);
+                }}
+                className="rounded-lg border border-blue-400/30 bg-blue-500/15 px-4 py-2 text-sm font-medium text-blue-300 hover:bg-blue-500/25"
+              >
+                Засах
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Course Modal */}
+      {showEditCourseModal && editCourseData && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
+          <div className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl border border-white/20 bg-[#081120] p-6">
+            <div className="flex items-center justify-between mb-5">
+              <h2 className="text-xl font-bold text-white">Хичээл засах</h2>
+              <button
+                onClick={() => {
+                  setShowEditCourseModal(false);
+                  setEditCourseData(null);
+                }}
+                className="rounded-lg border border-white/10 bg-white/5 p-2 text-white/70 hover:text-white"
+              >
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                  <path d="M5 5l10 10M15 5l-10 10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                </svg>
+              </button>
+            </div>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm text-white/60 mb-2">Хичээлийн нэр *</label>
+                <input
+                  type="text"
+                  value={editCourseData.name}
+                  onChange={(e) => setEditCourseData({ ...editCourseData, name: e.target.value })}
+                  className="w-full rounded-lg border border-white/10 bg-white/[0.06] px-3 py-2.5 text-sm text-white placeholder-white/30 focus:outline-none focus:border-emerald-400/40"
+                />
+              </div>
+              <div>
+                <label className="block text-sm text-white/60 mb-2">Мэргэжил *</label>
+                <select
+                  value={editCourseData.majorId}
+                  onChange={(e) => setEditCourseData({ ...editCourseData, majorId: e.target.value })}
+                  className="w-full rounded-lg border border-white/10 bg-white/[0.06] px-3 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-400/40"
+                >
+                  {majors.map((major) => (
+                    <option key={major.id} value={major.id}>{major.name}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm text-white/60 mb-2">Түвшин *</label>
+                  <select
+                    value={editCourseData.level}
+                    onChange={(e) => setEditCourseData({ ...editCourseData, level: e.target.value })}
+                    className="w-full rounded-lg border border-white/10 bg-white/[0.06] px-3 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-400/40"
+                  >
+                    <option value="Анхан">Анхан</option>
+                    <option value="Дунд">Дунд</option>
+                    <option value="Ахисан">Ахисан</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm text-white/60 mb-2">Төлөв *</label>
+                  <select
+                    value={editCourseData.status}
+                    onChange={(e) => setEditCourseData({ ...editCourseData, status: e.target.value })}
+                    className="w-full rounded-lg border border-white/10 bg-white/[0.06] px-3 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-400/40"
+                  >
+                    <option value="Ноорог">Ноорог</option>
+                    <option value="Төлөвлөгдсөн">Төлөвлөгдсөн</option>
+                    <option value="Хүлээгдэж байна">Хүлээгдэж байна</option>
+                    <option value="Баталгаажсан">Баталгаажсан</option>
+                    <option value="Явж байгаа">Явж байгаа</option>
+                  </select>
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm text-white/60 mb-2">Багш *</label>
+                <input
+                  type="text"
+                  value={editCourseData.instructor}
+                  onChange={(e) => setEditCourseData({ ...editCourseData, instructor: e.target.value })}
+                  className="w-full rounded-lg border border-white/10 bg-white/[0.06] px-3 py-2.5 text-sm text-white placeholder-white/30 focus:outline-none focus:border-emerald-400/40"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm text-white/60 mb-2">Оюутан *</label>
+                  <input
+                    type="number"
+                    value={editCourseData.students}
+                    onChange={(e) => setEditCourseData({ ...editCourseData, students: parseInt(e.target.value) || 0 })}
+                    className="w-full rounded-lg border border-white/10 bg-white/[0.06] px-3 py-2.5 text-sm text-white placeholder-white/30 focus:outline-none focus:border-emerald-400/40"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm text-white/60 mb-2">Нийт цаг *</label>
+                  <input
+                    type="number"
+                    value={editCourseData.hours}
+                    onChange={(e) => setEditCourseData({ ...editCourseData, hours: parseInt(e.target.value) || 0 })}
+                    className="w-full rounded-lg border border-white/10 bg-white/[0.06] px-3 py-2.5 text-sm text-white placeholder-white/30 focus:outline-none focus:border-emerald-400/40"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm text-white/60 mb-2">Үргэлжлэх хугацаа *</label>
+                <input
+                  type="text"
+                  value={editCourseData.duration}
+                  onChange={(e) => setEditCourseData({ ...editCourseData, duration: e.target.value })}
+                  className="w-full rounded-lg border border-white/10 bg-white/[0.06] px-3 py-2.5 text-sm text-white placeholder-white/30 focus:outline-none focus:border-emerald-400/40"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm text-white/60 mb-2">Эхлэх огноо *</label>
+                  <input
+                    type="date"
+                    value={editCourseData.startDate}
+                    onChange={(e) => setEditCourseData({ ...editCourseData, startDate: e.target.value })}
+                    className="w-full rounded-lg border border-white/10 bg-white/[0.06] px-3 py-2.5 text-sm text-white placeholder-white/30 focus:outline-none focus:border-emerald-400/40"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm text-white/60 mb-2">Дуусах огноо *</label>
+                  <input
+                    type="date"
+                    value={editCourseData.endDate}
+                    onChange={(e) => setEditCourseData({ ...editCourseData, endDate: e.target.value })}
+                    className="w-full rounded-lg border border-white/10 bg-white/[0.06] px-3 py-2.5 text-sm text-white placeholder-white/30 focus:outline-none focus:border-emerald-400/40"
+                  />
+                </div>
+              </div>
+              <div className="flex gap-3 pt-2">
+                <button
+                  onClick={() => {
+                    setShowEditCourseModal(false);
+                    setEditCourseData(null);
+                  }}
+                  className="flex-1 rounded-lg border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white/70 hover:text-white"
+                >
+                  Цуцлах
+                </button>
+                <button
+                  onClick={handleEditCourse}
+                  className="flex-1 rounded-lg border border-blue-400/30 bg-gradient-to-b from-blue-500 to-blue-700 px-4 py-2.5 text-sm font-medium text-white hover:opacity-90"
+                >
+                  Хадгалах
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
