@@ -235,17 +235,6 @@ export default function TeachersPage() {
                         <span className="text-xs text-white/50">Туршлага:</span>
                         <span className="text-sm font-bold text-blue-400">{teacher.experience} жил</span>
                       </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs text-white/50">Үнэлгээ:</span>
-                        <div className="flex items-center gap-1">
-                          <span className="text-sm font-bold text-amber-400">{teacher.rating}</span>
-                          <span className="text-xs text-white/50">⭐</span>
-                        </div>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs text-white/50">Оюутан:</span>
-                        <span className="text-sm font-bold text-emerald-400">{teacher.students}</span>
-                      </div>
                     </div>
 
                     <div className="border-t border-white/10 pt-3 mb-3">
