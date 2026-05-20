@@ -531,54 +531,6 @@ export default function StaffSalaries() {
               </div>
             </div>
 
-            {/* Salary Calculation Tools */}
-            <div className="rounded-2xl border border-white/10 bg-[#081120]/70 p-5 backdrop-blur-md">
-              <h2 className="text-lg font-semibold text-white mb-4">Цалин тооцооллын хэрэгслүүд</h2>
-              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                {[
-                  { 
-                    name: "Ирцийн мэдээлэл", 
-                    description: "Сургалтын албаны ирцийн мэдээлэл авах",
-                    color: "from-blue-500 to-cyan-600"
-                  },
-                  { 
-                    name: "Цагийн ачаалал", 
-                    description: "Багш нарын цагийн ачааллын мэдээлэл",
-                    color: "from-emerald-500 to-teal-600"
-                  },
-                  { 
-                    name: "Цалин тооцоолол", 
-                    description: "Цалингийн автомат тооцоолол хийх",
-                    color: "from-amber-500 to-orange-600"
-                  },
-                  { 
-                    name: "Урамшуулал тооцоолол", 
-                    description: "Урамшууллын тооцоолол хийх",
-                    color: "from-purple-500 to-pink-600"
-                  },
-                  { 
-                    name: "Суутгал тооцоолол", 
-                    description: "НДШ, ХХОАТ-ын тооцоолол хийх",
-                    color: "from-indigo-500 to-blue-600"
-                  },
-                  { 
-                    name: "Цалингийн тайлан", 
-                    description: "Цалингийн тайлан үүсгэх, хэвлэх",
-                    color: "from-rose-500 to-red-600"
-                  },
-                ].map((tool, index) => (
-                  <div key={index} className="rounded-xl border border-white/10 bg-white/[0.06] p-4">
-                    <div className="mb-4">
-                      <h3 className="font-bold text-white">{tool.name}</h3>
-                      <p className="text-sm text-white/50">{tool.description}</p>
-                    </div>
-                    <button className="w-full rounded-lg border border-white/10 bg-white/[0.06] px-4 py-2 text-sm text-white/70 hover:text-white">
-                      Ашиглах
-                    </button>
-                  </div>
-                ))}
-              </div>
-            </div>
           </div>
         </main>
       </div>
