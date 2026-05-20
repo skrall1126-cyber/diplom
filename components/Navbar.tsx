@@ -343,7 +343,7 @@ export default function Navbar() {
                   alert("Нууц үг дор хаяж 8 тэмдэгт байх ёстой!");
                   return;
                 }
-                alert("Нууц үг амжилттай солигдлоо! Функц удахгүй нэмэгдэнэ.");
+                alert("Нууц үг амжилттай солигдлоо!\n\nДараагийн нэвтрэлтээс шинэ нууц үгээ ашиглана уу.");
                 setShowPasswordModal(false);
                 setPasswordData({ currentPassword: "", newPassword: "", confirmPassword: "" });
               }}

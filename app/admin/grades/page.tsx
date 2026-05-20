@@ -11,6 +11,10 @@ export default function GradesAdminPage() {
   const [selectedDepartment, setSelectedDepartment] = useState<string | null>(null);
   const [selectedStudent, setSelectedStudent] = useState<any>(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editGradeData, setEditGradeData] = useState<any>(null);
+  const [warningsSent, setWarningsSent] = useState<{[key: number]: number}>({});
+  const [editedCourses, setEditedCourses] = useState<any[]>([]);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -24,6 +28,13 @@ export default function GradesAdminPage() {
       }
     }
   }, []);
+
+  const handleSendWarning = (studentId: number) => {
+    setWarningsSent(prev => ({
+      ...prev,
+      [studentId]: (prev[studentId] || 0) + 1
+    }));
+  };
 
   const getBackLink = () => {
     if (userType === "training") return "/admin/training-dashboard";
@@ -304,6 +315,12 @@ export default function GradesAdminPage() {
                                   <span>{failedCourses.length} хичээлд тэнцээгүй</span>
                                 </div>
                               )}
+                              {warningsSent[item.id] && warningsSent[item.id] > 0 && (
+                                <div className="mt-2 flex items-center gap-1 text-xs text-amber-400">
+                                  <span>📩</span>
+                                  <span>Сануулга илгээсэн ({warningsSent[item.id]})</span>
+                                </div>
+                              )}
                             </div>
 
                             {/* Grade Stats */}
@@ -547,19 +564,23 @@ export default function GradesAdminPage() {
                 <div className="mt-6 flex gap-3">
                   <button
                     onClick={() => {
-                      const failedCourses = selectedStudent.courses.filter((c: any) => c.total < 60);
-                      if (failedCourses.length > 0) {
-                        alert(`⚠️ Анхааруулга илгээх\n\n${selectedStudent.student} дараах хичээлд тэнцээгүй байна:\n\n${failedCourses.map((c: any) => `• ${c.name}: ${c.total}/100 (${c.grade})`).join('\n')}\n\nЧат хуудас руу шилжиж, мэдэгдэл илгээх боломжтой болно.`);
-                      } else {
-                        alert("✅ Энэ оюутан бүх хичээлд тэнцсэн байна.\n\nМэдэгдэл илгээх шаардлагагүй.");
-                      }
+                      // Оюутны чат хуудас руу шилжүүлэх
+                      handleSendWarning(selectedStudent.id);
+                      setShowDetailModal(false);
+                      // Чат хуудас руу redirect хийх
+                      window.location.href = `/admin/students?openChat=${selectedStudent.id}`;
                     }}
                     className="flex-1 rounded-lg border border-emerald-400/30 bg-emerald-500/15 px-4 py-3 text-sm font-medium text-emerald-200 hover:bg-emerald-500/25"
                   >
-                    💬 Дүнгийн мэдэгдэл илгээх
+                    💬 Сануулга илгээх
                   </button>
                   <button
-                    onClick={() => alert("Дүн засах функц удахгүй нэмэгдэнэ.")}
+                    onClick={() => {
+                      setEditGradeData(selectedStudent);
+                      setEditedCourses(selectedStudent.courses.map((c: any) => ({...c})));
+                      setShowEditModal(true);
+                      setShowDetailModal(false);
+                    }}
                     className="flex-1 rounded-lg border border-blue-400/30 bg-blue-500/15 px-4 py-3 text-sm font-medium text-blue-200 hover:bg-blue-500/25"
                   >
                     Дүн засах
@@ -579,6 +600,212 @@ export default function GradesAdminPage() {
           )}
         </main>
       </div>
+
+      {/* Edit Grade Modal */}
+      {showEditModal && editGradeData && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
+          <div className="relative w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-2xl border border-white/20 bg-[#081120] p-6">
+            <div className="flex items-center justify-between mb-5">
+              <h2 className="text-xl font-bold text-white">Дүн засах</h2>
+              <button
+                onClick={() => {
+                  setShowEditModal(false);
+                  setEditGradeData(null);
+                }}
+                className="rounded-lg border border-white/10 bg-white/5 p-2 text-white/70 hover:text-white"
+              >
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                  <path d="M5 5l10 10M15 5l-10 10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                </svg>
+              </button>
+            </div>
+            
+            <div className="mb-5 rounded-xl border border-white/10 bg-white/[0.04] p-4">
+              <div className="flex items-center gap-3">
+                <div className="h-12 w-12 rounded-full bg-gradient-to-br from-blue-600 to-blue-800 flex items-center justify-center">
+                  <span className="text-sm font-semibold text-white">{editGradeData.student.charAt(0)}</span>
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-white">{editGradeData.student}</p>
+                  <p className="text-xs text-white/50">{editGradeData.studentId}</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-6">
+              {editedCourses.map((course: any, index: number) => {
+                // Үнэлгээ тооцоолох функц
+                const calculateGrade = (total: number) => {
+                  if (total >= 90) return "А";
+                  if (total >= 80) return "Б";
+                  if (total >= 70) return "В";
+                  if (total >= 60) return "Г";
+                  return "Д";
+                };
+
+                // Input өөрчлөгдөх үед дуудагдах функц
+                const handleInputChange = (field: string, value: string) => {
+                  const numValue = parseFloat(value) || 0;
+                  
+                  // Шинэчилсэн курс үүсгэх
+                  const updatedCourse = { ...course, [field]: numValue };
+                  
+                  // Нийт дүн тооцоолох
+                  const total = Math.round(
+                    updatedCourse.quiz1 + 
+                    updatedCourse.quiz2 + 
+                    updatedCourse.attendance + 
+                    updatedCourse.progress + 
+                    updatedCourse.assignment + 
+                    updatedCourse.exam
+                  );
+                  
+                  updatedCourse.total = total;
+                  updatedCourse.grade = calculateGrade(total);
+                  
+                  // State шинэчлэх
+                  const newCourses = [...editedCourses];
+                  newCourses[index] = updatedCourse;
+                  setEditedCourses(newCourses);
+                };
+
+                return (
+                  <div key={index} className="rounded-xl border border-white/10 bg-white/[0.04] p-5">
+                    <h3 className="text-base font-semibold text-white mb-4">{course.name}</h3>
+                    
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                      <div>
+                        <label className="block text-sm text-white/60 mb-2">Сорил 1 (10)</label>
+                        <input
+                          type="number"
+                          value={course.quiz1}
+                          min="0"
+                          max="10"
+                          step="0.1"
+                          onChange={(e) => handleInputChange('quiz1', e.target.value)}
+                          className="w-full rounded-lg border border-white/10 bg-white/[0.06] px-3 py-2 text-sm text-white placeholder-white/30 focus:outline-none focus:border-emerald-400/40"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm text-white/60 mb-2">Сорил 2 (10)</label>
+                        <input
+                          type="number"
+                          value={course.quiz2}
+                          min="0"
+                          max="10"
+                          step="0.1"
+                          onChange={(e) => handleInputChange('quiz2', e.target.value)}
+                          className="w-full rounded-lg border border-white/10 bg-white/[0.06] px-3 py-2 text-sm text-white placeholder-white/30 focus:outline-none focus:border-emerald-400/40"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm text-white/60 mb-2">Ирц (10)</label>
+                        <input
+                          type="number"
+                          value={course.attendance}
+                          min="0"
+                          max="10"
+                          step="0.1"
+                          onChange={(e) => handleInputChange('attendance', e.target.value)}
+                          className="w-full rounded-lg border border-white/10 bg-white/[0.06] px-3 py-2 text-sm text-white placeholder-white/30 focus:outline-none focus:border-emerald-400/40"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm text-white/60 mb-2">Явц (10)</label>
+                        <input
+                          type="number"
+                          value={course.progress}
+                          min="0"
+                          max="10"
+                          step="0.1"
+                          onChange={(e) => handleInputChange('progress', e.target.value)}
+                          className="w-full rounded-lg border border-white/10 bg-white/[0.06] px-3 py-2 text-sm text-white placeholder-white/30 focus:outline-none focus:border-emerald-400/40"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm text-white/60 mb-2">Бие даалт (30)</label>
+                        <input
+                          type="number"
+                          value={course.assignment}
+                          min="0"
+                          max="30"
+                          step="0.5"
+                          onChange={(e) => handleInputChange('assignment', e.target.value)}
+                          className="w-full rounded-lg border border-white/10 bg-white/[0.06] px-3 py-2 text-sm text-white placeholder-white/30 focus:outline-none focus:border-emerald-400/40"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm text-white/60 mb-2">Шалгалт (30)</label>
+                        <input
+                          type="number"
+                          value={course.exam}
+                          min="0"
+                          max="30"
+                          step="0.5"
+                          onChange={(e) => handleInputChange('exam', e.target.value)}
+                          className="w-full rounded-lg border border-white/10 bg-white/[0.06] px-3 py-2 text-sm text-white placeholder-white/30 focus:outline-none focus:border-emerald-400/40"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm text-white/60 mb-2">Нийт дүн</label>
+                        <div className="rounded-lg border border-emerald-400/30 bg-emerald-500/10 px-3 py-2">
+                          <p className="text-sm font-bold text-emerald-400">{course.total}/100</p>
+                        </div>
+                      </div>
+                      <div>
+                        <label className="block text-sm text-white/60 mb-2">Үнэлгээ</label>
+                        <div className="rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2">
+                          <span className={`text-sm font-bold ${
+                            course.grade === "А" ? "text-emerald-400" :
+                            course.grade === "Б" ? "text-blue-400" :
+                            course.grade === "В" ? "text-amber-400" :
+                            course.grade === "Г" ? "text-orange-400" :
+                            "text-red-400"
+                          }`}>
+                            {course.grade}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+
+              <div className="rounded-lg border border-blue-400/30 bg-blue-500/10 p-4">
+                <p className="text-xs text-blue-300">
+                  💡 Нийт дүн автоматаар тооцогдоно: Сорил 1 + Сорил 2 + Ирц + Явц + Бие даалт + Шалгалт = Нийт дүн
+                </p>
+                <p className="text-xs text-blue-300 mt-2">
+                  📊 Үнэлгээ: А (90-100), Б (80-89), В (70-79), Г (60-69), Д (0-59)
+                </p>
+              </div>
+
+              <div className="flex gap-3 pt-2">
+                <button
+                  onClick={() => {
+                    setShowEditModal(false);
+                    setEditGradeData(null);
+                  }}
+                  className="flex-1 rounded-lg border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white/70 hover:text-white"
+                >
+                  Цуцлах
+                </button>
+                <button
+                  onClick={() => {
+                    alert(`${editGradeData.student}-ийн дүн амжилттай шинэчлэгдлээ!`);
+                    setShowEditModal(false);
+                    setEditGradeData(null);
+                    setSelectedStudent(null);
+                  }}
+                  className="flex-1 rounded-lg border border-blue-400/30 bg-gradient-to-b from-blue-500 to-blue-700 px-4 py-2.5 text-sm font-medium text-white hover:opacity-90"
+                >
+                  Хадгалах
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

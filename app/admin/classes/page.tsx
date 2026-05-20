@@ -13,7 +13,7 @@ export default function ClassesAdminPage() {
     name: "",
     code: "",
     year: "",
-    teacher: "",
+    teachers: [] as string[],
     room: ""
   });
   const [showQuickActionModal, setShowQuickActionModal] = useState(false);
@@ -27,9 +27,27 @@ export default function ClassesAdminPage() {
     name: "",
     code: "",
     year: "",
-    teacher: "",
+    teachers: [] as string[],
     room: ""
   });
+  const [showTeacherDropdown, setShowTeacherDropdown] = useState(false);
+  const [showEditTeacherDropdown, setShowEditTeacherDropdown] = useState(false);
+
+  // Багш нарын жагсаалт
+  const availableTeachers = [
+    { id: 1, name: "Б.Бат-Эрдэнэ", department: "Програм хангамж" },
+    { id: 2, name: "Ц.Мөнхбат", department: "Сүлжээний технологи" },
+    { id: 3, name: "Д.Сэржмядаг", department: "Мэдээллийн аюулгүй байдал" },
+    { id: 4, name: "Г.Баярмаа", department: "Мэдээлэл зүй" },
+    { id: 5, name: "Л.Энхтуяа", department: "Мэдээлэл зүй" },
+    { id: 6, name: "Н.Түмэнжаргал", department: "Програм хангамж" },
+    { id: 7, name: "Б.Ганбат", department: "Програм хангамж" },
+    { id: 8, name: "Ц.Энхтуяа", department: "Сүлжээний технологи" },
+    { id: 9, name: "Д.Батжаргал", department: "Мэдээллийн аюулгүй байдал" },
+    { id: 10, name: "Э.Түмэн", department: "Мэдээлэл зүй" },
+    { id: 11, name: "Х.Сүхбат", department: "Дижитал маркетинг" },
+    { id: 12, name: "Л.Эрдэнэ", department: "Системийн инженеринг" },
+  ];
 
   // All students (not assigned to any class yet)
   const allStudents = [
@@ -232,15 +250,92 @@ export default function ClassesAdminPage() {
               {/* Teacher */}
               <div>
                 <label className="mb-2 block text-sm font-medium text-white/80">
-                  Багш <span className="text-red-400">*</span>
+                  Багш нар <span className="text-red-400">*</span>
                 </label>
-                <input
-                  type="text"
-                  value={newClass.teacher}
-                  onChange={(e) => setNewClass({ ...newClass, teacher: e.target.value })}
-                  placeholder="Жишээ: Б.Ганбат"
-                  className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder:text-white/40 focus:border-blue-400/50 focus:outline-none focus:ring-2 focus:ring-blue-400/20"
-                />
+                <div className="relative">
+                  <button
+                    type="button"
+                    onClick={() => setShowTeacherDropdown(!showTeacherDropdown)}
+                    className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white text-left focus:border-blue-400/50 focus:outline-none focus:ring-2 focus:ring-blue-400/20 flex items-center justify-between"
+                  >
+                    <span className={newClass.teachers.length === 0 ? "text-white/40" : ""}>
+                      {newClass.teachers.length === 0 
+                        ? "Багш сонгох..." 
+                        : `${newClass.teachers.length} багш сонгогдсон`}
+                    </span>
+                    <svg 
+                      width="16" 
+                      height="16" 
+                      viewBox="0 0 16 16" 
+                      fill="none" 
+                      className={`text-white/50 transition-transform ${showTeacherDropdown ? 'rotate-180' : ''}`}
+                    >
+                      <path d="M4 6l4 4 4-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  </button>
+                  
+                  {showTeacherDropdown && (
+                    <div className="absolute z-10 mt-2 w-full rounded-lg border border-white/10 bg-[#0a1628] shadow-2xl max-h-64 overflow-y-auto">
+                      {availableTeachers.map((teacher) => {
+                        const isSelected = newClass.teachers.includes(teacher.name);
+                        const isAssignedToOtherClass = classes.some(cls => 
+                          cls.teacher === teacher.name && !newClass.teachers.includes(teacher.name)
+                        );
+                        
+                        return (
+                          <label
+                            key={teacher.id}
+                            className={`flex items-center gap-3 px-4 py-3 hover:bg-white/10 cursor-pointer border-b border-white/5 last:border-b-0 ${
+                              isAssignedToOtherClass ? 'opacity-50' : ''
+                            }`}
+                          >
+                            <input
+                              type="checkbox"
+                              checked={isSelected}
+                              onChange={(e) => {
+                                if (e.target.checked) {
+                                  setNewClass({ ...newClass, teachers: [...newClass.teachers, teacher.name] });
+                                } else {
+                                  setNewClass({ ...newClass, teachers: newClass.teachers.filter(t => t !== teacher.name) });
+                                }
+                              }}
+                              className="h-4 w-4 rounded border-white/20 bg-white/10 text-blue-600 focus:ring-2 focus:ring-blue-500"
+                            />
+                            <div className="flex-1">
+                              <p className="text-sm font-medium text-white">{teacher.name}</p>
+                              <p className="text-xs text-white/50">{teacher.department}</p>
+                            </div>
+                            {isAssignedToOtherClass && (
+                              <span className="text-xs text-amber-400">Өөр ангид</span>
+                            )}
+                          </label>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+                
+                {/* Selected Teachers */}
+                {newClass.teachers.length > 0 && (
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {newClass.teachers.map((teacherName, idx) => (
+                      <div key={idx} className="flex items-center gap-2 rounded-lg border border-blue-400/30 bg-blue-500/10 px-3 py-1.5">
+                        <span className="text-sm text-blue-300">{teacherName}</span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setNewClass({ ...newClass, teachers: newClass.teachers.filter(t => t !== teacherName) });
+                          }}
+                          className="text-blue-300 hover:text-blue-100"
+                        >
+                          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                            <path d="M3 3l8 8M11 3l-8 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                          </svg>
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
               {/* Room */}
@@ -263,7 +358,8 @@ export default function ClassesAdminPage() {
               <button
                 onClick={() => {
                   setShowAddClassModal(false);
-                  setNewClass({ name: "", code: "", year: "", teacher: "", room: "" });
+                  setNewClass({ name: "", code: "", year: "", teachers: [], room: "" });
+                  setShowTeacherDropdown(false);
                 }}
                 className="flex-1 rounded-lg border border-white/20 bg-white/10 px-4 py-2.5 text-sm font-medium text-white/70 hover:bg-white/20 hover:text-white transition-all"
               >
@@ -271,13 +367,14 @@ export default function ClassesAdminPage() {
               </button>
               <button
                 onClick={() => {
-                  if (!newClass.name || !newClass.code || !newClass.year || !newClass.teacher || !newClass.room) {
+                  if (!newClass.name || !newClass.code || !newClass.year || newClass.teachers.length === 0 || !newClass.room) {
                     alert("Бүх талбарыг бөглөнө үү!");
                     return;
                   }
-                  alert(`Шинэ анги нэмэгдлээ:\n\nНэр: ${newClass.name}\nКод: ${newClass.code}\nНийт оюутан: ${newClass.year}\nБагш: ${newClass.teacher}\nӨрөө: ${newClass.room}`);
+                  alert(`Шинэ анги нэмэгдлээ:\n\nНэр: ${newClass.name}\nКод: ${newClass.code}\nНийт оюутан: ${newClass.year}\nБагш нар: ${newClass.teachers.join(', ')}\nӨрөө: ${newClass.room}`);
                   setShowAddClassModal(false);
-                  setNewClass({ name: "", code: "", year: "", teacher: "", room: "" });
+                  setNewClass({ name: "", code: "", year: "", teachers: [], room: "" });
+                  setShowTeacherDropdown(false);
                 }}
                 className="flex-1 rounded-lg border border-emerald-400/40 bg-gradient-to-r from-emerald-500 to-emerald-600 px-4 py-2.5 text-sm font-semibold text-white hover:from-emerald-600 hover:to-emerald-700 transition-all shadow-lg hover:shadow-emerald-500/20"
               >
@@ -365,7 +462,9 @@ export default function ClassesAdminPage() {
                           {student.status}
                         </span>
                         <button 
-                          onClick={() => alert(`${student.name}-ийн дэлгэрэнгүй мэдээлэл харах функц удахгүй нэмэгдэнэ.`)}
+                          onClick={() => {
+                            alert(`${student.name}-ийн дэлгэрэнгүй мэдээлэл:\n\nНэр: ${student.name}\nКод: ${student.code}\nДундаж дүн: ${student.gpa}\nТөлөв: ${student.status}`);
+                          }}
                           className="rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-white/70 hover:text-white"
                         >
                           Харах

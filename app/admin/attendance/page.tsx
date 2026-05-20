@@ -474,14 +474,15 @@ export default function AttendanceAdminPage() {
                 <div className="mt-6 flex gap-3">
                   <button
                     onClick={() => {
+                      // Оюутны чат хуудас руу шилжүүлэх
                       handleSendWarning(selectedStudent.id);
-                      alert("Чат хуудас руу шилжиж, сануулга илгээх боломжтой болно.");
                       setShowDetailModal(false);
-                      setSelectedStudent(null);
+                      // Чат хуудас руу redirect хийх (students хуудас дээр чат modal нээх)
+                      window.location.href = `/admin/students?openChat=${selectedStudent.id}`;
                     }}
                     className="flex-1 rounded-lg border border-emerald-400/30 bg-emerald-500/15 px-4 py-3 text-sm font-medium text-emerald-200 hover:bg-emerald-500/25"
                   >
-                    💬 Сануулга илгээсэн
+                    💬 Сануулга илгээх
                   </button>
                   <button
                     onClick={() => {

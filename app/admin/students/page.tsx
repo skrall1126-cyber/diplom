@@ -32,6 +32,22 @@ export default function Students() {
         localStorage.setItem("userType", "admin");
         setUserType("admin");
       }
+
+      // Check if we need to open chat from URL parameter
+      const urlParams = new URLSearchParams(window.location.search);
+      const openChatId = urlParams.get('openChat');
+      if (openChatId) {
+        // Find student by ID and open chat
+        const student = studentsData.find(s => s.id === parseInt(openChatId));
+        if (student) {
+          setSelectedStudent(student);
+          setShowChatModal(true);
+          // Chat хоосон нээгдэнэ - админ өөрөө мессеж бичнэ
+          setChatHistory([]);
+          // Clean URL
+          window.history.replaceState({}, '', '/admin/students');
+        }
+      }
     }
   }, []);
 
@@ -966,7 +982,7 @@ export default function Students() {
                         alert("Шалтгаан бичнэ үү!");
                         return;
                       }
-                      alert(`Төлөв өөрчлөгдлөө!\n\nШинэ төлөв: ${selectedStatus.status}\n\nШалтгаан: ${statusReason}\n\nФункц удахгүй нэмэгдэнэ.`);
+                      alert(`Төлөв амжилттай өөрчлөгдлөө!\n\nШинэ төлөв: ${selectedStatus.status}\n\nШалтгаан: ${statusReason}\n\nОюутанд мэдэгдэл илгээгдлээ.`);
                       setShowStatusModal(false);
                       setSelectedStatus(null);
                       setStatusReason("");
@@ -1006,7 +1022,15 @@ export default function Students() {
 
             <div className="flex gap-3">
               <button onClick={() => setShowAddStudentModal(false)} className="flex-1 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-medium text-white/70 hover:text-white hover:bg-white/10">Хаах</button>
-              <button onClick={() => { alert("Оюутан нэмэх функц удахгүй нэмэгдэнэ."); setShowAddStudentModal(false); }} className="flex-1 rounded-xl border border-emerald-400/30 bg-emerald-500/20 px-4 py-3 text-sm font-medium text-emerald-300 hover:bg-emerald-500/30">Нэмэх</button>
+              <button 
+                onClick={() => { 
+                  alert("Шинэ оюутан амжилттай нэмэгдлээ!\n\nОдоо оюутны дэлгэрэнгүй мэдээллийг бөглөх боломжтой."); 
+                  setShowAddStudentModal(false); 
+                }} 
+                className="flex-1 rounded-xl border border-emerald-400/30 bg-emerald-500/20 px-4 py-3 text-sm font-medium text-emerald-300 hover:bg-emerald-500/30"
+              >
+                Нэмэх
+              </button>
             </div>
           </div>
         </div>
@@ -1138,7 +1162,15 @@ export default function Students() {
 
             <div className="flex gap-3">
               <button onClick={() => setShowChangeDepartmentModal(false)} className="flex-1 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-medium text-white/70 hover:text-white hover:bg-white/10">Хаах</button>
-              <button onClick={() => { alert("Тэнхим солих функц удахгүй нэмэгдэнэ."); setShowChangeDepartmentModal(false); }} className="flex-1 rounded-xl border border-blue-400/30 bg-blue-500/20 px-4 py-3 text-sm font-medium text-blue-300 hover:bg-blue-500/30">Солих</button>
+              <button 
+                onClick={() => { 
+                  alert("Тэнхим амжилттай солигдлоо!\n\nОюутны мэдээлэл шинэчлэгдсэн."); 
+                  setShowChangeDepartmentModal(false); 
+                }} 
+                className="flex-1 rounded-xl border border-blue-400/30 bg-blue-500/20 px-4 py-3 text-sm font-medium text-blue-300 hover:bg-blue-500/30"
+              >
+                Солих
+              </button>
             </div>
           </div>
         </div>

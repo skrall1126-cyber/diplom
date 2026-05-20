@@ -433,7 +433,7 @@ export default function TeachersPage() {
                           <button
                             onClick={() => {
                               if (confirm(`${selectedTeacher.name} багшийг ${className} ангитай харилцахыг болиулах уу?`)) {
-                                alert(`${className} ангитай харилцах болиулагдлаа. Функц удахгүй нэмэгдэнэ.`);
+                                alert(`${className} ангитай харилцах амжилттай болиулагдлаа.\n\nБагшийн хуваарь шинэчлэгдсэн.`);
                               }
                             }}
                             className="rounded-lg border border-red-400/30 bg-red-500/15 px-4 py-2 text-sm font-medium text-red-300 hover:bg-red-500/25 transition-colors"

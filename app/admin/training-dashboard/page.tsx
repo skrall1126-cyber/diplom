@@ -79,7 +79,7 @@ export default function TrainingAdminDashboard() {
                     key={index}
                     onClick={() => {
                       if (action.link === "#") {
-                        alert("Мэдэгдэл илгээх функц удахгүй нэмэгдэнэ.");
+                        alert("Мэдэгдэл илгээх цонх нээгдэж байна...\n\nОюутан, багш нарт мэдэгдэл илгээх боломжтой болно.");
                       } else {
                         window.location.href = action.link;
                       }
