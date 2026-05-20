@@ -1,0 +1,505 @@
+// Indra Cyber School Management System - Prisma Schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ============================================
+// ХЭРЭГЛЭГЧИЙН УДИРДЛАГА (User Management)
+// ============================================
+
+enum UserRole {
+  SUPER_ADMIN      // Бүрэн эрхт админ
+  TRAINING_ADMIN   // Сургалтын албаны админ
+  FINANCE_ADMIN    // Санхүүгийн албаны админ
+  TEACHER          // Багш
+  STUDENT          // Оюутан
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+  GRADUATED
+}
+
+model User {
+  id            String      @id @default(cuid())
+  email         String      @unique
+  username      String      @unique
+  password      String
+  role          UserRole
+  status        UserStatus  @default(ACTIVE)
+  
+  // Profile
+  firstName     String
+  lastName      String
+  phone         String?
+  avatar        String?
+  dateOfBirth   DateTime?
+  gender        String?
+  address       String?
+  
+  // Relations
+  student       Student?
+  teacher       Teacher?
+  admin         Admin?
+  
+  // Timestamps
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  lastLoginAt   DateTime?
+  
+  @@map("users")
+}
+
+model Admin {
+  id            String      @id @default(cuid())
+  userId        String      @unique
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  adminType     UserRole    // SUPER_ADMIN, TRAINING_ADMIN, FINANCE_ADMIN
+  department    String?
+  position      String?
+  
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  
+  @@map("admins")
+}
+
+// ============================================
+// ОЮУТНЫ УДИРДЛАГА (Student Management)
+// ============================================
+
+model Student {
+  id            String      @id @default(cuid())
+  userId        String      @unique
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  studentId     String      @unique  // Оюутны ID (жишээ: STU2026001)
+  majorId       String
+  major         Major       @relation(fields: [majorId], references: [id])
+  classId       String?
+  class         Class?      @relation(fields: [classId], references: [id])
+  
+  // Academic Info
+  enrollmentDate DateTime
+  expectedGraduationDate DateTime?
+  currentSemester Int       @default(1)
+  gpa           Float?
+  totalCredits  Int         @default(0)
+  
+  // Financial Info
+  tuitionFee    Float
+  paidAmount    Float       @default(0)
+  remainingAmount Float
+  scholarshipAmount Float?   @default(0)
+  
+  // Relations
+  enrollments   Enrollment[]
+  grades        Grade[]
+  attendance    Attendance[]
+  payments      Payment[]
+  
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  
+  @@map("students")
+}
+
+// ============================================
+// БАГШИЙН УДИРДЛАГА (Teacher Management)
+// ============================================
+
+model Teacher {
+  id            String      @id @default(cuid())
+  userId        String      @unique
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  teacherId     String      @unique  // Багшийн ID (жишээ: TCH2026001)
+  departmentId  String
+  department    Department  @relation(fields: [departmentId], references: [id])
+  
+  // Professional Info
+  position      String      // Багш, Ахлах багш, Профессор
+  specialization String[]   // Мэргэшсэн чиглэл
+  hireDate      DateTime
+  salary        Float
+  
+  // Teaching Info
+  maxHoursPerWeek Int       @default(20)
+  
+  // Relations
+  courses       Course[]    @relation("CourseTeachers")
+  classes       Class[]
+  grades        Grade[]
+  salaries      Salary[]
+  
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  
+  @@map("teachers")
+}
+
+// ============================================
+// СУРГАЛТЫН УДИРДЛАГА (Training Management)
+// ============================================
+
+model Department {
+  id            String      @id @default(cuid())
+  name          String      @unique
+  description   String?
+  code          String      @unique
+  
+  // Relations
+  majors        Major[]
+  teachers      Teacher[]
+  
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  
+  @@map("departments")
+}
+
+model Major {
+  id            String      @id @default(cuid())
+  name          String      @unique
+  description   String?
+  code          String      @unique
+  departmentId  String
+  department    Department  @relation(fields: [departmentId], references: [id])
+  
+  duration      Int         // Жилээр (4 жил)
+  totalCredits  Int         // Нийт кредит
+  tuitionFee    Float       // Жилийн сургалтын төлбөр
+  
+  // Relations
+  students      Student[]
+  courses       Course[]
+  
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  
+  @@map("majors")
+}
+
+model Course {
+  id            String      @id @default(cuid())
+  name          String
+  code          String      @unique
+  description   String?
+  
+  majorId       String
+  major         Major       @relation(fields: [majorId], references: [id])
+  
+  credits       Int
+  hours         Int         // Нийт цаг
+  level         String      // Анхан, Дунд, Ахисан
+  semester      Int         // Хэддүгээр улирал
+  
+  // Relations
+  classes       Class[]
+  teachers      Teacher[]   @relation("CourseTeachers")
+  
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  
+  @@map("courses")
+}
+
+enum ClassStatus {
+  PLANNED       // Төлөвлөгдсөн
+  ONGOING       // Явж байгаа
+  COMPLETED     // Дууссан
+  CANCELLED     // Цуцлагдсан
+}
+
+model Class {
+  id            String      @id @default(cuid())
+  name          String
+  code          String      @unique
+  
+  courseId      String
+  course        Course      @relation(fields: [courseId], references: [id])
+  
+  teacherId     String
+  teacher       Teacher     @relation(fields: [teacherId], references: [id])
+  
+  semester      String      // 2026-2027 намар
+  status        ClassStatus @default(PLANNED)
+  
+  startDate     DateTime
+  endDate       DateTime
+  
+  maxStudents   Int         @default(30)
+  room          String?
+  schedule      String?     // JSON format: [{day: "Monday", time: "09:00-11:00"}]
+  
+  // Relations
+  students      Student[]
+  enrollments   Enrollment[]
+  attendance    Attendance[]
+  grades        Grade[]
+  
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  
+  @@map("classes")
+}
+
+model Enrollment {
+  id            String      @id @default(cuid())
+  
+  studentId     String
+  student       Student     @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  
+  classId       String
+  class         Class       @relation(fields: [classId], references: [id], onDelete: Cascade)
+  
+  enrolledAt    DateTime    @default(now())
+  status        String      @default("ACTIVE") // ACTIVE, DROPPED, COMPLETED
+  
+  @@unique([studentId, classId])
+  @@map("enrollments")
+}
+
+// ============================================
+// ИРЦИЙН УДИРДЛАГА (Attendance Management)
+// ============================================
+
+enum AttendanceStatus {
+  PRESENT
+  ABSENT
+  LATE
+  EXCUSED
+}
+
+model Attendance {
+  id            String      @id @default(cuid())
+  
+  studentId     String
+  student       Student     @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  
+  classId       String
+  class         Class       @relation(fields: [classId], references: [id], onDelete: Cascade)
+  
+  date          DateTime
+  status        AttendanceStatus
+  note          String?
+  
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  
+  @@unique([studentId, classId, date])
+  @@map("attendance")
+}
+
+// ============================================
+// ДҮНГИЙН УДИРДЛАГА (Grade Management)
+// ============================================
+
+model Grade {
+  id            String      @id @default(cuid())
+  
+  studentId     String
+  student       Student     @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  
+  classId       String
+  class         Class       @relation(fields: [classId], references: [id], onDelete: Cascade)
+  
+  teacherId     String
+  teacher       Teacher     @relation(fields: [teacherId], references: [id])
+  
+  // Grades
+  midtermScore  Float?
+  finalScore    Float?
+  assignmentScore Float?
+  attendanceScore Float?
+  totalScore    Float?
+  letterGrade   String?     // A, B, C, D, F
+  gpa           Float?      // 4.0 scale
+  
+  semester      String
+  status        String      @default("IN_PROGRESS") // IN_PROGRESS, COMPLETED, FAILED
+  
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  
+  @@unique([studentId, classId, semester])
+  @@map("grades")
+}
+
+// ============================================
+// САНХҮҮГИЙН УДИРДЛАГА (Finance Management)
+// ============================================
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  OVERDUE
+  CANCELLED
+}
+
+enum PaymentMethod {
+  CASH
+  BANK_TRANSFER
+  CARD
+  QPAY
+  SOCIAL_PAY
+}
+
+model Payment {
+  id            String      @id @default(cuid())
+  
+  studentId     String
+  student       Student     @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  
+  amount        Float
+  paymentMethod PaymentMethod
+  status        PaymentStatus @default(PENDING)
+  
+  dueDate       DateTime
+  paidDate      DateTime?
+  
+  semester      String
+  academicYear  String
+  
+  description   String?
+  receiptNumber String?     @unique
+  
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  
+  @@map("payments")
+}
+
+model Salary {
+  id            String      @id @default(cuid())
+  
+  teacherId     String
+  teacher       Teacher     @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  
+  baseSalary    Float
+  bonus         Float?      @default(0)
+  deductions    Float?      @default(0)
+  netSalary     Float
+  
+  month         String      // 2026-05
+  paymentDate   DateTime?
+  status        String      @default("PENDING") // PENDING, PAID
+  
+  // Details
+  teachingHours Int?
+  overtimeHours Int?
+  bonusReason   String?
+  
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  
+  @@unique([teacherId, month])
+  @@map("salaries")
+}
+
+// ============================================
+// ЭД ХӨРӨНГИЙН УДИРДЛАГА (Inventory Management)
+// ============================================
+
+enum AssetStatus {
+  ACTIVE
+  MAINTENANCE
+  STORAGE
+  DISPOSED
+}
+
+enum AssetCondition {
+  EXCELLENT
+  GOOD
+  FAIR
+  POOR
+}
+
+model Asset {
+  id            String      @id @default(cuid())
+  
+  name          String
+  category      String      // Компьютер, Сүлжээний тоног төхөөрөмж, гэх мэт
+  quantity      Int
+  value         Float
+  location      String
+  
+  status        AssetStatus @default(ACTIVE)
+  condition     AssetCondition @default(GOOD)
+  
+  purchaseDate  DateTime
+  warrantyUntil DateTime?
+  lastMaintenance DateTime?
+  
+  manufacturer  String?
+  model         String?
+  serialNumber  String?
+  
+  // Relations
+  maintenanceRecords MaintenanceRecord[]
+  
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  
+  @@map("assets")
+}
+
+model MaintenanceRecord {
+  id            String      @id @default(cuid())
+  
+  assetId       String
+  asset         Asset       @relation(fields: [assetId], references: [id], onDelete: Cascade)
+  
+  maintenanceType String    // Түр засвар, Гол засвар
+  description   String
+  cost          Float
+  
+  maintenanceDate DateTime
+  nextMaintenanceDate DateTime?
+  
+  performedBy   String?
+  
+  createdAt     DateTime    @default(now())
+  
+  @@map("maintenance_records")
+}
+
+// ============================================
+// СИСТЕМИЙН ТОХИРГОО (System Configuration)
+// ============================================
+
+model SystemSettings {
+  id            String      @id @default(cuid())
+  key           String      @unique
+  value         String
+  description   String?
+  
+  updatedAt     DateTime    @updatedAt
+  
+  @@map("system_settings")
+}
+
+model AuditLog {
+  id            String      @id @default(cuid())
+  
+  userId        String
+  action        String      // CREATE, UPDATE, DELETE, LOGIN, LOGOUT
+  entity        String      // User, Student, Teacher, гэх мэт
+  entityId      String?
+  
+  details       String?     // JSON format
+  ipAddress     String?
+  userAgent     String?
+  
+  createdAt     DateTime    @default(now())
+  
+  @@map("audit_logs")
+}
