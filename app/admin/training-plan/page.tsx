@@ -36,7 +36,9 @@ export default function TrainingPlanPage() {
   const [selectedMajor, setSelectedMajor] = useState<string>("all");
   const [showAddMajorModal, setShowAddMajorModal] = useState(false);
   const [showAddCourseModal, setShowAddCourseModal] = useState(false);
+  const [showEditCourseModal, setShowEditCourseModal] = useState(false);
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
+  const [editCourseData, setEditCourseData] = useState<Course | null>(null);
   const [newMajorName, setNewMajorName] = useState("");
   const [newMajorDesc, setNewMajorDesc] = useState("");
   const [newCourseName, setNewCourseName] = useState("");
@@ -112,6 +114,20 @@ export default function TrainingPlanPage() {
       setNewCourseLevel("");
       setNewCourseHours("");
       setShowAddCourseModal(false);
+    }
+  };
+
+  // Хичээл засах
+  const handleEditCourse = () => {
+    if (editCourseData) {
+      const updatedCourses = courses.map(c => 
+        c.id === editCourseData.id ? editCourseData : c
+      );
+      setCourses(updatedCourses);
+      setShowEditCourseModal(false);
+      setEditCourseData(null);
+      setSelectedCourse(null);
+      alert(`${editCourseData.name} хичээл амжилттай шинэчлэгдлээ!`);
     }
   };
 
@@ -466,11 +482,180 @@ export default function TrainingPlanPage() {
                 Хаах
               </button>
               <button
-                onClick={() => alert(`${selectedCourse.name} хичээлийг засах`)}
+                onClick={() => {
+                  setEditCourseData(selectedCourse);
+                  setShowEditCourseModal(true);
+                }}
                 className="rounded-lg border border-blue-400/30 bg-blue-500/15 px-4 py-2 text-sm font-medium text-blue-300 hover:bg-blue-500/25"
               >
                 Засах
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Course Modal */}
+      {showEditCourseModal && editCourseData && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
+          <div className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl border border-white/20 bg-[#081120] p-6">
+            <div className="flex items-center justify-between mb-5">
+              <h2 className="text-xl font-bold text-white">Хичээл засах</h2>
+              <button
+                onClick={() => {
+                  setShowEditCourseModal(false);
+                  setEditCourseData(null);
+                }}
+                className="rounded-lg border border-white/10 bg-white/5 p-2 text-white/70 hover:text-white"
+              >
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                  <path d="M5 5l10 10M15 5l-10 10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                </svg>
+              </button>
+            </div>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm text-white/60 mb-2">Хичээлийн нэр *</label>
+                <input
+                  type="text"
+                  value={editCourseData.name}
+                  onChange={(e) => setEditCourseData({ ...editCourseData, name: e.target.value })}
+                  className="w-full rounded-lg border border-white/10 bg-white/[0.06] px-3 py-2.5 text-sm text-white placeholder-white/30 focus:outline-none focus:border-emerald-400/40"
+                />
+              </div>
+              <div>
+                <label className="block text-sm text-white/60 mb-2">Мэргэжил *</label>
+                <select
+                  value={editCourseData.majorId}
+                  onChange={(e) => setEditCourseData({ ...editCourseData, majorId: e.target.value })}
+                  className="w-full rounded-lg border border-white/10 bg-white/[0.06] px-3 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-400/40"
+                >
+                  {majors.map((major) => (
+                    <option key={major.id} value={major.id}>{major.name}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm text-white/60 mb-2">Түвшин *</label>
+                  <select
+                    value={editCourseData.level}
+                    onChange={(e) => setEditCourseData({ ...editCourseData, level: e.target.value })}
+                    className="w-full rounded-lg border border-white/10 bg-white/[0.06] px-3 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-400/40"
+                  >
+                    <option value="Эхлэгч">Эхлэгч</option>
+                    <option value="Дунд">Дунд</option>
+                    <option value="Ахисан">Ахисан</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm text-white/60 mb-2">Төлөв *</label>
+                  <select
+                    value={editCourseData.status}
+                    onChange={(e) => setEditCourseData({ ...editCourseData, status: e.target.value })}
+                    className="w-full rounded-lg border border-white/10 bg-white/[0.06] px-3 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-400/40"
+                  >
+                    <option value="Ноорог">Ноорог</option>
+                    <option value="Төлөвлөгдсөн">Төлөвлөгдсөн</option>
+                    <option value="Хүлээгдэж байна">Хүлээгдэж байна</option>
+                    <option value="Баталгаажсан">Баталгаажсан</option>
+                    <option value="Явж байгаа">Явж байгаа</option>
+                  </select>
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm text-white/60 mb-2">Семестр *</label>
+                <input
+                  type="text"
+                  value={editCourseData.semester}
+                  onChange={(e) => setEditCourseData({ ...editCourseData, semester: e.target.value })}
+                  className="w-full rounded-lg border border-white/10 bg-white/[0.06] px-3 py-2.5 text-sm text-white placeholder-white/30 focus:outline-none focus:border-emerald-400/40"
+                />
+              </div>
+              <div>
+                <label className="block text-sm text-white/60 mb-2">Багш *</label>
+                <input
+                  type="text"
+                  value={editCourseData.instructor}
+                  onChange={(e) => setEditCourseData({ ...editCourseData, instructor: e.target.value })}
+                  className="w-full rounded-lg border border-white/10 bg-white/[0.06] px-3 py-2.5 text-sm text-white placeholder-white/30 focus:outline-none focus:border-emerald-400/40"
+                />
+              </div>
+              <div className="grid grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-sm text-white/60 mb-2">Оюутан *</label>
+                  <input
+                    type="number"
+                    value={editCourseData.students}
+                    onChange={(e) => setEditCourseData({ ...editCourseData, students: parseInt(e.target.value) || 0 })}
+                    className="w-full rounded-lg border border-white/10 bg-white/[0.06] px-3 py-2.5 text-sm text-white placeholder-white/30 focus:outline-none focus:border-emerald-400/40"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm text-white/60 mb-2">Багш тоо *</label>
+                  <input
+                    type="number"
+                    value={editCourseData.teachers}
+                    onChange={(e) => setEditCourseData({ ...editCourseData, teachers: parseInt(e.target.value) || 0 })}
+                    className="w-full rounded-lg border border-white/10 bg-white/[0.06] px-3 py-2.5 text-sm text-white placeholder-white/30 focus:outline-none focus:border-emerald-400/40"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm text-white/60 mb-2">Нийт цаг *</label>
+                  <input
+                    type="number"
+                    value={editCourseData.hours}
+                    onChange={(e) => setEditCourseData({ ...editCourseData, hours: parseInt(e.target.value) || 0 })}
+                    className="w-full rounded-lg border border-white/10 bg-white/[0.06] px-3 py-2.5 text-sm text-white placeholder-white/30 focus:outline-none focus:border-emerald-400/40"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm text-white/60 mb-2">Үргэлжлэх хугацаа *</label>
+                <input
+                  type="text"
+                  value={editCourseData.duration}
+                  onChange={(e) => setEditCourseData({ ...editCourseData, duration: e.target.value })}
+                  className="w-full rounded-lg border border-white/10 bg-white/[0.06] px-3 py-2.5 text-sm text-white placeholder-white/30 focus:outline-none focus:border-emerald-400/40"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm text-white/60 mb-2">Эхлэх огноо *</label>
+                  <input
+                    type="date"
+                    value={editCourseData.startDate}
+                    onChange={(e) => setEditCourseData({ ...editCourseData, startDate: e.target.value })}
+                    className="w-full rounded-lg border border-white/10 bg-white/[0.06] px-3 py-2.5 text-sm text-white placeholder-white/30 focus:outline-none focus:border-emerald-400/40"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm text-white/60 mb-2">Дуусах огноо *</label>
+                  <input
+                    type="date"
+                    value={editCourseData.endDate}
+                    onChange={(e) => setEditCourseData({ ...editCourseData, endDate: e.target.value })}
+                    className="w-full rounded-lg border border-white/10 bg-white/[0.06] px-3 py-2.5 text-sm text-white placeholder-white/30 focus:outline-none focus:border-emerald-400/40"
+                  />
+                </div>
+              </div>
+              <div className="flex gap-3 pt-2">
+                <button
+                  onClick={() => {
+                    setShowEditCourseModal(false);
+                    setEditCourseData(null);
+                  }}
+                  className="flex-1 rounded-lg border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white/70 hover:text-white"
+                >
+                  Цуцлах
+                </button>
+                <button
+                  onClick={handleEditCourse}
+                  className="flex-1 rounded-lg border border-blue-400/30 bg-gradient-to-b from-blue-500 to-blue-700 px-4 py-2.5 text-sm font-medium text-white hover:opacity-90"
+                >
+                  Хадгалах
+                </button>
+              </div>
             </div>
           </div>
         </div>
