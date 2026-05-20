@@ -9,6 +9,8 @@ export default function StaffSalaries() {
   const [activeMenu, setActiveMenu] = useState("Багш, ажилчдын цалин");
   const [filterDepartment, setFilterDepartment] = useState("all");
   const [filterStatus, setFilterStatus] = useState("all");
+  const [selectedEmployee, setSelectedEmployee] = useState<any>(null);
+  const [showDetailModal, setShowDetailModal] = useState(false);
   
   // Set user type to finance admin in localStorage
   useEffect(() => {
@@ -24,150 +26,260 @@ export default function StaffSalaries() {
       employee: "Д.Энхбаяр",
       position: "Програм хангамжийн багш",
       department: "Програм хангамжийн тэнхим",
-      baseSalary: "₮ 2,500,000",
-      bonus: "₮ 300,000",
-      deductions: "₮ 250,000",
-      netSalary: "₮ 2,550,000",
+      baseSalary: 2500000,
+      bonus: 300000,
+      deductions: 250000,
+      netSalary: 2550000,
       status: "paid",
       paymentDate: "2024-05-05",
       attendance: "98%",
       workload: "24 цаг",
-      color: "from-blue-500 to-cyan-600"
+      color: "from-blue-500 to-cyan-600",
+      email: "enkhbayar@indra.edu.mn",
+      phone: "9999-1111",
+      bankAccount: "5302 8642 8100",
+      bankName: "Хаан банк",
+      taxId: "УБ12345678",
+      socialInsurance: 200000,
+      healthInsurance: 50000,
+      courses: ["Python үндэс", "JavaScript", "React"],
+      teachingHours: 24,
+      overtimeHours: 4,
+      bonusReason: "Сургалтын чанар сайн"
     },
     {
       id: "SAL-2024-001246",
       employee: "Б.Батбаяр",
       position: "Сүлжээний технологийн багш",
       department: "Сүлжээний технологийн тэнхим",
-      baseSalary: "₮ 2,400,000",
-      bonus: "₮ 250,000",
-      deductions: "₮ 240,000",
-      netSalary: "₮ 2,410,000",
+      baseSalary: 2400000,
+      bonus: 250000,
+      deductions: 240000,
+      netSalary: 2410000,
       status: "paid",
       paymentDate: "2024-05-05",
       attendance: "96%",
       workload: "22 цаг",
-      color: "from-emerald-500 to-teal-600"
+      color: "from-emerald-500 to-teal-600",
+      email: "batbayar@indra.edu.mn",
+      phone: "9999-2222",
+      bankAccount: "5302 8642 8200",
+      bankName: "Голомт банк",
+      taxId: "УБ23456789",
+      socialInsurance: 192000,
+      healthInsurance: 48000,
+      courses: ["Сүлжээний үндэс", "Cisco CCNA", "Network Security"],
+      teachingHours: 22,
+      overtimeHours: 2,
+      bonusReason: "Сертификат олгох сургалт"
     },
     {
       id: "SAL-2024-001247",
       employee: "Ц.Ганбаатар",
       position: "Мэдээллийн аюулгүй байдлын багш",
       department: "Мэдээллийн аюулгүй байдлын тэнхим",
-      baseSalary: "₮ 2,600,000",
-      bonus: "₮ 350,000",
-      deductions: "₮ 260,000",
-      netSalary: "₮ 2,690,000",
+      baseSalary: 2600000,
+      bonus: 350000,
+      deductions: 260000,
+      netSalary: 2690000,
       status: "paid",
       paymentDate: "2024-05-05",
       attendance: "100%",
       workload: "26 цаг",
-      color: "from-amber-500 to-orange-600"
+      color: "from-amber-500 to-orange-600",
+      email: "ganbaatar@indra.edu.mn",
+      phone: "9999-3333",
+      bankAccount: "5302 8642 8300",
+      bankName: "Хаан банк",
+      taxId: "УБ34567890",
+      socialInsurance: 208000,
+      healthInsurance: 52000,
+      courses: ["Ethical Hacking", "Cybersecurity", "Penetration Testing"],
+      teachingHours: 26,
+      overtimeHours: 6,
+      bonusReason: "Олон улсын сертификат"
     },
     {
       id: "SAL-2024-001248",
       employee: "Л.Нямдаваа",
       position: "Мэдээлэл зүйн багш",
       department: "Мэдээлэл зүйн тэнхим",
-      baseSalary: "₮ 2,300,000",
-      bonus: "₮ 200,000",
-      deductions: "₮ 230,000",
-      netSalary: "₮ 2,270,000",
+      baseSalary: 2300000,
+      bonus: 200000,
+      deductions: 230000,
+      netSalary: 2270000,
       status: "paid",
       paymentDate: "2024-05-05",
       attendance: "94%",
       workload: "20 цаг",
-      color: "from-purple-500 to-pink-600"
+      color: "from-purple-500 to-pink-600",
+      email: "nyamdavaa@indra.edu.mn",
+      phone: "9999-4444",
+      bankAccount: "5302 8642 8400",
+      bankName: "Төрийн банк",
+      taxId: "УБ45678901",
+      socialInsurance: 184000,
+      healthInsurance: 46000,
+      courses: ["Database Management", "SQL", "Data Analytics"],
+      teachingHours: 20,
+      overtimeHours: 0,
+      bonusReason: "Оюутны үнэлгээ өндөр"
     },
     {
       id: "SAL-2024-001249",
       employee: "С.Эрдэнэтуяа",
       position: "Дижитал маркетингийн багш",
       department: "Дижитал маркетингийн тэнхим",
-      baseSalary: "₮ 2,200,000",
-      bonus: "₮ 180,000",
-      deductions: "₮ 220,000",
-      netSalary: "₮ 2,160,000",
+      baseSalary: 2200000,
+      bonus: 180000,
+      deductions: 220000,
+      netSalary: 2160000,
       status: "paid",
       paymentDate: "2024-05-05",
       attendance: "92%",
       workload: "18 цаг",
-      color: "from-indigo-500 to-blue-600"
+      color: "from-indigo-500 to-blue-600",
+      email: "erdentuya@indra.edu.mn",
+      phone: "9999-5555",
+      bankAccount: "5302 8642 8500",
+      bankName: "Голомт банк",
+      taxId: "УБ56789012",
+      socialInsurance: 176000,
+      healthInsurance: 44000,
+      courses: ["Digital Marketing", "SEO/SEM", "Social Media Marketing"],
+      teachingHours: 18,
+      overtimeHours: 0,
+      bonusReason: "Шинэ хөтөлбөр боловсруулсан"
     },
     {
       id: "SAL-2024-001250",
       employee: "Ж.Батжаргал",
       position: "Системийн инженерийн багш",
       department: "Системийн инженерийн тэнхим",
-      baseSalary: "₮ 2,700,000",
-      bonus: "₮ 400,000",
-      deductions: "₮ 270,000",
-      netSalary: "₮ 2,830,000",
+      baseSalary: 2700000,
+      bonus: 400000,
+      deductions: 270000,
+      netSalary: 2830000,
       status: "pending",
       paymentDate: "2024-05-10",
       attendance: "100%",
       workload: "28 цаг",
-      color: "from-rose-500 to-red-600"
+      color: "from-rose-500 to-red-600",
+      email: "batjargal@indra.edu.mn",
+      phone: "9999-6666",
+      bankAccount: "5302 8642 8600",
+      bankName: "Хаан банк",
+      taxId: "УБ67890123",
+      socialInsurance: 216000,
+      healthInsurance: 54000,
+      courses: ["Linux System Admin", "DevOps", "Cloud Computing"],
+      teachingHours: 28,
+      overtimeHours: 8,
+      bonusReason: "Лаборатори тохируулга"
     },
     {
       id: "SAL-2024-001251",
       employee: "Б.Ганбаатар",
       position: "Сургалтын албаны дарга",
       department: "Сургалтын алба",
-      baseSalary: "₮ 3,500,000",
-      bonus: "₮ 500,000",
-      deductions: "₮ 350,000",
-      netSalary: "₮ 3,650,000",
+      baseSalary: 3500000,
+      bonus: 500000,
+      deductions: 350000,
+      netSalary: 3650000,
       status: "pending",
       paymentDate: "2024-05-10",
       attendance: "100%",
       workload: "40 цаг",
-      color: "from-cyan-500 to-blue-600"
+      color: "from-cyan-500 to-blue-600",
+      email: "ganbaatar.b@indra.edu.mn",
+      phone: "9999-7777",
+      bankAccount: "5302 8642 8700",
+      bankName: "Төрийн банк",
+      taxId: "УБ78901234",
+      socialInsurance: 280000,
+      healthInsurance: 70000,
+      courses: [],
+      teachingHours: 0,
+      overtimeHours: 10,
+      bonusReason: "Удирдлагын үр дүн"
     },
     {
       id: "SAL-2024-001252",
       employee: "Ц.Энхтуяа",
       position: "Санхүүгийн албаны дарга",
       department: "Санхүүгийн алба",
-      baseSalary: "₮ 3,200,000",
-      bonus: "₮ 400,000",
-      deductions: "₮ 320,000",
-      netSalary: "₮ 3,280,000",
+      baseSalary: 3200000,
+      bonus: 400000,
+      deductions: 320000,
+      netSalary: 3280000,
       status: "pending",
       paymentDate: "2024-05-10",
       attendance: "98%",
       workload: "40 цаг",
-      color: "from-lime-500 to-green-600"
+      color: "from-lime-500 to-green-600",
+      email: "enkhtuya@indra.edu.mn",
+      phone: "9999-8888",
+      bankAccount: "5302 8642 8800",
+      bankName: "Голомт банк",
+      taxId: "УБ89012345",
+      socialInsurance: 256000,
+      healthInsurance: 64000,
+      courses: [],
+      teachingHours: 0,
+      overtimeHours: 8,
+      bonusReason: "Санхүүгийн тайлан чанартай"
     },
     {
       id: "SAL-2024-001253",
       employee: "Л.Нямдаваа",
       position: "Хүний нөөцийн албаны дарга",
       department: "Хүний нөөцийн алба",
-      baseSalary: "₮ 3,000,000",
-      bonus: "₮ 350,000",
-      deductions: "₮ 300,000",
-      netSalary: "₮ 3,050,000",
+      baseSalary: 3000000,
+      bonus: 350000,
+      deductions: 300000,
+      netSalary: 3050000,
       status: "pending",
       paymentDate: "2024-05-10",
       attendance: "96%",
       workload: "40 цаг",
-      color: "from-violet-500 to-purple-600"
+      color: "from-violet-500 to-purple-600",
+      email: "nyamdavaa.l@indra.edu.mn",
+      phone: "9999-9999",
+      bankAccount: "5302 9864 2900",
+      bankName: "Хаан банк",
+      taxId: "УБ90123456",
+      socialInsurance: 240000,
+      healthInsurance: 60000,
+      courses: [],
+      teachingHours: 0,
+      overtimeHours: 3,
+      bonusReason: "Шинэ ажилчдын сургалт зохион байгуулсан"
     },
     {
       id: "SAL-2024-001254",
       employee: "Д.Батбаяр",
       position: "Захирал",
       department: "Удирдлага",
-      baseSalary: "₮ 5,000,000",
-      bonus: "₮ 1,000,000",
-      deductions: "₮ 500,000",
-      netSalary: "₮ 5,500,000",
+      baseSalary: 5000000,
+      bonus: 1000000,
+      deductions: 500000,
+      netSalary: 5500000,
       status: "pending",
       paymentDate: "2024-05-10",
       attendance: "100%",
       workload: "50 цаг",
-      color: "from-gray-500 to-gray-600"
+      color: "from-gray-500 to-gray-600",
+      email: "batbayar.d@indra.edu.mn",
+      phone: "9999-0000",
+      bankAccount: "5302 8753 1000",
+      bankName: "Төрийн банк",
+      taxId: "УБ01234567",
+      socialInsurance: 400000,
+      healthInsurance: 100000,
+      courses: [],
+      teachingHours: 0,
+      overtimeHours: 15,
+      bonusReason: "Байгууллагын стратеги төлөвлөгөө амжилттай хэрэгжүүлсэн"
     },
   ];
 
@@ -323,16 +435,16 @@ export default function StaffSalaries() {
                           <p className="text-white">{salary.position}</p>
                         </td>
                         <td className="py-4">
-                          <p className="text-lg font-bold text-white">{salary.baseSalary}</p>
+                          <p className="text-lg font-bold text-white">₮ {salary.baseSalary.toLocaleString()}</p>
                         </td>
                         <td className="py-4">
-                          <p className="text-emerald-400">{salary.bonus}</p>
+                          <p className="text-emerald-400">₮ {salary.bonus.toLocaleString()}</p>
                         </td>
                         <td className="py-4">
-                          <p className="text-amber-400">{salary.deductions}</p>
+                          <p className="text-amber-400">₮ {salary.deductions.toLocaleString()}</p>
                         </td>
                         <td className="py-4">
-                          <p className="text-2xl font-bold text-white">{salary.netSalary}</p>
+                          <p className="text-2xl font-bold text-white">₮ {salary.netSalary.toLocaleString()}</p>
                           <p className="text-xs text-white/50">Төлөх: {salary.paymentDate}</p>
                         </td>
                         <td className="py-4">
@@ -342,8 +454,14 @@ export default function StaffSalaries() {
                         </td>
                         <td className="py-4">
                           <div className="flex gap-2">
-                            <button className="rounded-lg border border-white/10 bg-white/[0.06] px-3 py-1.5 text-xs text-white/70 hover:text-white">
-                              Харах
+                            <button 
+                              onClick={() => {
+                                setSelectedEmployee(salary);
+                                setShowDetailModal(true);
+                              }}
+                              className="rounded-lg border border-white/10 bg-white/[0.06] px-3 py-1.5 text-xs text-white/70 hover:text-white"
+                            >
+                              Дэлгэрэнгүй
                             </button>
                             <button className="rounded-lg border border-white/10 bg-white/[0.06] px-3 py-1.5 text-xs text-white/70 hover:text-white">
                               Тооцоолол
@@ -492,6 +610,251 @@ export default function StaffSalaries() {
           </div>
         </main>
       </div>
+
+      {/* Employee Detail Modal */}
+      {showDetailModal && selectedEmployee && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
+          <div className="relative w-full max-w-5xl max-h-[92vh] overflow-hidden rounded-3xl border border-white/20 bg-gradient-to-br from-[#0a1628] via-[#081120] to-[#0a1628] shadow-2xl">
+            <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 via-blue-500/5 to-transparent pointer-events-none" />
+            
+            {/* Close button */}
+            <div className="absolute right-4 top-4 flex gap-2 z-20">
+              <button
+                onClick={() => {
+                  setShowDetailModal(false);
+                  setSelectedEmployee(null);
+                }}
+                className="group rounded-xl border border-white/20 bg-white/10 p-2.5 text-white/70 hover:text-white hover:bg-white/20 hover:border-white/30 transition-all duration-200 shadow-lg"
+              >
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" className="group-hover:rotate-90 transition-transform duration-200">
+                  <path d="M5 5l10 10M15 5l-10 10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                </svg>
+              </button>
+            </div>
+
+            {/* Scrollable content */}
+            <div className="relative max-h-[92vh] overflow-y-auto">
+              {/* Header */}
+              <div className="sticky top-0 z-10 border-b border-white/10 bg-gradient-to-r from-emerald-600/20 via-blue-600/20 to-emerald-600/20 backdrop-blur-xl px-8 py-6">
+                <div className="flex items-center gap-5">
+                  <div className="relative">
+                    <div className="h-20 w-20 rounded-2xl bg-gradient-to-br from-emerald-500 via-emerald-600 to-blue-600 flex items-center justify-center ring-4 ring-emerald-500/30 shadow-xl">
+                      <span className="text-3xl font-bold text-white">{selectedEmployee.employee.charAt(0)}</span>
+                    </div>
+                    <div className="absolute -bottom-1 -right-1 h-6 w-6 rounded-full bg-emerald-500 border-2 border-[#081120] flex items-center justify-center">
+                      <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                        <path d="M3 6l2 2 4-4" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    </div>
+                  </div>
+                  <div className="flex-1">
+                    <h2 className="text-2xl font-bold text-white mb-1">{selectedEmployee.employee}</h2>
+                    <div className="flex items-center gap-3 flex-wrap">
+                      <span className="text-sm text-white/60 font-mono">{selectedEmployee.id}</span>
+                      <span className="h-1 w-1 rounded-full bg-white/30" />
+                      <span className="text-sm text-white/60">{selectedEmployee.position}</span>
+                      <span className="h-1 w-1 rounded-full bg-white/30" />
+                      <span className="text-sm text-white/60">{selectedEmployee.department}</span>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-xs text-white/50 mb-1">Цэвэр цалин</p>
+                    <p className="text-3xl font-bold text-emerald-300">₮ {selectedEmployee.netSalary.toLocaleString()}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Personal & Contact Information */}
+              <div className="px-8 py-6">
+                <div className="flex items-center gap-3 mb-5">
+                  <div className="h-1 w-10 rounded-full bg-gradient-to-r from-blue-500 to-blue-600" />
+                  <h3 className="text-sm font-semibold uppercase tracking-wider text-white/90">Хувийн мэдээлэл</h3>
+                </div>
+                <div className="rounded-2xl border border-white/10 bg-gradient-to-br from-white/[0.07] to-white/[0.03] p-6 backdrop-blur-sm">
+                  <div className="grid gap-5 md:grid-cols-2">
+                    <div className="group">
+                      <p className="text-xs font-medium text-white/40 mb-2 uppercase tracking-wide">Овог нэр</p>
+                      <p className="text-base font-medium text-white group-hover:text-blue-300 transition-colors">{selectedEmployee.employee}</p>
+                    </div>
+                    <div className="group">
+                      <p className="text-xs font-medium text-white/40 mb-2 uppercase tracking-wide">Албан тушаал</p>
+                      <p className="text-base font-medium text-white group-hover:text-blue-300 transition-colors">{selectedEmployee.position}</p>
+                    </div>
+                    {selectedEmployee.email && (
+                      <div className="group">
+                        <p className="text-xs font-medium text-white/40 mb-2 uppercase tracking-wide">Имэйл хаяг</p>
+                        <p className="text-base font-medium text-white group-hover:text-blue-300 transition-colors">{selectedEmployee.email}</p>
+                      </div>
+                    )}
+                    {selectedEmployee.phone && (
+                      <div className="group">
+                        <p className="text-xs font-medium text-white/40 mb-2 uppercase tracking-wide">Утасны дугаар</p>
+                        <p className="text-base font-medium text-white group-hover:text-blue-300 transition-colors">{selectedEmployee.phone}</p>
+                      </div>
+                    )}
+                    {selectedEmployee.taxId && (
+                      <div className="group">
+                        <p className="text-xs font-medium text-white/40 mb-2 uppercase tracking-wide">Татварын дугаар</p>
+                        <p className="text-base font-mono font-medium text-white/60">{selectedEmployee.taxId}</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Bank Information */}
+              {selectedEmployee.bankAccount && (
+                <div className="px-8 py-6 bg-gradient-to-br from-emerald-500/5 to-transparent">
+                  <div className="flex items-center gap-3 mb-5">
+                    <div className="h-1 w-10 rounded-full bg-gradient-to-r from-emerald-500 to-emerald-600" />
+                    <h3 className="text-sm font-semibold uppercase tracking-wider text-white/90">Банкны мэдээлэл</h3>
+                  </div>
+                  <div className="rounded-2xl border border-white/10 bg-gradient-to-br from-white/[0.07] to-white/[0.03] p-6 backdrop-blur-sm">
+                    <div className="grid gap-5 md:grid-cols-2">
+                      <div className="group">
+                        <p className="text-xs font-medium text-white/40 mb-2 uppercase tracking-wide">Банкны нэр</p>
+                        <p className="text-base font-medium text-white group-hover:text-emerald-300 transition-colors">{selectedEmployee.bankName}</p>
+                      </div>
+                      <div className="group">
+                        <p className="text-xs font-medium text-white/40 mb-2 uppercase tracking-wide">Дансны дугаар</p>
+                        <p className="text-base font-mono font-medium text-white group-hover:text-emerald-300 transition-colors">{selectedEmployee.bankAccount}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Salary Breakdown */}
+              <div className="px-8 py-6">
+                <div className="flex items-center gap-3 mb-5">
+                  <div className="h-1 w-10 rounded-full bg-gradient-to-r from-amber-500 to-amber-600" />
+                  <h3 className="text-sm font-semibold uppercase tracking-wider text-white/90">Цалингийн задаргаа</h3>
+                </div>
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div className="rounded-xl border border-white/10 bg-gradient-to-br from-blue-500/10 to-blue-600/5 p-5">
+                    <div className="flex items-center justify-between mb-3">
+                      <p className="text-sm text-white/60">Үндсэн цалин</p>
+                      <div className="h-10 w-10 rounded-full bg-blue-500/20 flex items-center justify-center">
+                        <span className="text-lg">💰</span>
+                      </div>
+                    </div>
+                    <p className="text-2xl font-bold text-white">₮ {selectedEmployee.baseSalary.toLocaleString()}</p>
+                  </div>
+                  
+                  <div className="rounded-xl border border-white/10 bg-gradient-to-br from-emerald-500/10 to-emerald-600/5 p-5">
+                    <div className="flex items-center justify-between mb-3">
+                      <p className="text-sm text-white/60">Урамшуулал</p>
+                      <div className="h-10 w-10 rounded-full bg-emerald-500/20 flex items-center justify-center">
+                        <span className="text-lg">⭐</span>
+                      </div>
+                    </div>
+                    <p className="text-2xl font-bold text-emerald-300">₮ {selectedEmployee.bonus.toLocaleString()}</p>
+                    {selectedEmployee.bonusReason && (
+                      <p className="text-xs text-white/50 mt-2">{selectedEmployee.bonusReason}</p>
+                    )}
+                  </div>
+                  
+                  <div className="rounded-xl border border-white/10 bg-gradient-to-br from-amber-500/10 to-amber-600/5 p-5">
+                    <div className="flex items-center justify-between mb-3">
+                      <p className="text-sm text-white/60">Суутгал</p>
+                      <div className="h-10 w-10 rounded-full bg-amber-500/20 flex items-center justify-center">
+                        <span className="text-lg">📋</span>
+                      </div>
+                    </div>
+                    <p className="text-2xl font-bold text-amber-300">₮ {selectedEmployee.deductions.toLocaleString()}</p>
+                    {selectedEmployee.socialInsurance && (
+                      <div className="mt-3 space-y-1 text-xs text-white/50">
+                        <p>НДШ: ₮ {selectedEmployee.socialInsurance.toLocaleString()}</p>
+                        {selectedEmployee.healthInsurance && (
+                          <p>ЭМД: ₮ {selectedEmployee.healthInsurance.toLocaleString()}</p>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                  
+                  <div className="rounded-xl border border-emerald-400/30 bg-gradient-to-br from-emerald-500/20 to-emerald-600/10 p-5">
+                    <div className="flex items-center justify-between mb-3">
+                      <p className="text-sm text-emerald-300">Цэвэр цалин</p>
+                      <div className="h-10 w-10 rounded-full bg-emerald-500/30 flex items-center justify-center">
+                        <span className="text-lg">✅</span>
+                      </div>
+                    </div>
+                    <p className="text-3xl font-bold text-emerald-300">₮ {selectedEmployee.netSalary.toLocaleString()}</p>
+                    <p className="text-xs text-emerald-300/70 mt-2">Төлөх: {selectedEmployee.paymentDate}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Work Information */}
+              {selectedEmployee.courses && (
+                <div className="px-8 py-6 bg-gradient-to-br from-purple-500/5 to-transparent">
+                  <div className="flex items-center gap-3 mb-5">
+                    <div className="h-1 w-10 rounded-full bg-gradient-to-r from-purple-500 to-purple-600" />
+                    <h3 className="text-sm font-semibold uppercase tracking-wider text-white/90">Ажлын мэдээлэл</h3>
+                  </div>
+                  <div className="rounded-2xl border border-white/10 bg-gradient-to-br from-white/[0.07] to-white/[0.03] p-6 backdrop-blur-sm">
+                    <div className="grid gap-5 md:grid-cols-3 mb-5">
+                      <div>
+                        <p className="text-xs font-medium text-white/40 mb-2 uppercase tracking-wide">Ирц</p>
+                        <p className="text-2xl font-bold text-white">{selectedEmployee.attendance}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs font-medium text-white/40 mb-2 uppercase tracking-wide">Цагийн ачаалал</p>
+                        <p className="text-2xl font-bold text-white">{selectedEmployee.workload}</p>
+                      </div>
+                      {selectedEmployee.overtimeHours && (
+                        <div>
+                          <p className="text-xs font-medium text-white/40 mb-2 uppercase tracking-wide">Илүү цаг</p>
+                          <p className="text-2xl font-bold text-amber-400">{selectedEmployee.overtimeHours} цаг</p>
+                        </div>
+                      )}
+                    </div>
+                    
+                    {selectedEmployee.courses.length > 0 && (
+                      <div>
+                        <p className="text-xs font-medium text-white/40 mb-3 uppercase tracking-wide">Заадаг хичээлүүд</p>
+                        <div className="flex flex-wrap gap-2">
+                          {selectedEmployee.courses.map((course: string, index: number) => (
+                            <div key={index} className="rounded-lg border border-white/10 bg-white/5 px-3 py-2">
+                              <p className="text-sm font-medium text-white">{course}</p>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Payment Status */}
+              <div className="px-8 py-6">
+                <div className="flex items-center gap-3 mb-5">
+                  <div className="h-1 w-10 rounded-full bg-gradient-to-r from-rose-500 to-rose-600" />
+                  <h3 className="text-sm font-semibold uppercase tracking-wider text-white/90">Төлбөрийн төлөв</h3>
+                </div>
+                <div className="rounded-2xl border border-white/10 bg-gradient-to-br from-white/[0.07] to-white/[0.03] p-6 backdrop-blur-sm">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-white/60 mb-2">Төлбөрийн статус</p>
+                      <span className={`inline-block rounded-xl px-4 py-2 text-sm font-medium ${
+                        selectedEmployee.status === "paid" 
+                          ? "border border-emerald-400/40 bg-emerald-500/20 text-emerald-300" 
+                          : "border border-amber-400/40 bg-amber-500/20 text-amber-300"
+                      }`}>
+                        {selectedEmployee.status === "paid" ? "Төлсөн" : "Хүлээгдэж байгаа"}
+                      </span>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-sm text-white/60 mb-2">Төлбөрийн огноо</p>
+                      <p className="text-lg font-bold text-white">{selectedEmployee.paymentDate}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

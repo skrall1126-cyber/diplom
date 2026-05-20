@@ -224,9 +224,6 @@ export default function StudentPayments() {
                         <span className="text-sm text-white/70">{student.lastPayment}</span>
                       </div>
                     </div>
-                    <button className="mt-3 w-full rounded-lg border border-white/10 bg-white/[0.06] px-4 py-2 text-sm text-white/70 hover:text-white">
-                      Мэдэгдэл илгээх
-                    </button>
                   </div>
                 ))}
               </div>
