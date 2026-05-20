@@ -9,6 +9,7 @@ export default function StaffSalaries() {
   const [activeMenu, setActiveMenu] = useState("Багш, ажилчдын цалин");
   const [filterDepartment, setFilterDepartment] = useState("all");
   const [filterStatus, setFilterStatus] = useState("all");
+  const [searchQuery, setSearchQuery] = useState("");
   const [selectedEmployee, setSelectedEmployee] = useState<any>(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [showCalculationModal, setShowCalculationModal] = useState(false);
@@ -308,7 +309,10 @@ export default function StaffSalaries() {
   const filteredSalaries = salaries.filter(salary => {
     const matchesDepartment = filterDepartment === "all" || salary.department === filterDepartment;
     const matchesStatus = filterStatus === "all" || salary.status === filterStatus;
-    return matchesDepartment && matchesStatus;
+    const matchesSearch = searchQuery === "" || 
+      salary.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      salary.employee.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesDepartment && matchesStatus && matchesSearch;
   });
 
   const getStatusColor = (status: string) => {
@@ -340,6 +344,16 @@ export default function StaffSalaries() {
             {/* Filters */}
             <div className="rounded-2xl border border-white/10 bg-[#081120]/70 p-5 backdrop-blur-md">
               <div className="flex flex-col md:flex-row gap-4">
+                <div className="flex-1">
+                  <label className="block text-sm text-white/50 mb-2">Багш/Ажилтны ID хайх</label>
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="SAL-2024-001245"
+                    className="w-full rounded-lg border border-white/10 bg-white/[0.06] px-4 py-2.5 text-white placeholder:text-white/40 focus:border-white/20 focus:outline-none"
+                  />
+                </div>
                 <div className="md:w-64">
                   <label className="block text-sm text-white/50 mb-2">Алба, тэнхимээр шүүх</label>
                   <select
