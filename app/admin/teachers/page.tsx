@@ -430,16 +430,18 @@ export default function TeachersPage() {
                               <p className="text-xs text-white/50">{selectedTeacher.department}</p>
                             </div>
                           </div>
-                          <button
-                            onClick={() => {
-                              if (confirm(`${selectedTeacher.name} багшийг ${className} ангитай харилцахыг болиулах уу?`)) {
-                                alert(`${className} ангитай харилцах амжилттай болиулагдлаа.\n\nБагшийн хуваарь шинэчлэгдсэн.`);
-                              }
-                            }}
-                            className="rounded-lg border border-red-400/30 bg-red-500/15 px-4 py-2 text-sm font-medium text-red-300 hover:bg-red-500/25 transition-colors"
-                          >
-                            Харилцах болиулах
-                          </button>
+                          {userType !== "finance" && (
+                            <button
+                              onClick={() => {
+                                if (confirm(`${selectedTeacher.name} багшийг ${className} ангитай харилцахыг болиулах уу?`)) {
+                                  alert(`${className} ангитай харилцах амжилттай болиулагдлаа.\n\nБагшийн хуваарь шинэчлэгдсэн.`);
+                                }
+                              }}
+                              className="rounded-lg border border-red-400/30 bg-red-500/15 px-4 py-2 text-sm font-medium text-red-300 hover:bg-red-500/25 transition-colors"
+                            >
+                              Харилцах болиулах
+                            </button>
+                          )}
                         </div>
                       ))}
                       <div className="mt-4 rounded-lg border border-blue-400/30 bg-blue-500/10 p-4">
