@@ -397,7 +397,7 @@ export default function StaffSalaries() {
                 <table className="w-full">
                   <thead>
                     <tr className="border-b border-white/10">
-                      <th className="pb-3 text-left text-sm font-medium text-white/50">Цалингийн дугаар</th>
+                      <th className="pb-3 text-left text-sm font-medium text-white/50">Багшийн ID</th>
                       <th className="pb-3 text-left text-sm font-medium text-white/50">Ажилчин</th>
                       <th className="pb-3 text-left text-sm font-medium text-white/50">Албан тушаал</th>
                       <th className="pb-3 text-left text-sm font-medium text-white/50">Үндсэн цалин</th>
