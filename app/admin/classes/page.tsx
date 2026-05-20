@@ -129,36 +129,55 @@ export default function ClassesAdminPage() {
                 </button>
               </div>
               
-              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                 {classes.map(cls => (
-                  <div key={cls.id} className="rounded-xl border border-white/10 bg-white/5 p-5">
+                  <div key={cls.id} className="rounded-xl border border-white/10 bg-white/5 p-5 hover:bg-white/[0.08] transition-colors">
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center gap-3">
-                        <div className="h-10 w-10 rounded-full bg-gradient-to-br from-blue-600 to-blue-800 flex items-center justify-center">
+                        <div className="h-12 w-12 rounded-full bg-gradient-to-br from-blue-600 to-blue-800 flex items-center justify-center">
                           <span className="text-sm font-semibold text-white">{cls.code.charAt(0)}</span>
                         </div>
                         <div>
-                          <h3 className="font-bold text-white">{cls.name}</h3>
-                          <p className="text-sm text-white/50">{cls.code}</p>
+                          <p className="text-sm font-medium text-white">{cls.name}</p>
+                          <p className="text-xs text-white/50">{cls.code}</p>
                         </div>
                       </div>
-                      <span className="inline-flex items-center rounded-full bg-blue-500/10 px-2.5 py-0.5 text-xs font-medium text-blue-300">
-                        {cls.year}-р анги
-                      </span>
                     </div>
                     
-                    <div className="space-y-3">
-                      <div className="flex justify-between">
-                        <span className="text-sm text-white/50">Оюутнууд:</span>
-                        <span className="text-sm text-white">{cls.students} хүн</span>
+                    <div className="space-y-3 mb-4">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs text-white/50">Оюутнууд:</span>
+                        <span className="text-xs text-white/80">{cls.students} хүн</span>
                       </div>
-                      <div className="flex justify-between">
-                        <span className="text-sm text-white/50">Багш:</span>
-                        <span className="text-sm text-white">{cls.teacher}</span>
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs text-white/50">Багш:</span>
+                        <span className="text-xs text-white/80">{cls.teacher}</span>
                       </div>
-                      <div className="flex justify-between">
-                        <span className="text-sm text-white/50">Өрөө:</span>
-                        <span className="text-sm text-white">{cls.room}</span>
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs text-white/50">Өрөө:</span>
+                        <span className="text-xs text-white/80">{cls.room}</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs text-white/50">Анги:</span>
+                        <span className="rounded-full border px-2 py-0.5 text-xs bg-blue-500/10 text-blue-400">{cls.year}-р анги</span>
+                      </div>
+                    </div>
+
+                    <div className="border-t border-white/10 pt-3 mb-3">
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2">
+                          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" className="text-white/40">
+                            <path d="M2 2h8v8H2V2z" stroke="currentColor" strokeWidth="1" />
+                            <path d="M4 1v2M8 1v2M2 4h8" stroke="currentColor" strokeWidth="1" />
+                          </svg>
+                          <span className="text-xs text-white/60">Багш: {cls.teacher}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" className="text-white/40">
+                            <path d="M2 2h8v8H2V2z" stroke="currentColor" strokeWidth="1" />
+                          </svg>
+                          <span className="text-xs text-white/60">Өрөө: {cls.room}</span>
+                        </div>
                       </div>
                     </div>
                     
@@ -167,7 +186,7 @@ export default function ClassesAdminPage() {
                         setSelectedClass(cls);
                         setShowClassDetailModal(true);
                       }}
-                      className="mt-4 w-full rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-white/70 hover:text-white"
+                      className="w-full rounded-lg border border-emerald-400/30 bg-emerald-500/15 px-3 py-2.5 text-sm font-medium text-emerald-300 hover:bg-emerald-500/25 transition-colors"
                     >
                       Дэлгэрэнгүй
                     </button>
