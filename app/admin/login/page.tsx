@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import Link from "next/link";
+import { authApi } from "@/lib/api";
 
 const adminTypes = [
   { 
@@ -56,36 +57,42 @@ export default function AdminLoginPage() {
     setError("");
     setLoading(true);
     
-    // Frontend simulation хийх
-    await new Promise((r) => setTimeout(r, 800));
-    
-    setLoading(false);
-    
-    // Админы төрөл тус бүрийн хувьд чиглүүлэх
-    const selectedAdmin = adminTypes.find(a => a.key === adminType);
-    if (!selectedAdmin) {
-      setError("Админы төрөл сонгоогүй байна.");
-      return;
-    }
-    
-    // Admin нэвтрэх логик
-    if (id === "admin" && pass === "admin123") {
-      // Set admin type in localStorage based on selected admin type
-      if (typeof window !== 'undefined') {
-        let userTypeToSave = "admin";
-        if (adminType === "training-admin") {
-          userTypeToSave = "training";
-        } else if (adminType === "finance-admin") {
-          userTypeToSave = "finance";
-        } else if (adminType === "hr-admin") {
-          userTypeToSave = "hr";
-        }
-        localStorage.setItem("userType", userTypeToSave);
-        localStorage.setItem("adminType", adminType);
+    try {
+      // Backend API дуудах
+      const result = await authApi.login(id, pass);
+      
+      if (result.error) {
+        setError(result.error);
+        setLoading(false);
+        return;
       }
-      router.replace(selectedAdmin.redirect);
-    } else {
-      setError("Админы ID эсвэл нууц үг буруу байна.");
+
+      if (result.data) {
+        // Token болон user мэдээлэл хадгалах
+        authApi.saveToken(result.data.token);
+        authApi.saveUser(result.data.user);
+        
+        // Admin type localStorage-д хадгалах
+        if (typeof window !== 'undefined') {
+          let userTypeToSave = "admin";
+          if (adminType === "training-admin") {
+            userTypeToSave = "training";
+          } else if (adminType === "finance-admin") {
+            userTypeToSave = "finance";
+          }
+          localStorage.setItem("userType", userTypeToSave);
+          localStorage.setItem("adminType", adminType);
+        }
+        
+        // Админы төрөл тус бүрийн хувьд чиглүүлэх
+        const selectedAdmin = adminTypes.find(a => a.key === adminType);
+        if (selectedAdmin) {
+          router.replace(selectedAdmin.redirect);
+        }
+      }
+    } catch (error: any) {
+      setError(error.message || "Нэвтрэх явцад алдаа гарлаа");
+      setLoading(false);
     }
   };
 
