@@ -95,28 +95,6 @@ export default function ClassesAdminPage() {
           }}
         >
           <div className="mx-auto max-w-7xl space-y-6">
-            {/* Stats */}
-            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-              {[
-                { label: "Нийт анги", value: classes.length, icon: "🏫", color: "bg-blue-500" },
-                { label: "Нийт оюутан", value: classes.reduce((sum, cls) => sum + cls.students, 0), icon: "👨‍🎓", color: "bg-emerald-500" },
-                { label: "Нийт багш", value: new Set(classes.map(cls => cls.teacher)).size, icon: "👨‍🏫", color: "bg-amber-500" },
-                { label: "Дундаж оюутан", value: Math.round(classes.reduce((sum, cls) => sum + cls.students, 0) / classes.length), icon: "📊", color: "bg-purple-500" },
-              ].map((stat, index) => (
-                <div key={index} className="rounded-[24px] border border-white/10 bg-[#081120]/70 p-5 backdrop-blur-md">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm text-white/50">{stat.label}</p>
-                      <p className="mt-2 text-2xl font-bold text-white">{stat.value}</p>
-                    </div>
-                    <div className={`h-12 w-12 rounded-full ${stat.color} flex items-center justify-center`}>
-                      <span className="text-lg">{stat.icon}</span>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-
             {/* Classes List */}
             <div className="rounded-[24px] border border-white/10 bg-[#081120]/70 p-5 backdrop-blur-md">
               <div className="flex items-center justify-between mb-6">
