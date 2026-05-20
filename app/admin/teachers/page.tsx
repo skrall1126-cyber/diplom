@@ -376,7 +376,7 @@ function TeachersPage() {
                 </div>
                 <div className="rounded-2xl border border-white/10 bg-gradient-to-br from-white/[0.07] to-white/[0.03] p-6 backdrop-blur-sm">
                   <div className="flex flex-wrap gap-3">
-                    {selectedTeacher.courses.map((course, index) => (
+                    {selectedTeacher.courses.map((course: any, index: number) => (
                       <div key={index} className="rounded-xl border border-white/10 bg-white/5 px-4 py-3">
                         <p className="text-sm font-medium text-white">{course}</p>
                       </div>
