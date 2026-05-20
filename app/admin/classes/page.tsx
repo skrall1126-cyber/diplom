@@ -494,7 +494,7 @@ export default function ClassesAdminPage() {
                       name: selectedClass.name,
                       code: selectedClass.code,
                       year: selectedClass.year,
-                      teacher: selectedClass.teacher,
+                      teachers: selectedClass.teacher ? [selectedClass.teacher] : [],
                       room: selectedClass.room
                     });
                     setShowEditClassModal(true);
@@ -573,15 +573,79 @@ export default function ClassesAdminPage() {
               {/* Teacher */}
               <div>
                 <label className="mb-2 block text-sm font-medium text-white/80">
-                  Багш <span className="text-red-400">*</span>
+                  Багш нар <span className="text-red-400">*</span>
                 </label>
-                <input
-                  type="text"
-                  value={editClassData.teacher}
-                  onChange={(e) => setEditClassData({ ...editClassData, teacher: e.target.value })}
-                  placeholder="Жишээ: Б.Ганбат"
-                  className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder:text-white/40 focus:border-blue-400/50 focus:outline-none focus:ring-2 focus:ring-blue-400/20"
-                />
+                <div className="relative">
+                  <button
+                    type="button"
+                    onClick={() => setShowEditTeacherDropdown(!showEditTeacherDropdown)}
+                    className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white text-left focus:border-blue-400/50 focus:outline-none focus:ring-2 focus:ring-blue-400/20 flex items-center justify-between"
+                  >
+                    <span className={editClassData.teachers.length === 0 ? "text-white/40" : ""}>
+                      {editClassData.teachers.length === 0
+                        ? "Багш сонгох..."
+                        : `${editClassData.teachers.length} багш сонгогдсон`}
+                    </span>
+                    <svg
+                      width="16"
+                      height="16"
+                      viewBox="0 0 16 16"
+                      fill="none"
+                      className={`text-white/50 transition-transform ${showEditTeacherDropdown ? "rotate-180" : ""}`}
+                    >
+                      <path d="M4 6l4 4 4-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  </button>
+                  {showEditTeacherDropdown && (
+                    <div className="absolute z-10 mt-2 w-full rounded-lg border border-white/10 bg-[#0a1628] shadow-2xl max-h-64 overflow-y-auto">
+                      {availableTeachers.map((teacher) => {
+                        const isSelected = editClassData.teachers.includes(teacher.name);
+                        return (
+                          <label
+                            key={teacher.id}
+                            className="flex items-center gap-3 px-4 py-3 hover:bg-white/10 cursor-pointer border-b border-white/5 last:border-b-0"
+                          >
+                            <input
+                              type="checkbox"
+                              checked={isSelected}
+                              onChange={(e) => {
+                                if (e.target.checked) {
+                                  setEditClassData({ ...editClassData, teachers: [...editClassData.teachers, teacher.name] });
+                                } else {
+                                  setEditClassData({ ...editClassData, teachers: editClassData.teachers.filter(t => t !== teacher.name) });
+                                }
+                              }}
+                              className="h-4 w-4 rounded border-white/20 bg-white/10 text-blue-600 focus:ring-2 focus:ring-blue-500"
+                            />
+                            <div className="flex-1">
+                              <p className="text-sm font-medium text-white">{teacher.name}</p>
+                              <p className="text-xs text-white/50">{teacher.department}</p>
+                            </div>
+                          </label>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+                {editClassData.teachers.length > 0 && (
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {editClassData.teachers.map((teacherName, idx) => (
+                      <div key={idx} className="flex items-center gap-2 rounded-lg border border-blue-400/30 bg-blue-500/10 px-3 py-1.5">
+                        <span className="text-sm text-blue-300">{teacherName}</span>
+                        <button
+                          type="button"
+                          onClick={() => setEditClassData({ ...editClassData, teachers: editClassData.teachers.filter(t => t !== teacherName) })}
+                          className="text-blue-300 hover:text-blue-100"
+                        >
+                          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                            <path d="M3 3l8 8M11 3l-8 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                          </svg>
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
               </div>
 
               {/* Room */}
@@ -604,7 +668,8 @@ export default function ClassesAdminPage() {
               <button
                 onClick={() => {
                   setShowEditClassModal(false);
-                  setEditClassData({ name: "", code: "", year: "", teacher: "", room: "" });
+                  setEditClassData({ name: "", code: "", year: "", teachers: [], room: "" });
+                  setShowEditTeacherDropdown(false);
                 }}
                 className="flex-1 rounded-lg border border-white/20 bg-white/10 px-4 py-2.5 text-sm font-medium text-white/70 hover:bg-white/20 hover:text-white transition-all"
               >
@@ -612,13 +677,14 @@ export default function ClassesAdminPage() {
               </button>
               <button
                 onClick={() => {
-                  if (!editClassData.name || !editClassData.code || !editClassData.year || !editClassData.teacher || !editClassData.room) {
+                  if (!editClassData.name || !editClassData.code || !editClassData.year || editClassData.teachers.length === 0 || !editClassData.room) {
                     alert("Бүх талбарыг бөглөнө үү!");
                     return;
                   }
-                  alert(`Ангийн мэдээлэл шинэчлэгдлээ:\n\nНэр: ${editClassData.name}\nКод: ${editClassData.code}\nАнги: ${editClassData.year}\nБагш: ${editClassData.teacher}\nӨрөө: ${editClassData.room}`);
+                  alert(`Ангийн мэдээлэл шинэчлэгдлээ:\n\nНэр: ${editClassData.name}\nКод: ${editClassData.code}\nАнги: ${editClassData.year}\nБагш нар: ${editClassData.teachers.join(', ')}\nӨрөө: ${editClassData.room}`);
                   setShowEditClassModal(false);
-                  setEditClassData({ name: "", code: "", year: "", teacher: "", room: "" });
+                  setEditClassData({ name: "", code: "", year: "", teachers: [], room: "" });
+                  setShowEditTeacherDropdown(false);
                 }}
                 className="flex-1 rounded-lg border border-blue-400/40 bg-gradient-to-r from-blue-500 to-blue-600 px-4 py-2.5 text-sm font-semibold text-white hover:from-blue-600 hover:to-blue-700 transition-all shadow-lg hover:shadow-blue-500/20"
               >
