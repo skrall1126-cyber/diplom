@@ -119,7 +119,7 @@ export default function FinanceAdminPage() {
             backgroundSize: "72%",
           }}
         >
-          <div className="mx-auto max-w-4xl space-y-5">
+          <div className="mx-auto max-w-7xl space-y-6">
             
             {/* Account Header - Bank style */}
             <div className="rounded-2xl border border-white/10 bg-gradient-to-br from-emerald-500/10 to-emerald-600/5 p-6 backdrop-blur-md">
