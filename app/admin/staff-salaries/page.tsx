@@ -382,18 +382,33 @@ export default function StaffSalaries() {
             </div>
 
             {/* Stats */}
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              {[
-                { label: "Нийт цалин", value: "₮ 30.3M", color: "from-blue-500/20 to-blue-600/10", textColor: "text-blue-300" },
-                { label: "Нийт ажилчин", value: "10", color: "from-emerald-500/20 to-emerald-600/10", textColor: "text-emerald-300" },
-                { label: "Төлсөн цалин", value: "₮ 13.1M", color: "from-green-500/20 to-green-600/10", textColor: "text-green-300" },
-                { label: "Хүлээгдэж байгаа", value: "₮ 17.2M", color: "from-amber-500/20 to-amber-600/10", textColor: "text-amber-300" },
-              ].map((stat, index) => (
-                <div key={index} className={`rounded-2xl border border-white/10 bg-gradient-to-br ${stat.color} p-6 backdrop-blur-md`}>
-                  <p className="text-xs font-medium uppercase tracking-wider text-white/50 mb-3">{stat.label}</p>
-                  <p className={`text-3xl font-bold ${stat.textColor}`}>{stat.value}</p>
-                </div>
-              ))}
+            <div className="rounded-2xl border border-white/10 bg-[#081120]/70 p-5 backdrop-blur-md">
+              <h2 className="text-lg font-semibold text-white mb-4">Цалингийн статистик</h2>
+              <div className="space-y-4">
+                {[
+                  { label: "Нийт цалин", value: "₮ 30,300,000", percentage: 100, color: "bg-blue-500" },
+                  { label: "Нийт ажилчин", value: "10 хүн", percentage: 100, color: "bg-emerald-500" },
+                  { label: "Төлсөн цалин", value: "₮ 13,100,000", percentage: 43, color: "bg-green-500" },
+                  { label: "Хүлээгдэж байгаа", value: "₮ 17,200,000", percentage: 57, color: "bg-amber-500" },
+                ].map((stat, index) => (
+                  <div key={index} className="flex items-center gap-4">
+                    <div className="w-40">
+                      <p className="text-sm font-medium text-white">{stat.label}</p>
+                    </div>
+                    <div className="flex-1">
+                      <div className="h-3 w-full rounded-full bg-white/[0.06] overflow-hidden">
+                        <div 
+                          className={`h-full ${stat.color} rounded-full`}
+                          style={{ width: `${stat.percentage}%` }}
+                        ></div>
+                      </div>
+                    </div>
+                    <div className="w-36 text-right">
+                      <p className="text-sm font-bold text-white">{stat.value}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
 
             {/* Salaries List */}
