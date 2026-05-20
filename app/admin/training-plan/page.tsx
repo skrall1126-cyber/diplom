@@ -36,6 +36,7 @@ export default function TrainingPlanPage() {
   const [selectedMajor, setSelectedMajor] = useState<string>("all");
   const [showAddMajorModal, setShowAddMajorModal] = useState(false);
   const [showAddCourseModal, setShowAddCourseModal] = useState(false);
+  const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
   const [newMajorName, setNewMajorName] = useState("");
   const [newMajorDesc, setNewMajorDesc] = useState("");
   const [newCourseName, setNewCourseName] = useState("");
@@ -118,6 +119,7 @@ export default function TrainingPlanPage() {
   const totalCourses = courses.length;
   const ongoingCourses = courses.filter(c => c.status === "Явж байгаа").length;
   const totalStudents = courses.reduce((sum, c) => sum + c.students, 0);
+  const selectedCourseMajor = selectedCourse ? majors.find((major) => major.id === selectedCourse.majorId) : null;
 
   return (
     <div className="min-h-screen font-sans text-white">
@@ -262,16 +264,10 @@ export default function TrainingPlanPage() {
                           </div>
                           <div className="flex items-center gap-2">
                             <button 
-                              onClick={() => alert(`${course.name} хичээлийн дэлгэрэнгүй мэдээлэл`)}
+                              onClick={() => setSelectedCourse(course)}
                               className="rounded-lg border border-white/10 bg-white/[0.06] px-3 py-1.5 text-xs text-white/70 hover:text-white"
                             >
                               Дэлгэрэнгүй
-                            </button>
-                            <button 
-                              onClick={() => alert(`${course.name} хичээлийг засах`)}
-                              className="rounded-lg border border-blue-400/30 bg-blue-500/15 px-3 py-1.5 text-xs font-medium text-blue-300 hover:bg-blue-500/25"
-                            >
-                              Засах
                             </button>
                           </div>
                         </div>
@@ -416,6 +412,65 @@ export default function TrainingPlanPage() {
                   Нэмэх
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Course Detail Modal */}
+      {selectedCourse && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-md">
+          <div className="relative w-full max-w-2xl rounded-2xl border border-white/20 bg-[#081120] p-6">
+            <div className="mb-5 flex items-start justify-between gap-4">
+              <div>
+                <p className="text-xs font-medium uppercase tracking-[0.22em] text-white/40">{selectedCourse.id}</p>
+                <h2 className="mt-1 text-xl font-bold text-white">{selectedCourse.name}</h2>
+                <p className="mt-1 text-sm text-white/50">{selectedCourseMajor?.name ?? "Мэргэжил тодорхойгүй"}</p>
+              </div>
+              <button
+                onClick={() => setSelectedCourse(null)}
+                className="rounded-lg border border-white/10 bg-white/5 p-2 text-white/70 hover:text-white"
+                aria-label="Хаах"
+              >
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                  <path d="M5 5l10 10M15 5l-10 10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                </svg>
+              </button>
+            </div>
+
+            <div className="grid gap-3 sm:grid-cols-2">
+              {[
+                { label: "Түвшин", value: selectedCourse.level },
+                { label: "Төлөв", value: selectedCourse.status },
+                { label: "Семестр", value: selectedCourse.semester },
+                { label: "Багш", value: selectedCourse.instructor },
+                { label: "Оюутан", value: `${selectedCourse.students} оюутан` },
+                { label: "Багшийн тоо", value: `${selectedCourse.teachers} багш` },
+                { label: "Нийт цаг", value: `${selectedCourse.hours} цаг` },
+                { label: "Үргэлжлэх хугацаа", value: selectedCourse.duration },
+                { label: "Эхлэх огноо", value: selectedCourse.startDate },
+                { label: "Дуусах огноо", value: selectedCourse.endDate },
+              ].map((item) => (
+                <div key={item.label} className="rounded-xl border border-white/10 bg-white/[0.04] p-4">
+                  <p className="text-xs text-white/40">{item.label}</p>
+                  <p className="mt-1 text-sm font-medium text-white/90">{item.value}</p>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-6 flex justify-end gap-3">
+              <button
+                onClick={() => setSelectedCourse(null)}
+                className="rounded-lg border border-white/10 bg-white/[0.06] px-4 py-2 text-sm text-white/70 hover:text-white"
+              >
+                Хаах
+              </button>
+              <button
+                onClick={() => alert(`${selectedCourse.name} хичээлийг засах`)}
+                className="rounded-lg border border-blue-400/30 bg-blue-500/15 px-4 py-2 text-sm font-medium text-blue-300 hover:bg-blue-500/25"
+              >
+                Засах
+              </button>
             </div>
           </div>
         </div>

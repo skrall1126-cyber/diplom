@@ -296,38 +296,6 @@ export default function TeachersPage() {
                 </div>
               )}
             </div>
-
-            {/* Department Distribution */}
-            <div className="rounded-[24px] border border-white/10 bg-[#081120]/70 p-5 backdrop-blur-md">
-              <h2 className="text-sm font-medium uppercase tracking-[0.28em] text-white/70 mb-4">Тэнхимийн тархалт</h2>
-              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                {[
-                  { department: "Програм хангамж", count: teachersData.filter(t => t.department === "Програм хангамж").length, color: "from-blue-400 to-cyan-300" },
-                  { department: "Сүлжээний технологи", count: teachersData.filter(t => t.department === "Сүлжээний технологи").length, color: "from-emerald-400 to-green-300" },
-                  { department: "Мэдээллийн аюулгүй байдал", count: teachersData.filter(t => t.department === "Мэдээллийн аюулгүй байдал").length, color: "from-amber-400 to-yellow-300" },
-                  { department: "Мэдээлэл зүй", count: teachersData.filter(t => t.department === "Мэдээлэл зүй").length, color: "from-purple-400 to-pink-300" },
-                ].map((item, index) => {
-                  const percentage = Math.round((item.count / teachersData.length) * 100);
-                  return (
-                    <div key={index} className="rounded-lg border border-white/10 bg-white/5 p-3">
-                      <div className="flex items-center justify-between mb-2">
-                        <p className="text-sm font-medium text-white">{item.department}</p>
-                        <span className="text-sm font-bold text-white">{item.count} багш</span>
-                      </div>
-                      <div className="flex items-center justify-between text-xs text-white/50 mb-1">
-                        <span>Нийт: {percentage}%</span>
-                      </div>
-                      <div className="h-2 overflow-hidden rounded-full bg-white/10">
-                        <div
-                          className={`h-full rounded-full bg-gradient-to-r ${item.color}`}
-                          style={{ width: `${percentage}%` }}
-                        />
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
           </div>
         </main>
       </div>
