@@ -331,7 +331,7 @@ export default function ClassesAdminPage() {
                   <p className="text-lg font-semibold text-white">{selectedClass.code}</p>
                 </div>
                 <div className="rounded-lg border border-white/10 bg-white/5 p-4">
-                  <p className="text-xs text-white/50 mb-1">Курс</p>
+                  <p className="text-xs text-white/50 mb-1">Анги</p>
                   <p className="text-lg font-semibold text-white">{selectedClass.year}-р анги</p>
                 </div>
                 <div className="rounded-lg border border-white/10 bg-white/5 p-4">
@@ -478,18 +478,18 @@ export default function ClassesAdminPage() {
               {/* Year/Course */}
               <div>
                 <label className="mb-2 block text-sm font-medium text-white/80">
-                  Курс <span className="text-red-400">*</span>
+                  Анги <span className="text-red-400">*</span>
                 </label>
                 <select
                   value={editClassData.year}
                   onChange={(e) => setEditClassData({ ...editClassData, year: e.target.value })}
                   className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white focus:border-blue-400/50 focus:outline-none focus:ring-2 focus:ring-blue-400/20"
                 >
-                  <option value="" className="bg-[#0a1628]">Курс сонгох</option>
-                  <option value="1" className="bg-[#0a1628]">1-р курс</option>
-                  <option value="2" className="bg-[#0a1628]">2-р курс</option>
-                  <option value="3" className="bg-[#0a1628]">3-р курс</option>
-                  <option value="4" className="bg-[#0a1628]">4-р курс</option>
+                  <option value="" className="bg-[#0a1628]">Анги сонгох</option>
+                  <option value="1" className="bg-[#0a1628]">1-р анги</option>
+                  <option value="2" className="bg-[#0a1628]">2-р анги</option>
+                  <option value="3" className="bg-[#0a1628]">3-р анги</option>
+                  <option value="4" className="bg-[#0a1628]">4-р анги</option>
                 </select>
               </div>
 
@@ -539,7 +539,7 @@ export default function ClassesAdminPage() {
                     alert("Бүх талбарыг бөглөнө үү!");
                     return;
                   }
-                  alert(`Ангийн мэдээлэл шинэчлэгдлээ:\n\nНэр: ${editClassData.name}\nКод: ${editClassData.code}\nКурс: ${editClassData.year}\nБагш: ${editClassData.teacher}\nӨрөө: ${editClassData.room}`);
+                  alert(`Ангийн мэдээлэл шинэчлэгдлээ:\n\nНэр: ${editClassData.name}\nКод: ${editClassData.code}\nАнги: ${editClassData.year}\nБагш: ${editClassData.teacher}\nӨрөө: ${editClassData.room}`);
                   setShowEditClassModal(false);
                   setEditClassData({ name: "", code: "", year: "", teacher: "", room: "" });
                 }}
