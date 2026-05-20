@@ -115,28 +115,6 @@ export default function Inventory() {
               </div>
             </div>
 
-            {/* Stats */}
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              {[
-                { label: "Нийт үнэ цэнэ", value: summaryStats.totalValue, icon: "💰", color: "bg-emerald-500" },
-                { label: "Нийт тоо", value: summaryStats.totalItems, icon: "📦", color: "bg-blue-500" },
-                { label: "Ангилал", value: summaryStats.categories, icon: "🏷️", color: "bg-amber-500" },
-                { label: "Засвар шаардлагатай", value: summaryStats.maintenanceDue, icon: "🔧", color: "bg-red-500" },
-              ].map((stat, index) => (
-                <div key={index} className="rounded-2xl border border-white/10 bg-[#081120]/70 p-5 backdrop-blur-md">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm text-white/50">{stat.label}</p>
-                      <p className="mt-2 text-2xl font-bold text-white">{stat.value}</p>
-                    </div>
-                    <div className={`h-12 w-12 rounded-full ${stat.color} flex items-center justify-center`}>
-                      <span className="text-lg">{stat.icon}</span>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-
             {/* Inventory List */}
             <div className="rounded-2xl border border-white/10 bg-[#081120]/70 p-5 backdrop-blur-md">
               <div className="flex items-center justify-between mb-6">
