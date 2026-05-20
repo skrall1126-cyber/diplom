@@ -22,24 +22,23 @@ export default function LoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!id || !pass) {
-      setError("ID болон нууц үгээ оруулна уу.");
+      setError("Имэйл болон нууц үгээ оруулна уу.");
       return;
     }
-    
-    // ID формат шалгах
-    if ((role === "student" || role === "parent") && !/^B\d{9}$/.test(id)) {
-      setError("Оюутны ID буруу форматтай. Жишээ: B211930019");
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(id)) {
+      setError("Имэйл хаяг буруу форматтай байна.");
       return;
     }
-    
+
     setError("");
     setLoading(true);
-    
+
     // Frontend simulation хийх
     await new Promise((r) => setTimeout(r, 800));
-    
+
     setLoading(false);
-    
+
     // Роль тус бүрийн хувьд чиглүүлэх
     if (role === "student") {
       router.replace("/home");
@@ -47,7 +46,7 @@ export default function LoginPage() {
     }
     if (role === "parent") {
       if (typeof window !== "undefined") {
-        localStorage.setItem("parentStudentId", id);
+        localStorage.setItem("parentEmail", id);
       }
       router.replace("/parent");
       return;
@@ -106,7 +105,7 @@ export default function LoginPage() {
                 Нэвтрэх
               </h1>
               <p className="text-sm text-white/50">
-                Indra Cyber LMS системд тавтай морил
+                Имэйл болон нууц үгээрээ нэвтэрнэ үү
               </p>
             </div>
 
@@ -140,23 +139,18 @@ export default function LoginPage() {
 
             {/* Login Form */}
             <form onSubmit={handleSubmit} className="space-y-5">
-              {/* ID Input */}
+              {/* Email Input */}
               <div>
                 <label className="block text-xs text-white/40 font-medium mb-2">
-                  {role === "student" || role === "parent" ? "Оюутны ID" : "Хэрэглэгчийн ID"}
+                  Имэйл хаяг
                 </label>
                 <input
-                  type="text"
+                  type="email"
                   value={id}
                   onChange={(e) => setId(e.target.value)}
-                  placeholder={role === "student" || role === "parent" ? "B211930019" : "Хэрэглэгчийн ID"}
+                  placeholder="example@email.com"
                   className="w-full px-4 py-3.5 rounded-xl border border-white/10 bg-white/[0.04] text-white text-sm outline-none transition-all duration-200 focus:border-violet-500/50 focus:bg-white/[0.06]"
                 />
-                {(role === "student" || role === "parent") && id && !/^B\d{9}$/.test(id) && (
-                  <p className="text-xs text-yellow-400 mt-2">
-                    Оюутны ID формат: B + 9 оронтой тоо (жишээ: B211930019)
-                  </p>
-                )}
               </div>
 
               {/* Password Input */}
@@ -246,18 +240,14 @@ export default function LoginPage() {
               </p>
               <div className="grid grid-cols-2 gap-3">
                 <div className="rounded-xl border border-white/10 bg-white/[0.03] p-3">
-                  <p className="text-xs text-white/30 mb-1">Оюутан</p>
-                  <p className="text-sm font-semibold text-violet-300">B211930019</p>
+                  <p className="text-xs text-white/30 mb-1">Оюутан / Эцэг эх</p>
+                  <p className="text-sm font-semibold text-violet-300">student@test.mn</p>
                 </div>
                 <div className="rounded-xl border border-white/10 bg-white/[0.03] p-3">
                   <p className="text-xs text-white/30 mb-1">Багш</p>
-                  <p className="text-sm font-semibold text-blue-300">T001</p>
+                  <p className="text-sm font-semibold text-blue-300">teacher@test.mn</p>
                 </div>
-                <div className="rounded-xl border border-white/10 bg-white/[0.03] p-3">
-                  <p className="text-xs text-white/30 mb-1">Эцэг/эх</p>
-                  <p className="text-sm font-semibold text-yellow-300">B211930019</p>
-                </div>
-                <div className="rounded-xl border border-white/10 bg-white/[0.03] p-3">
+                <div className="col-span-2 rounded-xl border border-white/10 bg-white/[0.03] p-3">
                   <p className="text-xs text-white/30 mb-1">Нууц үг</p>
                   <p className="text-sm font-semibold text-yellow-300">password123</p>
                 </div>
