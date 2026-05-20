@@ -89,20 +89,13 @@ export default function LandingPage() {
               {l}
             </a>
           ))}
-          <a href="/register" style={{ fontSize: "13px", padding: "7px 14px", borderRadius: "8px", color: "rgba(255,255,255,0.5)", textDecoration: "none", fontWeight: 500, transition: "all 0.2s", background: "transparent" }}
-            onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.color="#fff"; (e.currentTarget as HTMLAnchorElement).style.background="rgba(255,255,255,0.06)"; }}
-            onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.color="rgba(255,255,255,0.5)"; (e.currentTarget as HTMLAnchorElement).style.background="transparent"; }}>
-            Бүртгүүлэх
-          </a>
         </div>
 
         <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-          <a href="/register" style={{ display: "flex", alignItems: "center", gap: "6px", padding: "9px 20px", borderRadius: "10px", border: "0.5px solid rgba(217,70,239,0.4)", color: "#d946ef", fontSize: "13px", fontWeight: 700, textDecoration: "none", background: "rgba(217,70,239,0.08)", transition: "all 0.2s" }}
-            onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.background="rgba(217,70,239,0.18)"; }}
-            onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.background="rgba(217,70,239,0.08)"; }}>
-            Бүртгүүлэх
+          <a href="/register" style={{ display: "inline-flex", alignItems: "center", gap: "8px", padding: "9px 22px", borderRadius: "10px", background: "linear-gradient(135deg,#d946ef,#7c3aed)", color: "#fff", fontSize: "13px", fontWeight: 800, textDecoration: "none", boxShadow: "0 0 24px rgba(217,70,239,0.4)", fontFamily: "'Syne',sans-serif", letterSpacing: "-0.3px" }}>
+            Бүртгүүлэх <span style={{ fontSize: "15px" }}>→</span>
           </a>
-          <a href="/login" style={{ display: "flex", alignItems: "center", gap: "6px", padding: "9px 20px", borderRadius: "10px", background: "linear-gradient(135deg,#d946ef,#7c3aed)", color: "#fff", fontSize: "13px", fontWeight: 700, textDecoration: "none", boxShadow: "0 0 24px rgba(217,70,239,0.3)" }}>
+          <a href="/login" style={{ display: "flex", alignItems: "center", gap: "6px", padding: "9px 20px", borderRadius: "10px", border: "0.5px solid rgba(255,255,255,0.15)", color: "rgba(255,255,255,0.8)", fontSize: "13px", fontWeight: 700, textDecoration: "none", background: "rgba(255,255,255,0.06)" }}>
             Нэвтрэх <span style={{ fontSize: "15px" }}>→</span>
           </a>
         </div>
