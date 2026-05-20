@@ -430,10 +430,6 @@ export default function TimetableAdminPage() {
           </div>
         </div>
       )}
-    </div>
-  );
-}
-
 
       {/* Detail Modal */}
       {showDetailModal && selectedTimetable && (
