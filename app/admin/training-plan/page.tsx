@@ -56,7 +56,7 @@ export default function TrainingPlanPage() {
 
   // Хичээлүүд
   const [courses, setCourses] = useState<Course[]>([
-    { id: "C001", name: "Програмчлалын үндэс", majorId: "prog", level: "Эхлэгч", semester: "2026-2027 намар", status: "Баталгаажсан", students: 45, teachers: 3, hours: 120, duration: "12 долоо хоног", startDate: "2026-03-01", endDate: "2026-05-24", instructor: "Б.Батбаяр" },
+    { id: "C001", name: "Програмчлалын үндэс", majorId: "prog", level: "Анхан", semester: "2026-2027 намар", status: "Баталгаажсан", students: 45, teachers: 3, hours: 120, duration: "12 долоо хоног", startDate: "2026-03-01", endDate: "2026-05-24", instructor: "Б.Батбаяр" },
     { id: "C002", name: "JavaScript", majorId: "prog", level: "Дунд", semester: "2026-2027 намар", status: "Явж байгаа", students: 20, teachers: 2, hours: 100, duration: "10 долоо хоног", startDate: "2026-03-15", endDate: "2026-05-31", instructor: "Д.Дорж" },
     { id: "C003", name: "React Development", majorId: "prog", level: "Дунд", semester: "2026-2027 хавар", status: "Төлөвлөгдсөн", students: 18, teachers: 1, hours: 115, duration: "10 долоо хоног", startDate: "2026-05-15", endDate: "2026-07-24", instructor: "А.Ариунаа" },
     { id: "C004", name: "Сүлжээний аюулгүй байдал", majorId: "cyber", level: "Ахисан", semester: "2026-2027 намар", status: "Хүлээгдэж байна", students: 32, teachers: 2, hours: 90, duration: "10 долоо хоног", startDate: "2026-03-15", endDate: "2026-05-31", instructor: "Д.Дорж" },
@@ -252,7 +252,7 @@ export default function TrainingPlanPage() {
                               <div className="flex items-center gap-2">
                                 <p className="text-sm font-medium text-white">{course.name}</p>
                                 <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
-                                  course.level === "Эхлэгч" ? "bg-blue-500/20 text-blue-300" :
+                                  course.level === "Анхан" ? "bg-blue-500/20 text-blue-300" :
                                   course.level === "Дунд" ? "bg-amber-500/20 text-amber-300" :
                                   "bg-red-500/20 text-red-300"
                                 }`}>
@@ -399,7 +399,7 @@ export default function TrainingPlanPage() {
                   className="w-full rounded-lg border border-white/10 bg-white/[0.06] px-3 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-400/40"
                 >
                   <option value="">Түвшин сонгох</option>
-                  <option value="Эхлэгч">Эхлэгч</option>
+                  <option value="Анхан">Анхан</option>
                   <option value="Дунд">Дунд</option>
                   <option value="Ахисан">Ахисан</option>
                 </select>
@@ -543,7 +543,7 @@ export default function TrainingPlanPage() {
                     onChange={(e) => setEditCourseData({ ...editCourseData, level: e.target.value })}
                     className="w-full rounded-lg border border-white/10 bg-white/[0.06] px-3 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-400/40"
                   >
-                    <option value="Эхлэгч">Эхлэгч</option>
+                    <option value="Анхан">Анхан</option>
                     <option value="Дунд">Дунд</option>
                     <option value="Ахисан">Ахисан</option>
                   </select>
@@ -564,15 +564,6 @@ export default function TrainingPlanPage() {
                 </div>
               </div>
               <div>
-                <label className="block text-sm text-white/60 mb-2">Семестр *</label>
-                <input
-                  type="text"
-                  value={editCourseData.semester}
-                  onChange={(e) => setEditCourseData({ ...editCourseData, semester: e.target.value })}
-                  className="w-full rounded-lg border border-white/10 bg-white/[0.06] px-3 py-2.5 text-sm text-white placeholder-white/30 focus:outline-none focus:border-emerald-400/40"
-                />
-              </div>
-              <div>
                 <label className="block text-sm text-white/60 mb-2">Багш *</label>
                 <input
                   type="text"
@@ -581,22 +572,13 @@ export default function TrainingPlanPage() {
                   className="w-full rounded-lg border border-white/10 bg-white/[0.06] px-3 py-2.5 text-sm text-white placeholder-white/30 focus:outline-none focus:border-emerald-400/40"
                 />
               </div>
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm text-white/60 mb-2">Оюутан *</label>
                   <input
                     type="number"
                     value={editCourseData.students}
                     onChange={(e) => setEditCourseData({ ...editCourseData, students: parseInt(e.target.value) || 0 })}
-                    className="w-full rounded-lg border border-white/10 bg-white/[0.06] px-3 py-2.5 text-sm text-white placeholder-white/30 focus:outline-none focus:border-emerald-400/40"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm text-white/60 mb-2">Багш тоо *</label>
-                  <input
-                    type="number"
-                    value={editCourseData.teachers}
-                    onChange={(e) => setEditCourseData({ ...editCourseData, teachers: parseInt(e.target.value) || 0 })}
                     className="w-full rounded-lg border border-white/10 bg-white/[0.06] px-3 py-2.5 text-sm text-white placeholder-white/30 focus:outline-none focus:border-emerald-400/40"
                   />
                 </div>
