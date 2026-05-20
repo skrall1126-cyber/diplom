@@ -8,6 +8,9 @@ import Link from "next/link";
 export default function Inventory() {
   const [activeMenu, setActiveMenu] = useState("Эд хөрөнгийн бүртгэл");
   const [userType, setUserType] = useState<"admin" | "training" | "finance" | null>(null);
+  const [selectedItem, setSelectedItem] = useState<any>(null);
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -82,6 +85,24 @@ export default function Inventory() {
     }
   };
 
+  const openDetailModal = (item: any) => {
+    setSelectedItem(item);
+    setIsDetailModalOpen(true);
+    setIsEditing(false);
+  };
+
+  const closeDetailModal = () => {
+    setIsDetailModalOpen(false);
+    setSelectedItem(null);
+    setIsEditing(false);
+  };
+
+  const handleSaveEdit = () => {
+    // Засвар хадгалах логик энд байна
+    setIsEditing(false);
+    alert("Мэдээлэл амжилттай хадгалагдлаа");
+  };
+
   return (
     <div className="min-h-screen font-sans text-white">
       <Navbar />
@@ -98,35 +119,13 @@ export default function Inventory() {
           }}
         >
           <div className="mx-auto max-w-7xl space-y-6">
-            {/* Header */}
-            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-              <div>
-                <h1 className="text-2xl font-bold text-white">Эд хөрөнгийн бүртгэл</h1>
-                <p className="mt-1 text-sm text-white/50">Сургуулийн эд хөрөнгийн бүртгэл, хяналт</p>
-              </div>
-              <div className="flex items-center gap-3">
-                <div className="rounded-lg border border-white/10 bg-white/[0.06] px-4 py-2">
-                  <p className="text-sm font-medium text-white">{getAdminTitle()}</p>
-                  <p className="text-xs text-white/40">Эд хөрөнгийн бүртгэл</p>
-                </div>
-                <Link href={getBackLink()} className="rounded-lg border border-white/10 bg-white/[0.06] px-4 py-2 text-sm text-white/70 hover:text-white">
-                  Буцах
-                </Link>
-              </div>
-            </div>
-
             {/* Inventory List */}
             <div className="rounded-2xl border border-white/10 bg-[#081120]/70 p-5 backdrop-blur-md">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-lg font-semibold text-white">Эд хөрөнгийн жагсаалт</h2>
-                <div className="flex gap-2">
-                  <button className="rounded-lg border border-white/10 bg-white/[0.06] px-4 py-2 text-sm text-white/70 hover:text-white">
-                    Тайлан татах
-                  </button>
-                  <button className="rounded-lg border border-emerald-400/30 bg-emerald-500/15 px-4 py-2 text-sm font-medium text-emerald-200 hover:bg-emerald-500/25">
-                    Шинэ эд хөрөнгө нэмэх
-                  </button>
-                </div>
+                <button className="rounded-lg border border-emerald-400/30 bg-emerald-500/15 px-4 py-2 text-sm font-medium text-emerald-200 hover:bg-emerald-500/25">
+                  Шинэ эд хөрөнгө нэмэх
+                </button>
               </div>
               
               <div className="overflow-x-auto">
@@ -185,84 +184,17 @@ export default function Inventory() {
                           </p>
                         </td>
                         <td className="px-4 py-3">
-                          <div className="flex gap-2">
-                            <button className="rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-white/70 hover:text-white">
-                              Засах
-                            </button>
-                            <button className="rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-white/70 hover:text-white">
-                              Харах
-                            </button>
-                          </div>
+                          <button 
+                            onClick={() => openDetailModal(item)}
+                            className="rounded-lg border border-blue-400/30 bg-blue-500/15 px-4 py-1.5 text-xs font-medium text-blue-200 hover:bg-blue-500/25"
+                          >
+                            Дэлгэрэнгүй
+                          </button>
                         </td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
-              </div>
-            </div>
-
-            {/* Inventory Analysis */}
-            <div className="grid gap-6 lg:grid-cols-2">
-              {/* Category Distribution */}
-              <div className="rounded-2xl border border-white/10 bg-[#081120]/70 p-5 backdrop-blur-md">
-                <h2 className="text-lg font-semibold text-white mb-4">Ангиллын тархалт</h2>
-                <div className="space-y-4">
-                  {[
-                    { category: "Компьютер", count: 45, value: "₮ 135,000,000", color: "from-blue-400 to-cyan-300" },
-                    { category: "Сүлжээний тоног төхөөрөмж", count: 8, value: "₮ 40,000,000", color: "from-emerald-400 to-green-300" },
-                    { category: "Проектор", count: 12, value: "₮ 24,000,000", color: "from-amber-400 to-yellow-300" },
-                    { category: "Тавилга", count: 65, value: "₮ 40,000,000", color: "from-purple-400 to-pink-300" },
-                    { category: "Хэвлэгч", count: 6, value: "₮ 12,000,000", color: "from-red-400 to-orange-300" },
-                    { category: "Серверийн тоног төхөөрөмж", count: 3, value: "₮ 30,000,000", color: "from-indigo-400 to-blue-300" },
-                  ].map((item, index) => (
-                    <div key={index} className="rounded-lg border border-white/5 bg-white/[0.03] p-3">
-                      <div className="flex items-center justify-between mb-2">
-                        <p className="text-sm font-medium text-white">{item.category}</p>
-                        <span className="text-sm font-bold text-white">{item.count} ширхэг</span>
-                      </div>
-                      <div className="flex items-center justify-between text-xs text-white/50 mb-1">
-                        <span>Нийт үнэ: {item.value}</span>
-                      </div>
-                      <div className="h-2 overflow-hidden rounded-full bg-white/10">
-                        <div
-                          className={`h-full rounded-full bg-gradient-to-r ${item.color}`}
-                          style={{ width: `${(item.count / summaryStats.totalItems) * 100}%` }}
-                        />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Condition Analysis */}
-              <div className="rounded-2xl border border-white/10 bg-[#081120]/70 p-5 backdrop-blur-md">
-                <h2 className="text-lg font-semibold text-white mb-4">Нөхцөлийн шинжилгээ</h2>
-                <div className="space-y-4">
-                  {[
-                    { condition: "Сайн", count: 5, value: "₮ 220,000,000", color: "bg-emerald-500" },
-                    { condition: "Дунд", count: 2, value: "₮ 49,000,000", color: "bg-amber-500" },
-                    { condition: "Муу", count: 1, value: "₮ 12,000,000", color: "bg-red-500" },
-                  ].map((item, index) => (
-                    <div key={index} className="rounded-lg border border-white/5 bg-white/[0.03] p-3">
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center gap-2">
-                          <div className={`h-3 w-3 rounded-full ${item.color}`} />
-                          <p className="text-sm font-medium text-white">{item.condition}</p>
-                        </div>
-                        <span className="text-sm font-bold text-white">{item.count} зүйл</span>
-                      </div>
-                      <div className="flex items-center justify-between text-xs text-white/50 mb-1">
-                        <span>Нийт үнэ: {item.value}</span>
-                      </div>
-                      <div className="h-2 overflow-hidden rounded-full bg-white/10">
-                        <div
-                          className={`h-full rounded-full ${item.color}`}
-                          style={{ width: `${(item.count / inventoryData.length) * 100}%` }}
-                        />
-                      </div>
-                    </div>
-                  ))}
-                </div>
               </div>
             </div>
 
@@ -321,66 +253,6 @@ export default function Inventory() {
                     ))}
                   </tbody>
                 </table>
-              </div>
-            </div>
-
-            {/* Management Tools */}
-            <div className="rounded-2xl border border-white/10 bg-[#081120]/70 p-5 backdrop-blur-md">
-              <h2 className="text-lg font-semibold text-white mb-4">Эд хөрөнгийн удирдлагын хэрэгслүүд</h2>
-              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                {[
-                  { 
-                    name: "Эд хөрөнгө нэмэх", 
-                    description: "Шинэ эд хөрөнгө бүртгэх",
-                    icon: "➕",
-                    color: "from-emerald-500 to-teal-600"
-                  },
-                  { 
-                    name: "Эд хөрөнгө засах", 
-                    description: "Эд хөрөнгийн мэдээлэл засах",
-                    icon: "✏️",
-                    color: "from-blue-500 to-cyan-600"
-                  },
-                  { 
-                    name: "Засвар бүртгэх", 
-                    description: "Эд хөрөнгийн засвар бүртгэх",
-                    icon: "🔧",
-                    color: "from-amber-500 to-orange-600"
-                  },
-                  { 
-                    name: "Тайлан гаргах", 
-                    description: "Эд хөрөнгийн тайлан үүсгэх",
-                    icon: "📊",
-                    color: "from-purple-500 to-pink-600"
-                  },
-                  { 
-                    name: "Хуваарилалт", 
-                    description: "Эд хөрөнгө хуваарилах",
-                    icon: "📋",
-                    color: "from-indigo-500 to-blue-600"
-                  },
-                  { 
-                    name: "Хуучирсан эд хөрөнгө", 
-                    description: "Хуучирсан эд хөрөнгийн жагсаалт",
-                    icon: "🗑️",
-                    color: "from-rose-500 to-red-600"
-                  },
-                ].map((tool, index) => (
-                  <div key={index} className="rounded-xl border border-white/10 bg-white/[0.06] p-4">
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className={`h-12 w-12 rounded-full bg-gradient-to-br ${tool.color} flex items-center justify-center`}>
-                        <span className="text-xl">{tool.icon}</span>
-                      </div>
-                      <div>
-                        <h3 className="font-bold text-white">{tool.name}</h3>
-                        <p className="text-sm text-white/50">{tool.description}</p>
-                      </div>
-                    </div>
-                    <button className="w-full rounded-lg border border-white/10 bg-white/[0.06] px-4 py-2 text-sm text-white/70 hover:text-white">
-                      Ашиглах
-                    </button>
-                  </div>
-                ))}
               </div>
             </div>
 
@@ -445,6 +317,226 @@ export default function Inventory() {
           </div>
         </main>
       </div>
+
+      {/* Дэлгэрэнгүй мэдээллийн Modal */}
+      {isDetailModalOpen && selectedItem && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="relative w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-2xl border border-white/10 bg-[#0a1628] p-6 shadow-2xl">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between mb-6 pb-4 border-b border-white/10">
+              <div className="flex items-center gap-4">
+                <div className="h-16 w-16 rounded-full bg-gradient-to-br from-blue-600 to-blue-800 flex items-center justify-center text-3xl">
+                  {getCategoryIcon(selectedItem.category)}
+                </div>
+                <div>
+                  <h2 className="text-2xl font-bold text-white">{selectedItem.name}</h2>
+                  <p className="text-sm text-white/50 mt-1">ID: {selectedItem.id}</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                {!isEditing && (
+                  <button
+                    onClick={() => setIsEditing(true)}
+                    className="h-10 w-10 rounded-full border border-white/10 bg-white/5 text-white/70 hover:bg-white/10 hover:text-white flex items-center justify-center text-lg"
+                    title="Засах"
+                  >
+                    ✎
+                  </button>
+                )}
+                <button
+                  onClick={closeDetailModal}
+                  className="h-10 w-10 rounded-full border border-white/10 bg-white/5 text-white/70 hover:bg-white/10 hover:text-white flex items-center justify-center"
+                >
+                  ✕
+                </button>
+              </div>
+            </div>
+
+            {/* Modal Content */}
+            <div className="space-y-6">
+              {/* Үндсэн мэдээлэл */}
+              <div className="rounded-xl border border-white/10 bg-white/[0.03] p-5">
+                <h3 className="text-lg font-semibold text-white mb-4">Үндсэн мэдээлэл</h3>
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div>
+                    <label className="text-sm text-white/50 block mb-2">Нэр</label>
+                    {isEditing ? (
+                      <input
+                        type="text"
+                        defaultValue={selectedItem.name}
+                        className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white focus:border-blue-400 focus:outline-none"
+                      />
+                    ) : (
+                      <p className="text-white font-medium">{selectedItem.name}</p>
+                    )}
+                  </div>
+                  <div>
+                    <label className="text-sm text-white/50 block mb-2">Ангилал</label>
+                    {isEditing ? (
+                      <input
+                        type="text"
+                        defaultValue={selectedItem.category}
+                        className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white focus:border-blue-400 focus:outline-none"
+                      />
+                    ) : (
+                      <p className="text-white font-medium">{selectedItem.category}</p>
+                    )}
+                  </div>
+                  <div>
+                    <label className="text-sm text-white/50 block mb-2">Тоо ширхэг</label>
+                    {isEditing ? (
+                      <input
+                        type="number"
+                        defaultValue={selectedItem.quantity}
+                        className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white focus:border-blue-400 focus:outline-none"
+                      />
+                    ) : (
+                      <p className="text-white font-medium">{selectedItem.quantity}</p>
+                    )}
+                  </div>
+                  <div>
+                    <label className="text-sm text-white/50 block mb-2">Үнэ цэнэ</label>
+                    {isEditing ? (
+                      <input
+                        type="text"
+                        defaultValue={selectedItem.value}
+                        className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white focus:border-blue-400 focus:outline-none"
+                      />
+                    ) : (
+                      <p className="text-emerald-400 font-bold">{selectedItem.value}</p>
+                    )}
+                  </div>
+                  <div>
+                    <label className="text-sm text-white/50 block mb-2">Байршил</label>
+                    {isEditing ? (
+                      <input
+                        type="text"
+                        defaultValue={selectedItem.location}
+                        className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white focus:border-blue-400 focus:outline-none"
+                      />
+                    ) : (
+                      <p className="text-white font-medium">{selectedItem.location}</p>
+                    )}
+                  </div>
+                  <div>
+                    <label className="text-sm text-white/50 block mb-2">Төлөв</label>
+                    {isEditing ? (
+                      <input
+                        type="text"
+                        defaultValue={selectedItem.status}
+                        className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white focus:border-blue-400 focus:outline-none"
+                      />
+                    ) : (
+                      <span className={`inline-block rounded-full border px-3 py-1 text-xs ${getStatusColor(selectedItem.status)}`}>
+                        {selectedItem.status}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Засвар үйлчилгээний мэдээлэл */}
+              <div className="rounded-xl border border-white/10 bg-white/[0.03] p-5">
+                <h3 className="text-lg font-semibold text-white mb-4">Засвар үйлчилгээ</h3>
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div>
+                    <label className="text-sm text-white/50 block mb-2">Сүүлийн засвар</label>
+                    {isEditing ? (
+                      <input
+                        type="date"
+                        defaultValue={selectedItem.lastMaintenance}
+                        className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white focus:border-blue-400 focus:outline-none"
+                      />
+                    ) : (
+                      <p className="text-white font-medium">{selectedItem.lastMaintenance}</p>
+                    )}
+                  </div>
+                  <div>
+                    <label className="text-sm text-white/50 block mb-2">Нөхцөл байдал</label>
+                    {isEditing ? (
+                      <input
+                        type="text"
+                        defaultValue={selectedItem.condition}
+                        className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white focus:border-blue-400 focus:outline-none"
+                      />
+                    ) : (
+                      <p className={`font-bold ${getConditionColor(selectedItem.condition)}`}>
+                        {selectedItem.condition}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Нэмэлт мэдээлэл */}
+              <div className="rounded-xl border border-white/10 bg-white/[0.03] p-5">
+                <h3 className="text-lg font-semibold text-white mb-4">Нэмэлт мэдээлэл</h3>
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between py-2 border-b border-white/5">
+                    <span className="text-sm text-white/50">Бүртгэсэн огноо</span>
+                    <span className="text-sm text-white font-medium">2024-01-15</span>
+                  </div>
+                  <div className="flex items-center justify-between py-2 border-b border-white/5">
+                    <span className="text-sm text-white/50">Баталгаат хугацаа</span>
+                    <span className="text-sm text-white font-medium">2027-01-15 хүртэл</span>
+                  </div>
+                  <div className="flex items-center justify-between py-2 border-b border-white/5">
+                    <span className="text-sm text-white/50">Хариуцагч</span>
+                    <span className="text-sm text-white font-medium">Б.Болд</span>
+                  </div>
+                  <div className="flex items-center justify-between py-2">
+                    <span className="text-sm text-white/50">Үйлдвэрлэгч</span>
+                    <span className="text-sm text-white font-medium">Dell Inc.</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Засварын түүх */}
+              <div className="rounded-xl border border-white/10 bg-white/[0.03] p-5">
+                <h3 className="text-lg font-semibold text-white mb-4">Засварын түүх</h3>
+                <div className="space-y-3">
+                  {[
+                    { date: "2026-04-15", type: "Түр засвар", description: "Цэвэрлэгээ, програм хангамж шинэчлэх", cost: "₮ 50,000" },
+                    { date: "2026-01-10", type: "Гол засвар", description: "Хатуу диск солих", cost: "₮ 350,000" },
+                    { date: "2025-10-05", type: "Түр засвар", description: "Цэвэрлэгээ", cost: "₮ 30,000" },
+                  ].map((maintenance, index) => (
+                    <div key={index} className="rounded-lg border border-white/5 bg-white/[0.02] p-3">
+                      <div className="flex items-start justify-between mb-2">
+                        <div>
+                          <p className="text-sm font-medium text-white">{maintenance.type}</p>
+                          <p className="text-xs text-white/50 mt-1">{maintenance.date}</p>
+                        </div>
+                        <span className="text-sm font-bold text-emerald-400">{maintenance.cost}</span>
+                      </div>
+                      <p className="text-xs text-white/60">{maintenance.description}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="flex items-center justify-end gap-3 mt-6 pt-4 border-t border-white/10">
+              {isEditing && (
+                <>
+                  <button
+                    onClick={() => setIsEditing(false)}
+                    className="rounded-lg border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/70 hover:text-white"
+                  >
+                    Цуцлах
+                  </button>
+                  <button
+                    onClick={handleSaveEdit}
+                    className="rounded-lg border border-emerald-400/30 bg-emerald-500/15 px-4 py-2 text-sm font-medium text-emerald-200 hover:bg-emerald-500/25"
+                  >
+                    Хадгалах
+                  </button>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
