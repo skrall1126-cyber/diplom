@@ -105,49 +105,49 @@ export default function AdminLoginPage() {
 
       {/* ── MAIN CONTENT ── */}
       <div className="relative z-10 flex min-h-screen items-center justify-center px-4 py-20 sm:px-8">
-        <div className="max-w-xl w-full">
+        <div className="max-w-2xl w-full">
           {/* Admin Login Form Card */}
-          <div className="rounded-2xl border border-white/10 bg-[#081120]/70 p-5 shadow-[0_20px_60px_rgba(0,0,0,0.3)] backdrop-blur-md sm:p-6">
-            <div className="text-center mb-6">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-500/10 border border-purple-500/30 mb-3">
-                <div className="h-4 w-4 rounded-full bg-gradient-to-br from-purple-600 to-indigo-800 flex items-center justify-center text-[10px]">
+          <div className="rounded-3xl border border-white/10 bg-[#081120]/70 p-8 shadow-[0_20px_60px_rgba(0,0,0,0.3)] backdrop-blur-md sm:p-10">
+            <div className="text-center mb-8">
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-purple-500/10 border border-purple-500/30 mb-4">
+                <div className="h-5 w-5 rounded-full bg-gradient-to-br from-purple-600 to-indigo-800 flex items-center justify-center text-xs">
                   ⚡
                 </div>
-                <span className="text-[10px] text-purple-400 font-semibold">
+                <span className="text-xs text-purple-400 font-semibold">
                   Админы системд нэвтрэх
                 </span>
               </div>
 
-              <h1 className="font-['Syne'] text-2xl font-extrabold leading-tight mb-1.5">
+              <h1 className="font-['Syne'] text-3xl font-extrabold leading-tight mb-2">
                 Админы нэвтрэх
               </h1>
-              <p className="text-xs text-white/50">
+              <p className="text-sm text-white/50">
                 Админы эрхийн төрлөө сонгоод системд нэвтрэнэ үү
               </p>
             </div>
 
             {/* Admin type selector */}
-            <div className="mb-6 flex justify-center">
-              <div className="grid gap-2.5 grid-cols-3 max-w-2xl">
+            <div className="mb-8">
+              <div className="grid gap-3 grid-cols-3">
                 {adminTypes.map((admin) => (
                   <button
                     key={admin.key}
                     type="button"
                     onClick={() => setAdminType(admin.key)}
-                    className={`flex flex-col items-center justify-center gap-1.5 rounded-lg border p-2.5 transition-all duration-200 text-center min-h-[75px] ${
+                    className={`flex flex-col items-center justify-center gap-2 rounded-xl border p-4 transition-all duration-200 text-center min-h-[100px] ${
                       adminType === admin.key 
                         ? `${admin.border} ${admin.color} opacity-100 scale-[1.02]` 
                         : "border-white/10 bg-white/[0.02] opacity-70 hover:opacity-100 hover:scale-[1.01]"
                     }`}
                   >
-                    <span className="text-lg">{admin.icon}</span>
+                    <span className="text-2xl">{admin.icon}</span>
                     <div>
-                      <span className={`text-[10px] font-bold block ${
+                      <span className={`text-xs font-bold block ${
                         adminType === admin.key ? admin.text : "text-white/80"
                       }`}>
                         {admin.label}
                       </span>
-                      <p className="text-[8px] text-white/50 mt-0.5">
+                      <p className="text-[10px] text-white/50 mt-0.5">
                         {admin.description}
                       </p>
                     </div>
@@ -170,10 +170,10 @@ export default function AdminLoginPage() {
             </div>
 
             {/* Login Form */}
-            <form onSubmit={handleSubmit} className="space-y-4 max-w-[250px] mx-auto">
+            <form onSubmit={handleSubmit} className="space-y-5 max-w-sm mx-auto">
               {/* ID Input */}
               <div>
-                <label className="block text-[10px] text-white/40 font-medium mb-1.5">
+                <label className="block text-xs text-white/40 font-medium mb-2">
                   Админы ID
                 </label>
                 <input
@@ -181,14 +181,14 @@ export default function AdminLoginPage() {
                   value={id}
                   onChange={(e) => setId(e.target.value)}
                   placeholder="Админы ID оруулах"
-                  className="w-full px-3 py-2.5 rounded-lg border border-white/10 bg-white/[0.04] text-white text-xs outline-none transition-all duration-200 focus:border-purple-500/50 focus:bg-white/[0.06]"
+                  className="w-full px-4 py-3 rounded-xl border border-white/10 bg-white/[0.04] text-white text-sm outline-none transition-all duration-200 focus:border-purple-500/50 focus:bg-white/[0.06]"
                 />
               </div>
 
               {/* Password Input */}
               <div>
-                <div className="flex justify-between items-center mb-1.5">
-                  <label className="text-[10px] text-white/40 font-medium">
+                <div className="flex justify-between items-center mb-2">
+                  <label className="text-xs text-white/40 font-medium">
                     Нууц үг
                   </label>
                   <button 
@@ -216,12 +216,12 @@ export default function AdminLoginPage() {
                     value={pass}
                     onChange={(e) => setPass(e.target.value)}
                     placeholder="Админы нууц үг оруулах"
-                    className="w-full px-3 py-2.5 pr-10 rounded-lg border border-white/10 bg-white/[0.04] text-white text-xs outline-none transition-all duration-200 focus:border-purple-500/50 focus:bg-white/[0.06]"
+                    className="w-full px-4 py-3 pr-12 rounded-xl border border-white/10 bg-white/[0.04] text-white text-sm outline-none transition-all duration-200 focus:border-purple-500/50 focus:bg-white/[0.06]"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPass(!showPass)}
-                    className="absolute right-2.5 top-1/2 transform -translate-y-1/2 text-white/40 hover:text-white/60 transition-colors duration-200 text-sm"
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-white/40 hover:text-white/60 transition-colors duration-200"
                   >
                     {showPass ? "👁️" : "👁️‍🗨️"}
                   </button>
@@ -230,7 +230,7 @@ export default function AdminLoginPage() {
 
               {/* Error Message */}
               {error && (
-                <div className={`p-3 rounded-lg border ${
+                <div className={`p-3 rounded-xl border ${
                   error.includes("хөгжүүлэгдэж байна") 
                     ? "border-yellow-500/30 bg-yellow-500/10" 
                     : "border-red-500/30 bg-red-500/10"
@@ -250,17 +250,17 @@ export default function AdminLoginPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-3 rounded-lg bg-gradient-to-br from-purple-600 to-indigo-800 text-white text-xs font-bold hover:opacity-90 disabled:opacity-70 disabled:cursor-not-allowed transition-all duration-200 shadow-[0_8px_32px_rgba(147,51,234,0.35)] hover:shadow-[0_12px_40px_rgba(147,51,234,0.5)] flex items-center justify-center gap-2"
+                className="w-full py-4 rounded-xl bg-gradient-to-br from-purple-600 to-indigo-800 text-white text-sm font-bold hover:opacity-90 disabled:opacity-70 disabled:cursor-not-allowed transition-all duration-200 shadow-[0_8px_32px_rgba(147,51,234,0.35)] hover:shadow-[0_12px_40px_rgba(147,51,234,0.5)] flex items-center justify-center gap-2"
               >
                 {loading ? (
                   <>
-                    <div className="h-3 w-3 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    <div className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                     Админы системд нэвтэрч байна...
                   </>
                 ) : (
                   <>
                     Админы системд нэвтрэх
-                    <span className="text-sm">⚡</span>
+                    <span className="text-lg">⚡</span>
                   </>
                 )}
               </button>
@@ -268,9 +268,9 @@ export default function AdminLoginPage() {
               {/* Back to Main Login */}
               <Link
                 href="/login"
-                className="flex items-center justify-center gap-1.5 w-full py-2.5 rounded-lg border border-white/10 bg-white/[0.04] text-white/60 text-xs font-semibold hover:text-white hover:bg-white/[0.08] transition-all duration-200"
+                className="flex items-center justify-center gap-2 w-full py-3 rounded-xl border border-white/10 bg-white/[0.04] text-white/60 text-sm font-semibold hover:text-white hover:bg-white/[0.08] transition-all duration-200"
               >
-                <span className="text-sm">←</span>
+                <span className="text-lg">←</span>
                 Буцах
               </Link>
             </form>
