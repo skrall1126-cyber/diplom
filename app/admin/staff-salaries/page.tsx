@@ -381,69 +381,6 @@ export default function StaffSalaries() {
               </div>
             </div>
 
-            {/* Stats and Distribution */}
-            <div className="grid gap-6 lg:grid-cols-2">
-              {/* Stats */}
-              <div className="rounded-2xl border border-white/10 bg-[#081120]/70 p-5 backdrop-blur-md">
-                <h2 className="text-lg font-semibold text-white mb-4">Цалингийн статистик</h2>
-                <div className="space-y-4">
-                  {[
-                    { label: "Нийт цалин", value: "₮ 30,300,000", percentage: 100, color: "bg-blue-500" },
-                    { label: "Нийт ажилчин", value: "10 хүн", percentage: 100, color: "bg-emerald-500" },
-                    { label: "Төлсөн цалин", value: "₮ 13,100,000", percentage: 43, color: "bg-green-500" },
-                    { label: "Хүлээгдэж байгаа", value: "₮ 17,200,000", percentage: 57, color: "bg-amber-500" },
-                  ].map((stat, index) => (
-                    <div key={index} className="flex items-center gap-4">
-                      <div className="w-40">
-                        <p className="text-sm font-medium text-white">{stat.label}</p>
-                      </div>
-                      <div className="flex-1">
-                        <div className="h-3 w-full rounded-full bg-white/[0.06] overflow-hidden">
-                          <div 
-                            className={`h-full ${stat.color} rounded-full`}
-                            style={{ width: `${stat.percentage}%` }}
-                          ></div>
-                        </div>
-                      </div>
-                      <div className="w-36 text-right">
-                        <p className="text-sm font-bold text-white">{stat.value}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Salary Distribution */}
-              <div className="rounded-2xl border border-white/10 bg-[#081120]/70 p-5 backdrop-blur-md">
-                <h2 className="text-lg font-semibold text-white mb-4">Алба, тэнхимийн цалингийн тархалт</h2>
-                <div className="space-y-4">
-                  {[
-                    { department: "Удирдлага", amount: "₮ 5,500,000", percentage: 18, color: "bg-gray-500" },
-                    { department: "Сургалтын алба", amount: "₮ 3,650,000", percentage: 12, color: "bg-blue-500" },
-                    { department: "Санхүүгийн алба", amount: "₮ 3,280,000", percentage: 11, color: "bg-emerald-500" },
-                    { department: "Хүний нөөцийн алба", amount: "₮ 3,050,000", percentage: 10, color: "bg-amber-500" },
-                    { department: "Багш нар", amount: "₮ 14,820,000", percentage: 49, color: "bg-purple-500" },
-                  ].map((item, index) => (
-                    <div key={index} className="flex items-center gap-4">
-                      <div className="flex items-center gap-3 w-48">
-                        <div className={`h-3 w-3 rounded-full ${item.color}`}></div>
-                        <span className="text-sm text-white/70">{item.department}</span>
-                      </div>
-                      <div className="flex-1">
-                        <div className="h-3 w-full rounded-full bg-white/[0.06] overflow-hidden">
-                          <div 
-                            className={`h-full ${item.color} rounded-full`}
-                            style={{ width: `${item.percentage}%` }}
-                          ></div>
-                        </div>
-                      </div>
-                      <span className="text-sm text-white/50 w-32 text-right">{item.amount}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-
             {/* Salaries List */}
             <div className="rounded-2xl border border-white/10 bg-[#081120]/70 p-5 backdrop-blur-md">
               <div className="flex items-center justify-between mb-6">
@@ -529,6 +466,69 @@ export default function StaffSalaries() {
                   <p className="text-sm text-white/50">Хайлтын үр дүнд тохирох цалин олдсонгүй</p>
                 </div>
               )}
+            </div>
+
+            {/* Stats and Distribution */}
+            <div className="grid gap-6 lg:grid-cols-2">
+              {/* Stats */}
+              <div className="rounded-2xl border border-white/10 bg-[#081120]/70 p-5 backdrop-blur-md">
+                <h2 className="text-lg font-semibold text-white mb-4">Цалингийн статистик</h2>
+                <div className="space-y-4">
+                  {[
+                    { label: "Нийт цалин", value: "₮ 30,300,000", percentage: 100, color: "bg-blue-500" },
+                    { label: "Нийт ажилчин", value: "10 хүн", percentage: 100, color: "bg-emerald-500" },
+                    { label: "Төлсөн цалин", value: "₮ 13,100,000", percentage: 43, color: "bg-green-500" },
+                    { label: "Хүлээгдэж байгаа", value: "₮ 17,200,000", percentage: 57, color: "bg-amber-500" },
+                  ].map((stat, index) => (
+                    <div key={index} className="flex items-center gap-4">
+                      <div className="w-40">
+                        <p className="text-sm font-medium text-white">{stat.label}</p>
+                      </div>
+                      <div className="flex-1">
+                        <div className="h-3 w-full rounded-full bg-white/[0.06] overflow-hidden">
+                          <div 
+                            className={`h-full ${stat.color} rounded-full`}
+                            style={{ width: `${stat.percentage}%` }}
+                          ></div>
+                        </div>
+                      </div>
+                      <div className="w-36 text-right">
+                        <p className="text-sm font-bold text-white">{stat.value}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Salary Distribution */}
+              <div className="rounded-2xl border border-white/10 bg-[#081120]/70 p-5 backdrop-blur-md">
+                <h2 className="text-lg font-semibold text-white mb-4">Алба, тэнхимийн цалингийн тархалт</h2>
+                <div className="space-y-4">
+                  {[
+                    { department: "Удирдлага", amount: "₮ 5,500,000", percentage: 18, color: "bg-gray-500" },
+                    { department: "Сургалтын алба", amount: "₮ 3,650,000", percentage: 12, color: "bg-blue-500" },
+                    { department: "Санхүүгийн алба", amount: "₮ 3,280,000", percentage: 11, color: "bg-emerald-500" },
+                    { department: "Хүний нөөцийн алба", amount: "₮ 3,050,000", percentage: 10, color: "bg-amber-500" },
+                    { department: "Багш нар", amount: "₮ 14,820,000", percentage: 49, color: "bg-purple-500" },
+                  ].map((item, index) => (
+                    <div key={index} className="flex items-center gap-4">
+                      <div className="flex items-center gap-3 w-48">
+                        <div className={`h-3 w-3 rounded-full ${item.color}`}></div>
+                        <span className="text-sm text-white/70">{item.department}</span>
+                      </div>
+                      <div className="flex-1">
+                        <div className="h-3 w-full rounded-full bg-white/[0.06] overflow-hidden">
+                          <div 
+                            className={`h-full ${item.color} rounded-full`}
+                            style={{ width: `${item.percentage}%` }}
+                          ></div>
+                        </div>
+                      </div>
+                      <span className="text-sm text-white/50 w-32 text-right">{item.amount}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
 
           </div>
