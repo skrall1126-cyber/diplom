@@ -417,11 +417,6 @@ export default function StaffSalaries() {
                         </td>
                         <td className="py-4">
                           <p className="text-white">{salary.employee}</p>
-                          <div className="flex items-center gap-2 mt-1">
-                            <span className="text-xs text-white/50">Ирц: {salary.attendance}</span>
-                            <span className="text-xs text-white/50">•</span>
-                            <span className="text-xs text-white/50">Ачаалал: {salary.workload}</span>
-                          </div>
                         </td>
                         <td className="py-4">
                           <p className="text-white">{salary.position}</p>
@@ -437,7 +432,6 @@ export default function StaffSalaries() {
                         </td>
                         <td className="py-4">
                           <p className="text-2xl font-bold text-white">₮ {salary.netSalary.toLocaleString()}</p>
-                          <p className="text-xs text-white/50">Төлөх: {salary.paymentDate}</p>
                         </td>
                         <td className="py-4">
                           <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${getStatusColor(salary.status)}`}>
