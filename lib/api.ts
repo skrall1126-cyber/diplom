@@ -7,7 +7,7 @@ interface ApiResponse<T> {
   error?: string;
 }
 
-// Helper function for API calls
+// Helper function for API calls with auto token refresh
 async function apiCall<T>(
   endpoint: string,
   options: RequestInit = {}
@@ -24,10 +24,64 @@ async function apiCall<T>(
       headers['Authorization'] = `Bearer ${token}`;
     }
 
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+    let response = await fetch(`${API_BASE_URL}${endpoint}`, {
       ...options,
       headers,
     });
+
+    // If 401 Unauthorized, try to refresh token
+    if (response.status === 401 && endpoint !== '/api/auth/refresh' && endpoint !== '/api/auth/login') {
+      const refreshToken = typeof window !== 'undefined' ? localStorage.getItem('refreshToken') : null;
+      
+      if (refreshToken) {
+        try {
+          // Try to refresh the token
+          const refreshResponse = await fetch(`${API_BASE_URL}/api/auth/refresh`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ refreshToken }),
+          });
+
+          if (refreshResponse.ok) {
+            const refreshData = await refreshResponse.json();
+            
+            // Save new token
+            if (typeof window !== 'undefined') {
+              localStorage.setItem('token', refreshData.token);
+            }
+
+            // Retry original request with new token
+            headers['Authorization'] = `Bearer ${refreshData.token}`;
+            response = await fetch(`${API_BASE_URL}${endpoint}`, {
+              ...options,
+              headers,
+            });
+          } else {
+            // Refresh failed, logout
+            if (typeof window !== 'undefined') {
+              localStorage.removeItem('token');
+              localStorage.removeItem('refreshToken');
+              localStorage.removeItem('user');
+              window.location.href = '/admin/login';
+            }
+            return { error: 'Нэвтрэх хугацаа дууссан байна' };
+          }
+        } catch (refreshError) {
+          console.error('Token refresh error:', refreshError);
+          return { error: 'Нэвтрэх хугацаа дууссан байна' };
+        }
+      } else {
+        // No refresh token, logout
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+          window.location.href = '/admin/login';
+        }
+        return { error: 'Нэвтрэх хугацаа дууссан байна' };
+      }
+    }
 
     const data = await response.json();
 
@@ -82,8 +136,9 @@ export const authApi = {
   logout() {
     if (typeof window !== 'undefined') {
       localStorage.removeItem('token');
+      localStorage.removeItem('refreshToken');
       localStorage.removeItem('user');
-      window.location.href = '/login';
+      window.location.href = '/admin/login';
     }
   },
 
@@ -91,6 +146,13 @@ export const authApi = {
   saveToken(token: string) {
     if (typeof window !== 'undefined') {
       localStorage.setItem('token', token);
+    }
+  },
+  
+  // Refresh token хадгалах
+  saveRefreshToken(refreshToken: string) {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('refreshToken', refreshToken);
     }
   },
 
@@ -108,6 +170,14 @@ export const authApi = {
     }
     return null;
   },
+  
+  // Refresh token авах
+  getRefreshToken() {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('refreshToken');
+    }
+    return null;
+  },
 
   // User авах
   getUser() {
@@ -116,6 +186,19 @@ export const authApi = {
       return user ? JSON.parse(user) : null;
     }
     return null;
+  },
+  
+  // Refresh access token
+  async refreshToken() {
+    const refreshToken = this.getRefreshToken();
+    if (!refreshToken) {
+      throw new Error('Refresh token олдсонгүй');
+    }
+    
+    return apiCall<{ token: string }>('/api/auth/refresh', {
+      method: 'POST',
+      body: JSON.stringify({ refreshToken }),
+    });
   },
 };
 
@@ -239,6 +322,102 @@ export const salariesApi = {
   // Цалин үүсгэх
   async create(data: any) {
     return apiCall<{ salary: any }>('/api/salaries', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+};
+
+// ============================================
+// CLASSES API
+// ============================================
+
+export const classesApi = {
+  // Бүх ангиуд
+  async getAll(filters?: { major_id?: string }) {
+    const params = new URLSearchParams();
+    if (filters?.major_id) params.append('major_id', filters.major_id);
+
+    const query = params.toString() ? `?${params.toString()}` : '';
+    return apiCall<{ classes: any[] }>(`/api/classes${query}`, {
+      method: 'GET',
+    });
+  },
+
+  // Анги үүсгэх
+  async create(data: any) {
+    return apiCall<{ class: any }>('/api/classes', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+};
+
+// ============================================
+// COURSES API
+// ============================================
+
+export const coursesApi = {
+  // Бүх хичээлүүд
+  async getAll(filters?: { major_id?: string }) {
+    const params = new URLSearchParams();
+    if (filters?.major_id) params.append('major_id', filters.major_id);
+
+    const query = params.toString() ? `?${params.toString()}` : '';
+    return apiCall<{ courses: any[] }>(`/api/courses${query}`, {
+      method: 'GET',
+    });
+  },
+
+  // Хичээл үүсгэх
+  async create(data: any) {
+    return apiCall<{ course: any }>('/api/courses', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+};
+
+// ============================================
+// MAJORS API
+// ============================================
+
+export const majorsApi = {
+  // Бүх мэргэжлүүд
+  async getAll(filters?: { department_id?: string }) {
+    const params = new URLSearchParams();
+    if (filters?.department_id) params.append('department_id', filters.department_id);
+
+    const query = params.toString() ? `?${params.toString()}` : '';
+    return apiCall<{ majors: any[] }>(`/api/majors${query}`, {
+      method: 'GET',
+    });
+  },
+
+  // Мэргэжил үүсгэх
+  async create(data: any) {
+    return apiCall<{ major: any }>('/api/majors', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+};
+
+// ============================================
+// DEPARTMENTS API
+// ============================================
+
+export const departmentsApi = {
+  // Бүх тэнхимүүд
+  async getAll() {
+    return apiCall<{ departments: any[] }>('/api/departments', {
+      method: 'GET',
+    });
+  },
+
+  // Тэнхим үүсгэх
+  async create(data: any) {
+    return apiCall<{ department: any }>('/api/departments', {
       method: 'POST',
       body: JSON.stringify(data),
     });

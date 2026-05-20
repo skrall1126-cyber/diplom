@@ -4,8 +4,9 @@ import { useState, useEffect } from "react";
 import Navbar from "@/components/Navbar";
 import Sidebar from "@/components/Sidebar";
 import Link from "next/link";
+import { withAuth } from "@/contexts/AuthContext";
 
-export default function TrainingAdminDashboard() {
+function TrainingAdminDashboard() {
   const [activeMenu, setActiveMenu] = useState("Нүүр хуудас");
   
   // Set user type to training in localStorage
@@ -220,3 +221,6 @@ export default function TrainingAdminDashboard() {
     </div>
   );
 }
+
+// Protected page - SUPER_ADMIN and TRAINING_ADMIN can access
+export default withAuth(TrainingAdminDashboard, ['SUPER_ADMIN', 'TRAINING_ADMIN']);

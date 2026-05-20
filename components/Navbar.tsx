@@ -4,12 +4,14 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import AIChatbot from "./AIChatbot";
+import { useAuth } from "@/contexts/AuthContext";
 
 
 
 export default function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
+  const { user, logout } = useAuth();
   const [open, setOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const [parentStudentId, setParentStudentId] = useState("B211930019");
@@ -39,21 +41,21 @@ export default function Navbar() {
 
 
 
-  // User data based on role
+  // User data based on role - use real user data from auth context
   const userData = {
     student: {
-      name: "Төртэмүүлэн",
-      id: "B211930019",
+      name: user?.first_name || "Төртэмүүлэн",
+      id: user?.username || "B211930019",
       role: "Оюутан",
-      avatar: "Т",
+      avatar: user?.first_name?.charAt(0) || "Т",
       profileLink: "/student/profile",
       notificationsLink: "/student/notifications"
     },
     teacher: {
-      name: "Батбаяр багш",
-      id: "T001",
+      name: user?.first_name ? `${user.first_name} багш` : "Батбаяр багш",
+      id: user?.username || "T001",
       role: "Багш",
-      avatar: "Б",
+      avatar: user?.first_name?.charAt(0) || "Б",
       profileLink: "/teacher/profile",
       notificationsLink: "/teacher/notifications"
     },
@@ -66,10 +68,12 @@ export default function Navbar() {
       notificationsLink: "/parent"
     },
     admin: {
-      name: "Системийн админ",
-      id: "admin",
-      role: "Админ",
-      avatar: "A",
+      name: user?.first_name ? `${user.first_name} ${user.last_name || ''}`.trim() : "Системийн админ",
+      id: user?.username || "admin",
+      role: user?.role === 'SUPER_ADMIN' ? 'Бүрэн эрхт админ' : 
+            user?.role === 'TRAINING_ADMIN' ? 'Сургалтын админ' :
+            user?.role === 'FINANCE_ADMIN' ? 'Санхүүгийн админ' : 'Админ',
+      avatar: user?.first_name?.charAt(0) || "A",
       profileLink: "/admin/profile",
       notificationsLink: "/admin/dashboard"
     }

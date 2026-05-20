@@ -1,11 +1,15 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { withAuth } from '@/contexts/AuthContext';
 import Navbar from "@/components/Navbar";
+import { withAuth } from '@/contexts/AuthContext';
 import Sidebar from "@/components/Sidebar";
+import { withAuth } from '@/contexts/AuthContext';
 import Link from "next/link";
+import { withAuth } from '@/contexts/AuthContext';
 
-export default function Inventory() {
+function Inventory() {
   const [activeMenu, setActiveMenu] = useState("Эд хөрөнгийн бүртгэл");
   const [userType, setUserType] = useState<"admin" | "training" | "finance" | null>(null);
   const [selectedItem, setSelectedItem] = useState<any>(null);
@@ -540,3 +544,6 @@ export default function Inventory() {
     </div>
   );
 }
+
+// Protected page - only SUPER_ADMIN, TRAINING_ADMIN, FINANCE_ADMIN can access
+export default withAuth(Inventory, ['SUPER_ADMIN', 'TRAINING_ADMIN', 'FINANCE_ADMIN']);

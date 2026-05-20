@@ -1,10 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { withAuth } from '@/contexts/AuthContext';
 import Navbar from "@/components/Navbar";
+import { withAuth } from '@/contexts/AuthContext';
 import Sidebar from "@/components/Sidebar";
+import { withAuth } from '@/contexts/AuthContext';
 
-export default function StudentPayments() {
+function StudentPayments() {
   const [activeMenu, setActiveMenu] = useState("Оюутны төлбөр");
   const [activeTab, setActiveTab] = useState<"invoices" | "balance" | "overdue" | "history" | "discount" | "scholarship">("invoices");
   
@@ -416,3 +419,7 @@ export default function StudentPayments() {
     </div>
   );
 }
+
+
+// Protected page - only SUPER_ADMIN, FINANCE_ADMIN can access
+export default withAuth(StudentPayments, ['SUPER_ADMIN', 'FINANCE_ADMIN']);

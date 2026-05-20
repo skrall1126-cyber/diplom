@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import PageTransition from "@/components/PageTransition";
 import AIChatbot from "@/components/AIChatbot";
+import { AuthProvider } from "@/contexts/AuthContext";
 
 export const metadata: Metadata = {
   title: "Indra Cyber Institute",
@@ -19,8 +20,10 @@ export default function RootLayout({
   return (
     <html lang="mn">
       <body>
-        <PageTransition>{children}</PageTransition>
-        <AIChatbot />
+        <AuthProvider>
+          <PageTransition>{children}</PageTransition>
+          <AIChatbot />
+        </AuthProvider>
       </body>
     </html>
   );

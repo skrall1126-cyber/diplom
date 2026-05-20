@@ -43,11 +43,12 @@ export default function TeacherAttendancePage() {
     setOpenDropdown(null);
   };
 
-  const handleMarkAttendanceExtended = (studentId: string, status: "present" | "absent" | "late" | "sick" | "excused") => {
+  const handleMarkAttendanceExtended = (studentId: string, status: "present" | "absent" | "late" | "sick" | "sick-leave" | "excused") => {
     const statusText = {
       present: "Ирсэн",
       late: "Хоцорсон",
       sick: "Өвчтэй",
+      "sick-leave": "Тасалсан өвчтэй",
       excused: "Чөлөөтэй",
       absent: "Тасалсан"
     };
@@ -285,11 +286,12 @@ export default function TeacherAttendancePage() {
                               </button>
                               
                               {openDropdown === student.id && (
-                                <div className="absolute right-0 top-full z-10 mt-1 w-40 rounded-xl border border-white/10 bg-[#0a1428] p-1 shadow-2xl">
+                                <div className="absolute right-0 top-full z-10 mt-1 w-48 rounded-xl border border-white/10 bg-[#0a1428] p-1 shadow-2xl">
                                   {[
                                     { status: "present", label: "Ирсэн", color: "text-emerald-300 hover:bg-emerald-500/15", icon: "✓" },
                                     { status: "late", label: "Хоцорсон", color: "text-amber-300 hover:bg-amber-500/15", icon: "⏰" },
                                     { status: "sick", label: "Өвчтэй", color: "text-blue-300 hover:bg-blue-500/15", icon: "🏥" },
+                                    { status: "sick-leave", label: "Тасалсан өвчтэй", color: "text-purple-300 hover:bg-purple-500/15", icon: "🏥📋" },
                                     { status: "excused", label: "Чөлөөтэй", color: "text-cyan-300 hover:bg-cyan-500/15", icon: "📝" },
                                     { status: "absent", label: "Тасалсан", color: "text-red-300 hover:bg-red-500/15", icon: "✗" },
                                   ].map((item) => (

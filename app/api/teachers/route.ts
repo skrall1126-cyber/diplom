@@ -1,8 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { teacherDb } from '@/lib/db';
+import { withAuth, PERMISSIONS, hasPermission } from '@/lib/auth-middleware';
 
 // GET /api/teachers - Бүх багш нарыг авах
 export async function GET(request: NextRequest) {
+  // Check authentication and authorization
+  const authResult = await withAuth(request, PERMISSIONS.MANAGE_TEACHERS);
+  if (authResult.error) {
+    return authResult.error;
+  }
+
   try {
     const { searchParams } = new URL(request.url);
     const department_id = searchParams.get('department_id') || undefined;
@@ -21,6 +28,12 @@ export async function GET(request: NextRequest) {
 
 // POST /api/teachers - Шинэ багш үүсгэх
 export async function POST(request: NextRequest) {
+  // Check authentication and authorization
+  const authResult = await withAuth(request, PERMISSIONS.MANAGE_TEACHERS);
+  if (authResult.error) {
+    return authResult.error;
+  }
+
   try {
     const body = await request.json();
 

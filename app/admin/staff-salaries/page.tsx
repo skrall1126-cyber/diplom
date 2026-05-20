@@ -1,11 +1,15 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { withAuth } from '@/contexts/AuthContext';
 import Navbar from "@/components/Navbar";
+import { withAuth } from '@/contexts/AuthContext';
 import Sidebar from "@/components/Sidebar";
+import { withAuth } from '@/contexts/AuthContext';
 import Link from "next/link";
+import { withAuth } from '@/contexts/AuthContext';
 
-export default function StaffSalaries() {
+function StaffSalaries() {
   const [activeMenu, setActiveMenu] = useState("Багш, ажилчдын цалин");
   const [filterDepartment, setFilterDepartment] = useState("all");
   const [filterStatus, setFilterStatus] = useState("all");
@@ -892,3 +896,6 @@ export default function StaffSalaries() {
     </div>
   );
 }
+
+// Protected page - only SUPER_ADMIN, FINANCE_ADMIN can access
+export default withAuth(StaffSalaries, ['SUPER_ADMIN', 'FINANCE_ADMIN']);

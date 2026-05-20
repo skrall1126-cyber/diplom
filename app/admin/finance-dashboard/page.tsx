@@ -1,11 +1,15 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { withAuth } from '@/contexts/AuthContext';
 import Navbar from "@/components/Navbar";
+import { withAuth } from '@/contexts/AuthContext';
 import Sidebar from "@/components/Sidebar";
+import { withAuth } from '@/contexts/AuthContext';
 import Link from "next/link";
+import { withAuth } from '@/contexts/AuthContext';
 
-export default function FinanceAdminDashboard() {
+function FinanceAdminDashboard() {
   const [activeMenu, setActiveMenu] = useState("Нүүр хуудас");
   
   // Set user type to finance in localStorage
@@ -217,3 +221,6 @@ export default function FinanceAdminDashboard() {
     </div>
   );
 }
+
+// Protected page - only SUPER_ADMIN, FINANCE_ADMIN can access
+export default withAuth(FinanceAdminDashboard, ['SUPER_ADMIN', 'FINANCE_ADMIN']);

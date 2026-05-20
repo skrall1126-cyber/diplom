@@ -1,8 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { studentDb } from '@/lib/db';
+import { withAuth, PERMISSIONS } from '@/lib/auth-middleware';
 
 // GET /api/students - Бүх оюутнуудыг авах
 export async function GET(request: NextRequest) {
+  // Check authentication and authorization
+  const authResult = await withAuth(request, PERMISSIONS.VIEW_STUDENTS);
+  if (authResult.error) {
+    return authResult.error;
+  }
+
   try {
     const { searchParams } = new URL(request.url);
     const major_id = searchParams.get('major_id') || undefined;
@@ -23,6 +30,12 @@ export async function GET(request: NextRequest) {
 
 // POST /api/students - Шинэ оюутан үүсгэх
 export async function POST(request: NextRequest) {
+  // Check authentication and authorization
+  const authResult = await withAuth(request, PERMISSIONS.MANAGE_STUDENTS);
+  if (authResult.error) {
+    return authResult.error;
+  }
+
   try {
     const body = await request.json();
 

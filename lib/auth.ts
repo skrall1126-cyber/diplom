@@ -3,7 +3,8 @@ import jwt from 'jsonwebtoken';
 import { userDb } from './db';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-super-secret-jwt-key';
-const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '7d';
+const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '1h'; // Access token: 1 hour
+const REFRESH_TOKEN_EXPIRES_IN = '7d'; // Refresh token: 7 days
 
 export interface TokenPayload {
   userId: string;
@@ -25,6 +26,11 @@ export async function verifyPassword(password: string, hashedPassword: string): 
 // JWT token үүсгэх
 export function generateToken(payload: TokenPayload): string {
   return jwt.sign(payload, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
+}
+
+// JWT refresh token үүсгэх
+export function generateRefreshToken(payload: TokenPayload): string {
+  return jwt.sign(payload, JWT_SECRET, { expiresIn: REFRESH_TOKEN_EXPIRES_IN });
 }
 
 // JWT token шалгах
@@ -144,4 +150,31 @@ export async function getCurrentUser(token: string) {
   const { password: _, ...userWithoutPassword } = user;
   
   return userWithoutPassword;
+}
+
+// Refresh token ашиглаад шинэ access token авах
+export async function refreshAccessToken(refreshToken: string) {
+  const payload = verifyToken(refreshToken);
+  
+  if (!payload) {
+    throw new Error('Refresh token буруу эсвэл хугацаа дууссан байна');
+  }
+
+  // Хэрэглэгч идэвхтэй эсэхийг шалгах
+  const user = await userDb.findById(payload.userId);
+  
+  if (!user || user.status !== 'ACTIVE') {
+    throw new Error('Хэрэглэгч идэвхгүй байна');
+  }
+
+  // Шинэ access token үүсгэх
+  const newToken = generateToken({
+    userId: user.id,
+    email: user.email,
+    role: user.role
+  });
+
+  return {
+    token: newToken
+  };
 }

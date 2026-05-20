@@ -1,8 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import { withAuth } from '@/contexts/AuthContext';
 import Navbar from "../../../components/Navbar";
+import { withAuth } from '@/contexts/AuthContext';
 import Sidebar from "../../../components/Sidebar";
+import { withAuth } from '@/contexts/AuthContext';
 
 // Мэргэжлийн төрөл
 interface Major {
@@ -30,7 +33,7 @@ interface Course {
   instructor: string;
 }
 
-export default function TrainingManagement() {
+function TrainingManagement() {
   const [activeMenu, setActiveMenu] = useState("Хөтөлбөр / Сургалтын төлөвлөгөө");
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedMajor, setSelectedMajor] = useState<string>("all");
@@ -643,3 +646,7 @@ export default function TrainingManagement() {
     </div>
   );
 }
+
+
+// Protected page - only SUPER_ADMIN, TRAINING_ADMIN can access
+export default withAuth(TrainingManagement, ['SUPER_ADMIN', 'TRAINING_ADMIN']);

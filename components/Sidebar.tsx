@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
+import { useAuth } from "@/contexts/AuthContext";
 
 const studentSubItems = [
   { label: "Дүнгийн мэдээлэл", href: "/student/grades" },
@@ -490,6 +491,7 @@ interface SidebarProps {
 
 export default function Sidebar({ activeMenu, onMenuChange }: SidebarProps) {
   const pathname = usePathname();
+  const { logout, user } = useAuth();
   const [studentOpen, setStudentOpen] = useState(
     pathname.startsWith("/student")
   );
@@ -826,7 +828,20 @@ export default function Sidebar({ activeMenu, onMenuChange }: SidebarProps) {
         })}
       </nav>
 
-      <div className="mt-auto px-2">
+      {/* Logout Button */}
+      <div className="mt-auto px-2 space-y-2">
+        <button
+          onClick={logout}
+          className="w-full flex items-center gap-2.5 rounded-lg border border-transparent px-3 py-2 text-sm text-white/50 hover:bg-white/[0.05] hover:text-white transition-all"
+        >
+          <span className="text-white/40">
+            <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
+              <path d="M5 13H3a1 1 0 01-1-1V3a1 1 0 011-1h2M10 10l3-3-3-3M6 7h7" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </span>
+          <span className="flex-1 text-left">Гарах</span>
+        </button>
+        
         <div className="rounded-xl border border-violet-400/20 bg-violet-600/10 p-1">
           <p className="mt-0.5 text-center text-[12px] leading-relaxed text-white/40">
             2025-2026

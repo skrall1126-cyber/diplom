@@ -88,26 +88,33 @@ export default function TeacherCoursesPage() {
   const [showHomeworkModal, setShowHomeworkModal] = useState(false);
   const [selectedCourse, setSelectedCourse] = useState<string | null>(null);
   const [uploadForm, setUploadForm] = useState({
+    weekNumber: 1,
+    materialType: "lecture", // lecture, video, code
     title: "",
     description: "",
     fileType: "pdf",
-    file: null as File | null
+    file: null as File | null,
+    fileData: null as string | null
   });
   const [assignmentForm, setAssignmentForm] = useState({
+    weekNumber: 1,
     title: "",
     description: "",
     dueDate: "",
     points: 100,
     type: "individual",
-    file: null as File | null
+    file: null as File | null,
+    fileData: null as string | null
   });
   const [homeworkForm, setHomeworkForm] = useState({
+    weekNumber: 1,
     title: "",
     description: "",
     dueDate: "",
     points: 100,
     type: "individual",
-    file: null as File | null
+    file: null as File | null,
+    fileData: null as string | null
   });
 
   const semesters = ["2025 Spring", "2024 Fall", "2024 Spring", "2023 Fall"];
@@ -130,21 +137,48 @@ export default function TeacherCoursesPage() {
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      setUploadForm({...uploadForm, file});
+      // Convert file to base64 for storage
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setUploadForm({
+          ...uploadForm, 
+          file: file,
+          fileData: reader.result as string
+        });
+      };
+      reader.readAsDataURL(file);
     }
   };
 
   const handleAssignmentFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      setAssignmentForm({...assignmentForm, file});
+      // Convert file to base64 for storage
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setAssignmentForm({
+          ...assignmentForm, 
+          file: file,
+          fileData: reader.result as string
+        });
+      };
+      reader.readAsDataURL(file);
     }
   };
 
   const handleHomeworkFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      setHomeworkForm({...homeworkForm, file});
+      // Convert file to base64 for storage
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setHomeworkForm({
+          ...homeworkForm, 
+          file: file,
+          fileData: reader.result as string
+        });
+      };
+      reader.readAsDataURL(file);
     }
   };
 
@@ -155,54 +189,131 @@ export default function TeacherCoursesPage() {
     }
 
     const course = teacherCourses.find(c => c.id === selectedCourse);
+    
+    // Save material to localStorage
+    const newMaterial = {
+      id: Date.now().toString(),
+      courseId: selectedCourse,
+      courseName: course?.name || "Бүх хичээл",
+      weekNumber: uploadForm.weekNumber,
+      materialType: uploadForm.materialType,
+      title: uploadForm.title,
+      description: uploadForm.description,
+      fileType: uploadForm.fileType,
+      fileName: uploadForm.file?.name || null,
+      fileData: uploadForm.fileData || null,
+      createdAt: new Date().toISOString(),
+      status: "active"
+    };
+    
+    // Get existing materials
+    const existingMaterials = JSON.parse(localStorage.getItem('teacherMaterials') || '[]');
+    existingMaterials.push(newMaterial);
+    localStorage.setItem('teacherMaterials', JSON.stringify(existingMaterials));
+    
     alert(`${course?.name} хичээлд "${uploadForm.title}" материал амжилттай орууллаа!`);
     
     setShowUploadModal(false);
     setUploadForm({
+      weekNumber: 1,
+      materialType: "lecture",
       title: "",
       description: "",
       fileType: "pdf",
-      file: null
+      file: null,
+      fileData: null
     });
   };
 
   const handleSubmitAssignment = () => {
-    if (!assignmentForm.title || !assignmentForm.dueDate) {
-      alert("Гарчиг болон дуусах хугацаа оруулна уу!");
+    if (!assignmentForm.weekNumber || !assignmentForm.dueDate) {
+      alert("Долоо хоног болон дуусах хугацаа оруулна уу!");
       return;
     }
 
     const course = teacherCourses.find(c => c.id === selectedCourse);
-    alert(`${course?.name} хичээлд "${assignmentForm.title}" даалгавар амжилттай үүсгэлээ!`);
+    
+    // Save assignment to localStorage
+    const newAssignment = {
+      id: Date.now().toString(),
+      courseId: selectedCourse,
+      courseName: course?.name || "Бүх хичээл",
+      weekNumber: assignmentForm.weekNumber,
+      title: assignmentForm.title || `Долоо хоног ${assignmentForm.weekNumber} - Даалгавар`,
+      description: assignmentForm.description,
+      dueDate: assignmentForm.dueDate,
+      points: assignmentForm.points,
+      type: assignmentForm.type,
+      fileName: assignmentForm.file?.name || null,
+      fileData: assignmentForm.fileData || null,
+      createdAt: new Date().toISOString(),
+      status: "active",
+      category: "assignment" // Даалгавар гэдгийг ялгах
+    };
+    
+    // Get existing assignments
+    const existingAssignments = JSON.parse(localStorage.getItem('teacherAssignments') || '[]');
+    existingAssignments.push(newAssignment);
+    localStorage.setItem('teacherAssignments', JSON.stringify(existingAssignments));
+    
+    alert(`${course?.name} хичээлд "Долоо хоног ${assignmentForm.weekNumber}" даалгавар амжилттай үүсгэлээ!`);
     
     setShowAssignmentModal(false);
     setAssignmentForm({
+      weekNumber: 1,
       title: "",
       description: "",
       dueDate: "",
       points: 100,
       type: "individual",
-      file: null
+      file: null,
+      fileData: null
     });
   };
 
   const handleSubmitHomework = () => {
-    if (!homeworkForm.title || !homeworkForm.dueDate) {
-      alert("Гарчиг болон дуусах хугацаа оруулна уу!");
+    if (!homeworkForm.weekNumber || !homeworkForm.dueDate) {
+      alert("Долоо хоног болон дуусах хугацаа оруулна уу!");
       return;
     }
 
     const course = teacherCourses.find(c => c.id === selectedCourse);
-    alert(`${course?.name} хичээлд "${homeworkForm.title}" бие даалт амжилттай үүсгэлээ!`);
+    
+    // Save homework to localStorage
+    const newHomework = {
+      id: Date.now().toString(),
+      courseId: selectedCourse,
+      courseName: course?.name || "Бүх хичээл",
+      weekNumber: homeworkForm.weekNumber,
+      title: homeworkForm.title || `Долоо хоног ${homeworkForm.weekNumber} - Бие даалт`,
+      description: homeworkForm.description,
+      dueDate: homeworkForm.dueDate,
+      points: homeworkForm.points,
+      type: homeworkForm.type,
+      fileName: homeworkForm.file?.name || null,
+      fileData: homeworkForm.fileData || null,
+      createdAt: new Date().toISOString(),
+      status: "active",
+      category: "homework" // Бие даалт гэдгийг ялгах
+    };
+    
+    // Get existing homeworks
+    const existingHomeworks = JSON.parse(localStorage.getItem('teacherHomeworks') || '[]');
+    existingHomeworks.push(newHomework);
+    localStorage.setItem('teacherHomeworks', JSON.stringify(existingHomeworks));
+    
+    alert(`${course?.name} хичээлд "Долоо хоног ${homeworkForm.weekNumber}" бие даалт амжилттай үүсгэлээ!`);
     
     setShowHomeworkModal(false);
     setHomeworkForm({
+      weekNumber: 1,
       title: "",
       description: "",
       dueDate: "",
       points: 100,
       type: "individual",
-      file: null
+      file: null,
+      fileData: null
     });
   };
 
@@ -480,6 +591,38 @@ export default function TeacherCoursesPage() {
                   <div className="space-y-4">
                     <div>
                       <label className="mb-1.5 block text-[11px] font-medium text-white/35">
+                        Долоо хоног сонгох
+                      </label>
+                      <select
+                        value={uploadForm.weekNumber}
+                        onChange={(e) => setUploadForm({...uploadForm, weekNumber: parseInt(e.target.value)})}
+                        className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2.5 text-sm text-white focus:border-emerald-400/40 focus:outline-none"
+                      >
+                        {Array.from({ length: 16 }, (_, i) => i + 1).map((week) => (
+                          <option key={week} value={week}>
+                            Долоо хоног {week}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="mb-1.5 block text-[11px] font-medium text-white/35">
+                        Материалын төрөл
+                      </label>
+                      <select
+                        value={uploadForm.materialType}
+                        onChange={(e) => setUploadForm({...uploadForm, materialType: e.target.value})}
+                        className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2.5 text-sm text-white focus:border-emerald-400/40 focus:outline-none"
+                      >
+                        <option value="lecture">📚 Лекцийн слайд</option>
+                        <option value="video">🎬 Видео хичээл</option>
+                        <option value="code">💻 Жишээ код</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="mb-1.5 block text-[11px] font-medium text-white/35">
                         Гарчиг
                       </label>
                       <input
@@ -502,23 +645,6 @@ export default function TeacherCoursesPage() {
                         placeholder="Материалын тайлбар..."
                         rows={3}
                       />
-                    </div>
-
-                    <div>
-                      <label className="mb-1.5 block text-[11px] font-medium text-white/35">
-                        Файлын төрөл
-                      </label>
-                      <select
-                        value={uploadForm.fileType}
-                        onChange={(e) => setUploadForm({...uploadForm, fileType: e.target.value})}
-                        className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2.5 text-sm text-white focus:border-emerald-400/40 focus:outline-none"
-                      >
-                        <option value="pdf">PDF</option>
-                        <option value="ppt">PowerPoint</option>
-                        <option value="video">Видео</option>
-                        <option value="zip">ZIP архив</option>
-                        <option value="other">Бусад</option>
-                      </select>
                     </div>
 
                     <div>
@@ -571,7 +697,7 @@ export default function TeacherCoursesPage() {
                 <div className="w-full max-w-md rounded-[28px] border border-white/10 bg-[#0a1428] p-6 shadow-2xl">
                   <div className="mb-4 flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-semibold text-white/90">Даалгавар үүсгэх</p>
+                      <p className="text-sm font-semibold text-white/90">Даалгавар оруулах</p>
                       <p className="mt-0.5 text-xs text-white/40">
                         {selectedCourse ? teacherCourses.find(c => c.id === selectedCourse)?.name : "Бүх хичээлд"}
                       </p>
@@ -589,7 +715,24 @@ export default function TeacherCoursesPage() {
                   <div className="space-y-4">
                     <div>
                       <label className="mb-1.5 block text-[11px] font-medium text-white/35">
-                        Даалгаврын нэр
+                        Долоо хоног сонгох
+                      </label>
+                      <select
+                        value={assignmentForm.weekNumber}
+                        onChange={(e) => setAssignmentForm({...assignmentForm, weekNumber: parseInt(e.target.value)})}
+                        className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2.5 text-sm text-white focus:border-violet-400/40 focus:outline-none"
+                      >
+                        {Array.from({ length: 16 }, (_, i) => i + 1).map((week) => (
+                          <option key={week} value={week}>
+                            Долоо хоног {week}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="mb-1.5 block text-[11px] font-medium text-white/35">
+                        Даалгаврын нэр (заавал биш)
                       </label>
                       <input
                         type="text"
@@ -598,6 +741,7 @@ export default function TeacherCoursesPage() {
                         className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2.5 text-sm text-white placeholder-white/20 focus:border-violet-400/40 focus:outline-none"
                         placeholder="Жишээ нь: Лабораторийн ажил 1"
                       />
+                      <p className="mt-1 text-xs text-white/30">Хоосон үлдвэл автоматаар "Долоо хоног X - Даалгавар" гэж нэрлэгдэнэ</p>
                     </div>
 
                     <div>
@@ -622,7 +766,7 @@ export default function TeacherCoursesPage() {
                           type="datetime-local"
                           value={assignmentForm.dueDate}
                           onChange={(e) => setAssignmentForm({...assignmentForm, dueDate: e.target.value})}
-                          className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2.5 text-sm text-white focus:border-violet-400/40 focus:outline-none"
+                          className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2.5 text-sm text-white focus:border-violet-400/40 focus:outline-none [color-scheme:dark]"
                         />
                       </div>
                       <div>
@@ -723,7 +867,24 @@ export default function TeacherCoursesPage() {
                   <div className="space-y-4">
                     <div>
                       <label className="mb-1.5 block text-[11px] font-medium text-white/35">
-                        Бие даалтын нэр
+                        Долоо хоног сонгох
+                      </label>
+                      <select
+                        value={homeworkForm.weekNumber}
+                        onChange={(e) => setHomeworkForm({...homeworkForm, weekNumber: parseInt(e.target.value)})}
+                        className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2.5 text-sm text-white focus:border-amber-400/40 focus:outline-none"
+                      >
+                        {Array.from({ length: 16 }, (_, i) => i + 1).map((week) => (
+                          <option key={week} value={week}>
+                            Долоо хоног {week}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="mb-1.5 block text-[11px] font-medium text-white/35">
+                        Бие даалтын нэр (заавал биш)
                       </label>
                       <input
                         type="text"
@@ -732,6 +893,7 @@ export default function TeacherCoursesPage() {
                         className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2.5 text-sm text-white placeholder-white/20 focus:border-amber-400/40 focus:outline-none"
                         placeholder="Жишээ нь: 1-р бүлгийн бие даалт"
                       />
+                      <p className="mt-1 text-xs text-white/30">Хоосон үлдвэл автоматаар "Долоо хоног X - Бие даалт" гэж нэрлэгдэнэ</p>
                     </div>
 
                     <div>
@@ -756,7 +918,7 @@ export default function TeacherCoursesPage() {
                           type="datetime-local"
                           value={homeworkForm.dueDate}
                           onChange={(e) => setHomeworkForm({...homeworkForm, dueDate: e.target.value})}
-                          className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2.5 text-sm text-white focus:border-amber-400/40 focus:outline-none"
+                          className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2.5 text-sm text-white focus:border-amber-400/40 focus:outline-none [color-scheme:dark]"
                         />
                       </div>
                       <div>

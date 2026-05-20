@@ -1,12 +1,17 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { withAuth } from '@/contexts/AuthContext';
 import { useRouter } from "next/navigation";
+import { withAuth } from '@/contexts/AuthContext';
 import Link from "next/link";
+import { withAuth } from '@/contexts/AuthContext';
 import Navbar from "@/components/Navbar";
+import { withAuth } from '@/contexts/AuthContext';
 import Sidebar from "@/components/Sidebar";
+import { withAuth } from '@/contexts/AuthContext';
 
-export default function SettingsPage() {
+function SettingsPage() {
   const router = useRouter();
   const [userType, setUserType] = useState<string | null>(null);
   const [activeMenu, setActiveMenu] = useState("Системийн тохиргоо");
@@ -307,3 +312,6 @@ export default function SettingsPage() {
     </div>
   );
 }
+
+// Protected page - only SUPER_ADMIN can access
+export default withAuth(SettingsPage, ['SUPER_ADMIN']);

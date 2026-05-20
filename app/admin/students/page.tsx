@@ -1,11 +1,15 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { withAuth } from '@/contexts/AuthContext';
 import Navbar from "@/components/Navbar";
+import { withAuth } from '@/contexts/AuthContext';
 import Sidebar from "@/components/Sidebar";
+import { withAuth } from '@/contexts/AuthContext';
 import Link from "next/link";
+import { withAuth } from '@/contexts/AuthContext';
 
-export default function Students() {
+function Students() {
   const [activeMenu, setActiveMenu] = useState("Оюутны жагсаалт");
   const [userType, setUserType] = useState<"admin" | "training" | "finance" | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
@@ -1178,3 +1182,6 @@ export default function Students() {
     </div>
   );
 }
+
+// Protected page - only SUPER_ADMIN, TRAINING_ADMIN can access
+export default withAuth(Students, ['SUPER_ADMIN', 'TRAINING_ADMIN']);

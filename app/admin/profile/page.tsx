@@ -1,10 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { withAuth } from '@/contexts/AuthContext';
 import Navbar from "@/components/Navbar";
+import { withAuth } from '@/contexts/AuthContext';
 import Sidebar from "@/components/Sidebar";
+import { withAuth } from '@/contexts/AuthContext';
 
-export default function AdminProfilePage() {
+function AdminProfilePage() {
   const [activeMenu, setActiveMenu] = useState("Хувийн мэдээлэл");
   const [userType, setUserType] = useState<"admin" | "training" | "finance" | null>(null);
   const [isEditing, setIsEditing] = useState(false);
@@ -210,3 +213,7 @@ export default function AdminProfilePage() {
     </div>
   );
 }
+
+
+// Protected page - only SUPER_ADMIN, TRAINING_ADMIN, FINANCE_ADMIN can access
+export default withAuth(AdminProfilePage, ['SUPER_ADMIN', 'TRAINING_ADMIN', 'FINANCE_ADMIN']);

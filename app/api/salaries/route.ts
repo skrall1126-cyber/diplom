@@ -1,8 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { salaryDb } from '@/lib/db';
+import { withAuth, PERMISSIONS, hasPermission } from '@/lib/auth-middleware';
 
 // GET /api/salaries - Бүх цалингуудыг авах
 export async function GET(request: NextRequest) {
+  // Check authentication and authorization
+  const authResult = await withAuth(request, PERMISSIONS.MANAGE_SALARIES);
+  if (authResult.error) {
+    return authResult.error;
+  }
+
   try {
     const { searchParams } = new URL(request.url);
     const status = searchParams.get('status') || undefined;
@@ -22,6 +29,12 @@ export async function GET(request: NextRequest) {
 
 // POST /api/salaries - Шинэ цалин үүсгэх
 export async function POST(request: NextRequest) {
+  // Check authentication and authorization
+  const authResult = await withAuth(request, PERMISSIONS.MANAGE_SALARIES);
+  if (authResult.error) {
+    return authResult.error;
+  }
+
   try {
     const body = await request.json();
 

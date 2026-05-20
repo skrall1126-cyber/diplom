@@ -4,8 +4,10 @@ import { useState, useEffect } from "react";
 import Navbar from "@/components/Navbar";
 import Sidebar from "@/components/Sidebar";
 import Link from "next/link";
+import { withAuth, useAuth } from "@/contexts/AuthContext";
 
-export default function AdminDashboard() {
+function AdminDashboard() {
+  const { user } = useAuth();
   const [activeMenu, setActiveMenu] = useState("Нүүр хуудас");
   const [adminType, setAdminType] = useState("Бүрэн эрхт админ");
   const [adminTypeKey, setAdminTypeKey] = useState("full-admin");
@@ -398,3 +400,6 @@ export default function AdminDashboard() {
     </div>
   );
 }
+
+// Protect this page - only SUPER_ADMIN can access
+export default withAuth(AdminDashboard, ['SUPER_ADMIN']);
