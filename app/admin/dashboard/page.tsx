@@ -134,10 +134,22 @@ function AdminDashboard() {
                     <p className="text-xs text-white/40">{adminType}</p>
                   </div>
                   <button 
-                    onClick={() => {
-                      if (typeof window !== 'undefined') {
-                        localStorage.removeItem("userType");
-                        localStorage.removeItem("adminType");
+                    onClick={async () => {
+                      try {
+                        // Call logout API
+                        await fetch('/api/auth/logout', { method: 'POST' });
+                        // Clear localStorage
+                        if (typeof window !== 'undefined') {
+                          localStorage.removeItem("userType");
+                          localStorage.removeItem("adminType");
+                          localStorage.removeItem("token");
+                          localStorage.removeItem("user");
+                        }
+                        // Redirect to login
+                        window.location.href = "/admin/login";
+                      } catch (error) {
+                        console.error('Logout error:', error);
+                        // Still redirect even if API fails
                         window.location.href = "/admin/login";
                       }
                     }}

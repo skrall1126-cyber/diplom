@@ -41,22 +41,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const checkAuth = async () => {
     try {
       const token = authApi.getToken();
-      if (!token) {
+      const savedUser = authApi.getUser();
+      
+      if (!token || !savedUser) {
         setLoading(false);
         return;
       }
 
-      const result = await authApi.getCurrentUser();
-      if (result.data?.user) {
-        setUser(result.data.user);
-      } else {
-        // Token invalid, clear it
-        authApi.logout();
-      }
+      // Use saved user from localStorage
+      setUser(savedUser);
+      setLoading(false);
     } catch (error) {
       console.error('Auth check error:', error);
       authApi.logout();
-    } finally {
       setLoading(false);
     }
   };
@@ -85,7 +82,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const logout = () => {
+  const logout = async () => {
+    try {
+      // Call logout API to clear cookie
+      await fetch('/api/auth/logout', { method: 'POST' });
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+    
+    // Clear localStorage
     authApi.logout();
     setUser(null);
     router.push('/admin/login');

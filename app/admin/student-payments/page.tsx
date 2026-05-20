@@ -2,14 +2,45 @@
 
 import { useState, useEffect } from "react";
 import { withAuth } from '@/contexts/AuthContext';
+import { paymentsApi } from '@/lib/api';
 import Navbar from "@/components/Navbar";
-import { withAuth } from '@/contexts/AuthContext';
 import Sidebar from "@/components/Sidebar";
-import { withAuth } from '@/contexts/AuthContext';
 
 function StudentPayments() {
   const [activeMenu, setActiveMenu] = useState("Оюутны төлбөр");
   const [activeTab, setActiveTab] = useState<"invoices" | "balance" | "overdue" | "history" | "discount" | "scholarship">("invoices");
+  
+  // API state
+  const [payments, setPayments] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  
+  // Load payments from API
+  useEffect(() => {
+    loadPayments();
+  }, []);
+
+  const loadPayments = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      const result = await paymentsApi.getAll();
+      
+      if (result.error) {
+        setError(result.error);
+        return;
+      }
+      
+      if (result.data) {
+        setPayments(result.data.payments || []);
+      }
+    } catch (err: any) {
+      setError(err.message || 'Төлбөрүүдийг ачаалахад алдаа гарлаа');
+    } finally {
+      setLoading(false);
+    }
+  };
   
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -17,6 +48,37 @@ function StudentPayments() {
       localStorage.setItem("adminType", "finance-admin");
     }
   }, []);
+
+  // Loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#06030f]">
+        <div className="text-white text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-white mx-auto mb-4"></div>
+          <p className="text-lg">Төлбөрүүдийг ачаалж байна...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#06030f]">
+        <div className="text-white text-center max-w-md">
+          <div className="text-6xl mb-4">⚠️</div>
+          <p className="text-red-400 mb-4 text-xl">Алдаа гарлаа</p>
+          <p className="text-white/60 mb-6">{error}</p>
+          <button 
+            onClick={loadPayments}
+            className="px-6 py-3 bg-blue-500 rounded-lg hover:bg-blue-600 transition-colors font-medium"
+          >
+            Дахин оролдох
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   const tabs = [
     { id: "invoices", label: "Ерөнхий мэдээлэл", icon: "📄" },

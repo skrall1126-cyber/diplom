@@ -2,12 +2,10 @@
 
 import { useState, useEffect } from "react";
 import { withAuth } from '@/contexts/AuthContext';
+import { salariesApi } from '@/lib/api';
 import Navbar from "@/components/Navbar";
-import { withAuth } from '@/contexts/AuthContext';
 import Sidebar from "@/components/Sidebar";
-import { withAuth } from '@/contexts/AuthContext';
 import Link from "next/link";
-import { withAuth } from '@/contexts/AuthContext';
 
 function StaffSalaries() {
   const [activeMenu, setActiveMenu] = useState("Багш, ажилчдын цалин");
@@ -19,6 +17,38 @@ function StaffSalaries() {
   const [showCalculationModal, setShowCalculationModal] = useState(false);
   const [calculationEmployee, setCalculationEmployee] = useState<any>(null);
   
+  // API state
+  const [salaries, setSalaries] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  
+  // Load salaries from API
+  useEffect(() => {
+    loadSalaries();
+  }, []);
+
+  const loadSalaries = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      const result = await salariesApi.getAll();
+      
+      if (result.error) {
+        setError(result.error);
+        return;
+      }
+      
+      if (result.data) {
+        setSalaries(result.data.salaries || []);
+      }
+    } catch (err: any) {
+      setError(err.message || 'Цалингуудыг ачаалахад алдаа гарлаа');
+    } finally {
+      setLoading(false);
+    }
+  };
+  
   // Set user type to finance admin in localStorage
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -27,60 +57,36 @@ function StaffSalaries() {
     }
   }, []);
 
-  const salaries = [
-    {
-      id: "SAL-2024-001245",
-      employee: "Д.Энхбаяр",
-      position: "Програм хангамжийн багш",
-      department: "Програм хангамжийн тэнхим",
-      baseSalary: 2500000,
-      bonus: 300000,
-      deductions: 250000,
-      netSalary: 2550000,
-      status: "paid",
-      paymentDate: "2024-05-05",
-      attendance: "98%",
-      workload: "24 цаг",
-      color: "from-blue-500 to-cyan-600",
-      email: "enkhbayar@indra.edu.mn",
-      phone: "9999-1111",
-      bankAccount: "5302 8642 8100",
-      bankName: "Хаан банк",
-      taxId: "УБ12345678",
-      socialInsurance: 200000,
-      healthInsurance: 50000,
-      courses: ["Python үндэс", "JavaScript", "React"],
-      teachingHours: 24,
-      overtimeHours: 4,
-      bonusReason: "Сургалтын чанар сайн"
-    },
-    {
-      id: "SAL-2024-001246",
-      employee: "Б.Батбаяр",
-      position: "Сүлжээний технологийн багш",
-      department: "Сүлжээний технологийн тэнхим",
-      baseSalary: 2400000,
-      bonus: 250000,
-      deductions: 240000,
-      netSalary: 2410000,
-      status: "paid",
-      paymentDate: "2024-05-05",
-      attendance: "96%",
-      workload: "22 цаг",
-      color: "from-emerald-500 to-teal-600",
-      email: "batbayar@indra.edu.mn",
-      phone: "9999-2222",
-      bankAccount: "5302 8642 8200",
-      bankName: "Голомт банк",
-      taxId: "УБ23456789",
-      socialInsurance: 192000,
-      healthInsurance: 48000,
-      courses: ["Сүлжээний үндэс", "Cisco CCNA", "Network Security"],
-      teachingHours: 22,
-      overtimeHours: 2,
-      bonusReason: "Сертификат олгох сургалт"
-    },
-    {
+  // Loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#06030f]">
+        <div className="text-white text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-white mx-auto mb-4"></div>
+          <p className="text-lg">Цалингуудыг ачаалж байна...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#06030f]">
+        <div className="text-white text-center max-w-md">
+          <div className="text-6xl mb-4">⚠️</div>
+          <p className="text-red-400 mb-4 text-xl">Алдаа гарлаа</p>
+          <p className="text-white/60 mb-6">{error}</p>
+          <button 
+            onClick={loadSalaries}
+            className="px-6 py-3 bg-blue-500 rounded-lg hover:bg-blue-600 transition-colors font-medium"
+          >
+            Дахин оролдох
+          </button>
+        </div>
+      </div>
+    );
+  }
       id: "SAL-2024-001247",
       employee: "Ц.Ганбаатар",
       position: "Мэдээллийн аюулгүй байдлын багш",

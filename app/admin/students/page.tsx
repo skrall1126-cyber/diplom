@@ -2,18 +2,22 @@
 
 import { useState, useEffect } from "react";
 import { withAuth } from '@/contexts/AuthContext';
+import { studentsApi } from '@/lib/api';
 import Navbar from "@/components/Navbar";
-import { withAuth } from '@/contexts/AuthContext';
 import Sidebar from "@/components/Sidebar";
-import { withAuth } from '@/contexts/AuthContext';
 import Link from "next/link";
-import { withAuth } from '@/contexts/AuthContext';
 
 function Students() {
   const [activeMenu, setActiveMenu] = useState("Оюутны жагсаалт");
   const [userType, setUserType] = useState<"admin" | "training" | "finance" | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedStudent, setSelectedStudent] = useState<typeof studentsData[0] | null>(null);
+  
+  // API state
+  const [students, setStudents] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  
+  const [selectedStudent, setSelectedStudent] = useState<any | null>(null);
   const [showChatModal, setShowChatModal] = useState(false);
   const [showStatusModal, setShowStatusModal] = useState(false);
   const [showAddStudentModal, setShowAddStudentModal] = useState(false);
@@ -25,6 +29,33 @@ function Students() {
   const [editSearchTerm, setEditSearchTerm] = useState("");
   const [chatMessage, setChatMessage] = useState("");
   const [chatHistory, setChatHistory] = useState<Array<{sender: string, message: string, time: string}>>([]);
+
+  // Load students from API
+  useEffect(() => {
+    loadStudents();
+  }, []);
+
+  const loadStudents = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      const result = await studentsApi.getAll();
+      
+      if (result.error) {
+        setError(result.error);
+        return;
+      }
+      
+      if (result.data) {
+        setStudents(result.data.students || []);
+      }
+    } catch (err: any) {
+      setError(err.message || 'Оюутнуудыг ачаалахад алдаа гарлаа');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -42,7 +73,7 @@ function Students() {
       const openChatId = urlParams.get('openChat');
       if (openChatId) {
         // Find student by ID and open chat
-        const student = studentsData.find(s => s.id === parseInt(openChatId));
+        const student = students.find(s => s.id === openChatId);
         if (student) {
           setSelectedStudent(student);
           setShowChatModal(true);
@@ -53,7 +84,7 @@ function Students() {
         }
       }
     }
-  }, []);
+  }, [students]);
 
   const getBackLink = () => {
     if (userType === "training") return "/admin/training-dashboard";
@@ -67,29 +98,22 @@ function Students() {
     return "Бүрэн эрхт админ";
   };
 
-  const studentsData = [
-    { id: 1, name: "Төртэмүүлэн", idNumber: "B211930019", department: "Програм хангамж", gpa: 3.8, status: "Идэвхтэй", leaveType: null, email: "tortemuulen@indra.edu.mn", phone: "9999-9999" },
-    { id: 2, name: "Э.Батжаргал", idNumber: "B211930020", department: "Програм хангамж", gpa: 3.7, status: "Идэвхтэй", leaveType: null, email: "batjargal@indra.edu.mn", phone: "8888-8888" },
-    { id: 3, name: "Ц.Мөнхбат", idNumber: "B211930021", department: "Сүлжээний технологи", gpa: 3.9, status: "Идэвхтэй", leaveType: null, email: "monkhbat@indra.edu.mn", phone: "7777-7777" },
-    { id: 4, name: "Д.Сүхбат", idNumber: "B211930022", department: "Сүлжээний технологи", gpa: 3.6, status: "Хагас жилийн чөлөө", leaveType: "half", email: "sukhbat@indra.edu.mn", phone: "6666-6666" },
-    { id: 5, name: "Б.Ганбаяр", idNumber: "B211930023", department: "Мэдээллийн аюулгүй байдал", gpa: 3.5, status: "Бүтэн жилийн чөлөө", leaveType: "full", email: "ganbayar@indra.edu.mn", phone: "5555-5555" },
-    { id: 6, name: "Н.Энхжаргал", idNumber: "B211930024", department: "Мэдээллийн аюулгүй байдал", gpa: 3.4, status: "Идэвхтэй", leaveType: null, email: "enkhjargal@indra.edu.mn", phone: "4444-4444" },
-    { id: 7, name: "Г.Бат-Эрдэнэ", idNumber: "B211930025", department: "Мэдээлэл зүй", gpa: 3.8, status: "Идэвхтэй", leaveType: null, email: "baterdene@indra.edu.mn", phone: "3333-3333" },
-    { id: 8, name: "Л.Хүслэн", idNumber: "B211930026", department: "Мэдээлэл зүй", gpa: 3.7, status: "Идэвхтэй", leaveType: null, email: "khuslen@indra.edu.mn", phone: "2222-2222" },
-  ];
-
+  // Calculate summary stats from API data
   const summaryStats = {
-    totalStudents: 8,
-    active: 6,
-    averageGPA: 3.68,
-    departments: 4
+    totalStudents: students.length,
+    active: students.filter(s => s.user?.status === 'ACTIVE').length,
+    averageGPA: students.length > 0 
+      ? (students.reduce((sum, s) => sum + (s.gpa || 0), 0) / students.length).toFixed(2)
+      : 0,
+    departments: new Set(students.map(s => s.major?.name)).size
   };
 
   const getStatusColor = (status: string) => {
-    if (status === "Идэвхтэй") return "bg-emerald-500/10 text-emerald-400";
-    if (status === "Хагас жилийн чөлөө") return "bg-amber-500/10 text-amber-400";
+    if (status === "ACTIVE" || status === "Идэвхтэй") return "bg-emerald-500/10 text-emerald-400";
+    if (status === "INACTIVE" || status === "Хагас жилийн чөлөө") return "bg-amber-500/10 text-amber-400";
+    if (status === "SUSPENDED" || status === "Дүрэм зөрчсөн") return "bg-red-500/10 text-red-400";
+    if (status === "GRADUATED" || status === "Төгссөн") return "bg-blue-500/10 text-blue-400";
     if (status === "Бүтэн жилийн чөлөө") return "bg-amber-500/10 text-amber-400";
-    if (status === "Дүрэм зөрчсөн") return "bg-red-500/10 text-red-400";
     if (status === "Төлбөр төлөөгүй") return "bg-orange-500/10 text-orange-400";
     return "bg-gray-500/10 text-gray-400";
   };
@@ -106,14 +130,15 @@ function Students() {
   };
 
   // Filter students based on search term
-  const filteredStudents = studentsData.filter(student => {
+  const filteredStudents = students.filter(student => {
     const searchLower = searchTerm.toLowerCase();
+    const fullName = `${student.user?.first_name} ${student.user?.last_name}`.toLowerCase();
     return (
-      student.name.toLowerCase().includes(searchLower) ||
-      student.idNumber.toLowerCase().includes(searchLower) ||
-      student.department.toLowerCase().includes(searchLower) ||
-      student.email.toLowerCase().includes(searchLower) ||
-      student.phone.includes(searchTerm)
+      fullName.includes(searchLower) ||
+      student.student_id?.toLowerCase().includes(searchLower) ||
+      student.major?.name?.toLowerCase().includes(searchLower) ||
+      student.user?.email?.toLowerCase().includes(searchLower) ||
+      student.user?.phone?.includes(searchTerm)
     );
   });
 
@@ -128,6 +153,37 @@ function Students() {
       setChatMessage("");
     }
   };
+
+  // Loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#06030f]">
+        <div className="text-white text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-white mx-auto mb-4"></div>
+          <p className="text-lg">Оюутнуудыг ачаалж байна...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#06030f]">
+        <div className="text-white text-center max-w-md">
+          <div className="text-6xl mb-4">⚠️</div>
+          <p className="text-red-400 mb-4 text-xl">Алдаа гарлаа</p>
+          <p className="text-white/60 mb-6">{error}</p>
+          <button 
+            onClick={loadStudents}
+            className="px-6 py-3 bg-blue-500 rounded-lg hover:bg-blue-600 transition-colors font-medium"
+          >
+            Дахин оролдох
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen font-sans text-white">
@@ -194,9 +250,9 @@ function Students() {
                 {/* Results count */}
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-white/50">
-                    {filteredStudents.length === studentsData.length 
-                      ? `Нийт ${studentsData.length} оюутан`
-                      : `${filteredStudents.length} оюутан олдлоо (нийт ${studentsData.length})`
+                    {filteredStudents.length === students.length 
+                      ? `Нийт ${students.length} оюутан`
+                      : `${filteredStudents.length} оюутан олдлоо (нийт ${students.length})`
                     }
                   </span>
                   {searchTerm && (
@@ -1079,11 +1135,11 @@ function Students() {
             </div>
 
             <div className="max-h-[400px] overflow-y-auto mb-6 space-y-2">
-              {studentsData
+              {students
                 .filter(student => 
                   editSearchTerm === "" || 
-                  student.idNumber.toLowerCase().includes(editSearchTerm.toLowerCase()) ||
-                  student.name.toLowerCase().includes(editSearchTerm.toLowerCase())
+                  student.student_id?.toLowerCase().includes(editSearchTerm.toLowerCase()) ||
+                  `${student.user?.first_name} ${student.user?.last_name}`.toLowerCase().includes(editSearchTerm.toLowerCase())
                 )
                 .map((student) => (
                   <button
@@ -1097,20 +1153,20 @@ function Students() {
                   >
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-sm font-medium text-white">{student.name}</p>
-                        <p className="text-xs text-white/50">{student.idNumber} • {student.department}</p>
+                        <p className="text-sm font-medium text-white">{student.user?.first_name} {student.user?.last_name}</p>
+                        <p className="text-xs text-white/50">{student.student_id} • {student.major?.name}</p>
                       </div>
-                      <span className={`rounded-full border px-2 py-0.5 text-xs ${getStatusColor(student.status)}`}>
-                        {student.status}
+                      <span className={`rounded-full border px-2 py-0.5 text-xs ${getStatusColor(student.user?.status || 'ACTIVE')}`}>
+                        {student.user?.status || 'ACTIVE'}
                       </span>
                     </div>
                   </button>
                 ))}
               
-              {studentsData.filter(student => 
+              {students.filter(student => 
                 editSearchTerm === "" || 
-                student.idNumber.toLowerCase().includes(editSearchTerm.toLowerCase()) ||
-                student.name.toLowerCase().includes(editSearchTerm.toLowerCase())
+                student.student_id?.toLowerCase().includes(editSearchTerm.toLowerCase()) ||
+                `${student.user?.first_name} ${student.user?.last_name}`.toLowerCase().includes(editSearchTerm.toLowerCase())
               ).length === 0 && (
                 <div className="text-center py-12">
                   <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-white/5 mb-4">
@@ -1149,8 +1205,8 @@ function Students() {
               <label className="block text-sm font-medium text-white/70 mb-2">Оюутан сонгох</label>
               <select className="w-full rounded-lg border border-white/10 bg-white/[0.06] px-4 py-2.5 text-sm text-white focus:outline-none focus:border-blue-400/40 mb-4">
                 <option>Оюутан сонгох</option>
-                {studentsData.map((student) => (
-                  <option key={student.id}>{student.name} - {student.idNumber}</option>
+                {students.map((student) => (
+                  <option key={student.id}>{student.user?.first_name} {student.user?.last_name} - {student.student_id}</option>
                 ))}
               </select>
 

@@ -3,7 +3,6 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import Link from "next/link";
-import { authApi } from "@/lib/api";
 
 const adminTypes = [
   { 
@@ -49,6 +48,7 @@ export default function AdminLoginPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
     if (!id || !pass) {
       setError("ID болон нууц үгээ оруулна уу.");
       return;
@@ -58,39 +58,47 @@ export default function AdminLoginPage() {
     setLoading(true);
     
     try {
-      // Backend API дуудах
-      const result = await authApi.login(id, pass);
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: id, password: pass }),
+      });
       
-      if (result.error) {
-        setError(result.error);
+      const result = await response.json();
+      
+      if (!response.ok) {
+        setError(result.error || 'Нэвтрэх явцад алдаа гарлаа');
         setLoading(false);
         return;
       }
 
-      if (result.data) {
-        // Token болон user мэдээлэл хадгалах
-        authApi.saveToken(result.data.token);
-        authApi.saveUser(result.data.user);
+      if (result.user && result.token) {
+        // LocalStorage-д хадгалах (client-side-д хэрэгтэй)
+        // Cookie автоматаар хадгалагдсан (server-side-аас)
+        localStorage.setItem('token', result.token);
+        localStorage.setItem('user', JSON.stringify(result.user));
         
-        // Admin type localStorage-д хадгалах
-        if (typeof window !== 'undefined') {
-          let userTypeToSave = "admin";
-          if (adminType === "training-admin") {
-            userTypeToSave = "training";
-          } else if (adminType === "finance-admin") {
-            userTypeToSave = "finance";
-          }
-          localStorage.setItem("userType", userTypeToSave);
-          localStorage.setItem("adminType", adminType);
+        let userTypeToSave = "admin";
+        if (adminType === "training-admin") {
+          userTypeToSave = "training";
+        } else if (adminType === "finance-admin") {
+          userTypeToSave = "finance";
         }
+        localStorage.setItem("userType", userTypeToSave);
+        localStorage.setItem("adminType", adminType);
         
-        // Админы төрөл тус бүрийн хувьд чиглүүлэх
+        // Redirect
         const selectedAdmin = adminTypes.find(a => a.key === adminType);
         if (selectedAdmin) {
-          router.replace(selectedAdmin.redirect);
+          // Use router.push instead of window.location for better UX
+          window.location.href = selectedAdmin.redirect;
         }
+      } else {
+        setError('Нэвтрэх мэдээлэл буруу байна');
+        setLoading(false);
       }
     } catch (error: any) {
+      console.error('Login error:', error);
       setError(error.message || "Нэвтрэх явцад алдаа гарлаа");
       setLoading(false);
     }
@@ -98,7 +106,7 @@ export default function AdminLoginPage() {
 
   return (
     <div className="relative isolate min-h-screen overflow-x-hidden bg-[#06030f] text-white font-sans">
-      {/* Background with indra-building.jpg */}
+      {/* Background */}
       <div className="fixed inset-0 z-0">
         <div 
           className="absolute inset-0"
@@ -110,10 +118,9 @@ export default function AdminLoginPage() {
         />
       </div>
 
-      {/* ── MAIN CONTENT ── */}
+      {/* Main Content */}
       <div className="relative z-10 flex min-h-screen items-center justify-center px-4 py-20 sm:px-8">
         <div className="max-w-2xl w-full">
-          {/* Admin Login Form Card */}
           <div className="rounded-3xl border border-white/10 bg-[#081120]/70 p-8 shadow-[0_20px_60px_rgba(0,0,0,0.3)] backdrop-blur-md sm:p-10">
             <div className="text-center mb-8">
               <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-purple-500/10 border border-purple-500/30 mb-4">
@@ -141,11 +148,12 @@ export default function AdminLoginPage() {
                     key={admin.key}
                     type="button"
                     onClick={() => setAdminType(admin.key)}
+                    disabled={loading}
                     className={`flex flex-col items-center justify-center gap-2 rounded-xl border p-4 transition-all duration-200 text-center min-h-[100px] ${
                       adminType === admin.key 
                         ? `${admin.border} ${admin.color} opacity-100 scale-[1.02]` 
                         : "border-white/10 bg-white/[0.02] opacity-70 hover:opacity-100 hover:scale-[1.01]"
-                    }`}
+                    } ${loading ? 'cursor-not-allowed opacity-50' : ''}`}
                   >
                     <span className="text-2xl">{admin.icon}</span>
                     <div>
@@ -187,48 +195,31 @@ export default function AdminLoginPage() {
                   type="text"
                   value={id}
                   onChange={(e) => setId(e.target.value)}
+                  disabled={loading}
                   placeholder="Админы ID оруулах"
-                  className="w-full px-4 py-3 rounded-xl border border-white/10 bg-white/[0.04] text-white text-sm outline-none transition-all duration-200 focus:border-purple-500/50 focus:bg-white/[0.06]"
+                  className="w-full px-4 py-3 rounded-xl border border-white/10 bg-white/[0.04] text-white text-sm outline-none transition-all duration-200 focus:border-purple-500/50 focus:bg-white/[0.06] disabled:opacity-50 disabled:cursor-not-allowed"
                 />
               </div>
 
               {/* Password Input */}
               <div>
-                <div className="flex justify-between items-center mb-2">
-                  <label className="text-xs text-white/40 font-medium">
-                    Нууц үг
-                  </label>
-                  <button 
-                    type="button" 
-                    onClick={() => {
-                      if (!id) {
-                        setError("Нууц үг сэргээхийн тулд ID-ээ оруулна уу.");
-                        return;
-                      }
-                      setLoading(true);
-                      setTimeout(() => {
-                        setLoading(false);
-                        alert(`${id} ID-тэй админд нууц үг сэргээх линк имэйл хаяг руу илгээгдлээ.`);
-                      }, 600);
-                    }}
-                    disabled={loading}
-                    className="text-[10px] text-purple-400 hover:text-purple-300 transition-colors duration-200 disabled:opacity-50"
-                  >
-                    Нууц үг мартсан?
-                  </button>
-                </div>
+                <label className="block text-xs text-white/40 font-medium mb-2">
+                  Нууц үг
+                </label>
                 <div className="relative">
                   <input
                     type={showPass ? "text" : "password"}
                     value={pass}
                     onChange={(e) => setPass(e.target.value)}
+                    disabled={loading}
                     placeholder="Админы нууц үг оруулах"
-                    className="w-full px-4 py-3 pr-12 rounded-xl border border-white/10 bg-white/[0.04] text-white text-sm outline-none transition-all duration-200 focus:border-purple-500/50 focus:bg-white/[0.06]"
+                    className="w-full px-4 py-3 pr-12 rounded-xl border border-white/10 bg-white/[0.04] text-white text-sm outline-none transition-all duration-200 focus:border-purple-500/50 focus:bg-white/[0.06] disabled:opacity-50 disabled:cursor-not-allowed"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPass(!showPass)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-white/40 hover:text-white/60 transition-colors duration-200"
+                    disabled={loading}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-white/40 hover:text-white/60 transition-colors duration-200 disabled:opacity-50"
                   >
                     {showPass ? "👁️" : "👁️‍🗨️"}
                   </button>
@@ -237,19 +228,9 @@ export default function AdminLoginPage() {
 
               {/* Error Message */}
               {error && (
-                <div className={`p-3 rounded-xl border ${
-                  error.includes("хөгжүүлэгдэж байна") 
-                    ? "border-yellow-500/30 bg-yellow-500/10" 
-                    : "border-red-500/30 bg-red-500/10"
-                } flex items-center gap-2`}>
-                  <span className="text-sm">
-                    {error.includes("хөгжүүлэгдэж байна") ? "⚠️" : "❌"}
-                  </span>
-                  <span className={`text-xs ${
-                    error.includes("хөгжүүлэгдэж байна") ? "text-yellow-400" : "text-red-400"
-                  }`}>
-                    {error}
-                  </span>
+                <div className="p-3 rounded-xl border border-red-500/30 bg-red-500/10 flex items-center gap-2">
+                  <span className="text-sm">❌</span>
+                  <span className="text-xs text-red-400">{error}</span>
                 </div>
               )}
 
@@ -262,11 +243,11 @@ export default function AdminLoginPage() {
                 {loading ? (
                   <>
                     <div className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                    Админы системд нэвтэрч байна...
+                    Нэвтэрч байна...
                   </>
                 ) : (
                   <>
-                    Админы системд нэвтрэх
+                    Нэвтрэх
                     <span className="text-lg">⚡</span>
                   </>
                 )}
@@ -286,7 +267,7 @@ export default function AdminLoginPage() {
         </div>
       </div>
 
-      {/* ── FOOTER ── */}
+      {/* Footer */}
       <footer className="relative z-10 border-t border-white/[0.06] bg-[#0a0118]/80 px-4 py-8 sm:px-8">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
           <div className="flex items-center gap-3">

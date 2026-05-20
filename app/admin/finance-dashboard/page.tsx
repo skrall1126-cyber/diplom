@@ -2,15 +2,17 @@
 
 import { useState, useEffect } from "react";
 import { withAuth } from '@/contexts/AuthContext';
+import { paymentsApi, salariesApi } from '@/lib/api';
 import Navbar from "@/components/Navbar";
-import { withAuth } from '@/contexts/AuthContext';
 import Sidebar from "@/components/Sidebar";
-import { withAuth } from '@/contexts/AuthContext';
 import Link from "next/link";
-import { withAuth } from '@/contexts/AuthContext';
 
 function FinanceAdminDashboard() {
   const [activeMenu, setActiveMenu] = useState("Нүүр хуудас");
+  const [payments, setPayments] = useState<any[]>([]);
+  const [salaries, setSalaries] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   
   // Set user type to finance in localStorage
   useEffect(() => {
@@ -18,13 +20,86 @@ function FinanceAdminDashboard() {
       localStorage.setItem("userType", "finance");
       localStorage.setItem("adminType", "finance-admin");
     }
+    loadFinanceData();
   }, []);
 
+  const loadFinanceData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      // Load payments and salaries in parallel
+      const [paymentsResult, salariesResult] = await Promise.all([
+        paymentsApi.getAll(),
+        salariesApi.getAll()
+      ]);
+
+      if (paymentsResult.error) {
+        setError(paymentsResult.error);
+        return;
+      }
+
+      if (salariesResult.error) {
+        setError(salariesResult.error);
+        return;
+      }
+
+      if (paymentsResult.data) {
+        setPayments(paymentsResult.data.payments || []);
+      }
+
+      if (salariesResult.data) {
+        setSalaries(salariesResult.data.salaries || []);
+      }
+    } catch (err: any) {
+      setError(err.message || 'Санхүүгийн өгөгдөл ачаалахад алдаа гарлаа');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#06030f]">
+        <div className="text-white text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-white mx-auto mb-4"></div>
+          <p className="text-lg">Санхүүгийн өгөгдөл ачаалж байна...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#06030f]">
+        <div className="text-white text-center max-w-md">
+          <div className="text-6xl mb-4">⚠️</div>
+          <p className="text-red-400 mb-4 text-xl">Алдаа гарлаа</p>
+          <p className="text-white/60 mb-6">{error}</p>
+          <button 
+            onClick={loadFinanceData}
+            className="px-6 py-3 bg-blue-500 rounded-lg hover:bg-blue-600 transition-colors font-medium"
+          >
+            Дахин оролдох
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Calculate stats from API data
+  const paidPayments = payments.filter(p => p.status === 'PAID').length;
+  const overduePayments = payments.filter(p => p.status === 'OVERDUE').length;
+  const totalIncome = payments.filter(p => p.status === 'PAID').reduce((sum, p) => sum + (p.amount || 0), 0);
+  const totalExpenses = salaries.filter(s => s.status === 'PAID').reduce((sum, s) => sum + (s.net_salary || 0), 0);
+
   const stats = [
-    { label: "Төлбөрийн мэдээлэл", value: "1,245", change: "Төлсөн", color: "bg-emerald-500", icon: "💰" },
-    { label: "Хүлээгдэж буй төлбөр", value: "48", change: "Хугацаа хэтэрсэн", color: "bg-red-500", icon: "⏰" },
-    { label: "Санхүүгийн тайлан", value: "156", change: "Сар бүр", color: "bg-blue-500", icon: "📋" },
-    { label: "Хяналтын мэдээлэл", value: "12", change: "Шинэ", color: "bg-purple-500", icon: "👁️" },
+    { label: "Төлбөрийн мэдээлэл", value: paidPayments.toString(), change: "Төлсөн", color: "bg-emerald-500", icon: "💰" },
+    { label: "Хүлээгдэж буй төлбөр", value: overduePayments.toString(), change: "Хугацаа хэтэрсэн", color: "bg-red-500", icon: "⏰" },
+    { label: "Нийт орлого", value: `₮ ${totalIncome.toLocaleString()}`, change: "Энэ сар", color: "bg-blue-500", icon: "📋" },
+    { label: "Нийт зарлага", value: `₮ ${totalExpenses.toLocaleString()}`, change: "Энэ сар", color: "bg-purple-500", icon: "👁️" },
   ];
 
   const quickActions = [

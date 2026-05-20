@@ -2,16 +2,48 @@
 
 import { useState, useEffect } from "react";
 import { withAuth } from '@/contexts/AuthContext';
+import { teachersApi } from '@/lib/api';
 import Navbar from "@/components/Navbar";
-import { withAuth } from '@/contexts/AuthContext';
 import Sidebar from "@/components/Sidebar";
-import { withAuth } from '@/contexts/AuthContext';
 
 function TeachersPage() {
   const [activeMenu, setActiveMenu] = useState("Багшийн жагсаалт");
   const [userType, setUserType] = useState<"admin" | "training" | "finance" | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedTeacher, setSelectedTeacher] = useState<typeof teachersData[0] | null>(null);
+  
+  // API state
+  const [teachers, setTeachers] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  
+  const [selectedTeacher, setSelectedTeacher] = useState<any | null>(null);
+
+  // Load teachers from API
+  useEffect(() => {
+    loadTeachers();
+  }, []);
+
+  const loadTeachers = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      const result = await teachersApi.getAll();
+      
+      if (result.error) {
+        setError(result.error);
+        return;
+      }
+      
+      if (result.data) {
+        setTeachers(result.data.teachers || []);
+      }
+    } catch (err: any) {
+      setError(err.message || 'Багш нарыг ачаалахад алдаа гарлаа');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -25,115 +57,55 @@ function TeachersPage() {
     }
   }, []);
 
-  const teachersData = [
-    { 
-      id: 1, 
-      name: "Б.Бат-Эрдэнэ", 
-      idNumber: "T2021001",
-      department: "Програм хангамж", 
-      position: "Ахлах багш",
-      experience: 8,
-      courses: ["Python үндэс", "JavaScript", "React"],
-      rating: 4.8,
-      students: 142,
-      email: "baterdene@indra.edu.mn",
-      phone: "9999-1111",
-      status: "Идэвхтэй",
-      assignedClasses: ["PSW-101", "PSW-201"]
-    },
-    { 
-      id: 2, 
-      name: "Ц.Мөнхбат", 
-      idNumber: "T2019002",
-      department: "Сүлжээний технологи", 
-      position: "Тэргүүлэх багш",
-      experience: 12,
-      courses: ["Network Security", "Linux Systems", "Cloud Computing"],
-      rating: 4.9,
-      students: 89,
-      email: "monkhbat@indra.edu.mn",
-      phone: "9999-2222",
-      status: "Идэвхтэй",
-      assignedClasses: ["NET-201", "NET-301"]
-    },
-    { 
-      id: 3, 
-      name: "Д.Сэржмядаг", 
-      idNumber: "T2020003",
-      department: "Мэдээллийн аюулгүй байдал", 
-      position: "Багш",
-      experience: 6,
-      courses: ["Cybersecurity", "Ethical Hacking"],
-      rating: 4.7,
-      students: 156,
-      email: "serjmyadag@indra.edu.mn",
-      phone: "9999-3333",
-      status: "Идэвхтэй",
-      assignedClasses: ["SEC-301"]
-    },
-    { 
-      id: 4, 
-      name: "Г.Баярмаа", 
-      idNumber: "T2018004",
-      department: "Мэдээлэл зүй", 
-      position: "Ахлах багш",
-      experience: 10,
-      courses: ["Data Science", "Machine Learning", "Statistics"],
-      rating: 4.8,
-      students: 203,
-      email: "bayarmaa@indra.edu.mn",
-      phone: "9999-4444",
-      status: "Идэвхтэй",
-      assignedClasses: ["IS-201", "IS-301", "IS-401"]
-    },
-    { 
-      id: 5, 
-      name: "Л.Энхтуяа", 
-      idNumber: "T2021005",
-      department: "Мэдээлэл зүй", 
-      position: "Багш",
-      experience: 7,
-      courses: ["Database Systems", "Big Data"],
-      rating: 4.6,
-      students: 118,
-      email: "enkhtuya@indra.edu.mn",
-      phone: "9999-5555",
-      status: "Идэвхтэй",
-      assignedClasses: []
-    },
-    { 
-      id: 6, 
-      name: "Н.Түмэнжаргал", 
-      idNumber: "T2019006",
-      department: "Програм хангамж", 
-      position: "Ахлах багш",
-      experience: 9,
-      courses: ["Java Programming", "Spring Framework"],
-      rating: 4.7,
-      students: 97,
-      email: "tumenjargal@indra.edu.mn",
-      phone: "9999-6666",
-      status: "Идэвхтэй",
-      assignedClasses: []
-    },
-  ];
+  // Loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#06030f]">
+        <div className="text-white text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-white mx-auto mb-4"></div>
+          <p className="text-lg">Багш нарыг ачаалж байна...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#06030f]">
+        <div className="text-white text-center max-w-md">
+          <div className="text-6xl mb-4">⚠️</div>
+          <p className="text-red-400 mb-4 text-xl">Алдаа гарлаа</p>
+          <p className="text-white/60 mb-6">{error}</p>
+          <button 
+            onClick={loadTeachers}
+            className="px-6 py-3 bg-blue-500 rounded-lg hover:bg-blue-600 transition-colors font-medium"
+          >
+            Дахин оролдох
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  const teachersData = teachers;
 
   const summaryStats = {
     totalTeachers: teachersData.length,
-    active: teachersData.filter(t => t.status === "Идэвхтэй").length,
-    averageRating: (teachersData.reduce((sum, t) => sum + t.rating, 0) / teachersData.length).toFixed(1),
-    totalStudents: teachersData.reduce((sum, t) => sum + t.students, 0)
+    active: teachersData.filter((t: any) => t.user?.status === "ACTIVE").length,
+    averageRating: teachersData.length > 0 ? 4.5 : 0, // Mock rating for now
+    totalStudents: 0 // Will be calculated from actual data
   };
 
-  const filteredTeachers = teachersData.filter(teacher => {
+  const filteredTeachers = teachersData.filter((teacher: any) => {
     const searchLower = searchTerm.toLowerCase();
+    const fullName = `${teacher.user?.first_name} ${teacher.user?.last_name}`.toLowerCase();
     return (
-      teacher.name.toLowerCase().includes(searchLower) ||
-      teacher.idNumber.toLowerCase().includes(searchLower) ||
-      teacher.department.toLowerCase().includes(searchLower) ||
-      teacher.email.toLowerCase().includes(searchLower) ||
-      teacher.phone.includes(searchTerm) ||
-      teacher.courses.some(course => course.toLowerCase().includes(searchLower))
+      fullName.includes(searchLower) ||
+      teacher.teacher_id?.toLowerCase().includes(searchLower) ||
+      teacher.department?.name?.toLowerCase().includes(searchLower) ||
+      teacher.user?.email?.toLowerCase().includes(searchLower) ||
+      teacher.user?.phone?.includes(searchTerm)
     );
   });
 

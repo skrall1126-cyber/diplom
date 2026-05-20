@@ -74,7 +74,77 @@ export default function TeacherGradesPage() {
   };
 
   const handleExportGrades = () => {
-    alert("Дүнгийн мэдээлэл Excel файлд экспортлогдлоо.");
+    // Create CSV content
+    const headers = ["Оюутны код", "Нэр", "Даалгавар 1", "Даалгавар 2", "Даалгавар 3", "Даалгавар 4", "Даалгавар 5", "Шалгалт", "Дундаж"];
+    const rows = filteredStudents.map(student => {
+      const avg = calculateAverage(student.assignments, student.exam);
+      return [
+        student.id,
+        student.name,
+        ...student.assignments,
+        student.exam,
+        avg
+      ].join(",");
+    });
+    
+    const csvContent = [headers.join(","), ...rows].join("\n");
+    
+    // Add BOM for UTF-8 encoding (for Excel compatibility)
+    const BOM = "\uFEFF";
+    const blob = new Blob([BOM + csvContent], { type: "text/csv;charset=utf-8;" });
+    
+    // Create download link
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    link.href = url;
+    link.download = `${selectedCourseData?.name}_Дүнгийн_жагсаалт_${new Date().toISOString().split('T')[0]}.csv`;
+    
+    // Trigger download
+    document.body.appendChild(link);
+    link.click();
+    
+    // Cleanup
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
+  const handleDownloadSubmissions = () => {
+    // Create a text file with submission list
+    const content = filteredStudents.map(student => {
+      return `${student.id} - ${student.name}\n` +
+             `  Даалгавар 1: ${student.assignments[0]} оноо\n` +
+             `  Даалгавар 2: ${student.assignments[1]} оноо\n` +
+             `  Даалгавар 3: ${student.assignments[2]} оноо\n` +
+             `  Даалгавар 4: ${student.assignments[3]} оноо\n` +
+             `  Даалгавар 5: ${student.assignments[4]} оноо\n` +
+             `  Шалгалт: ${student.exam} оноо\n` +
+             `  Дундаж: ${calculateAverage(student.assignments, student.exam)} оноо\n\n`;
+    }).join("");
+    
+    const header = `${selectedCourseData?.name} - Оюутны ирүүлсэн даалгаврын жагсаалт\n` +
+                   `Огноо: ${new Date().toLocaleDateString('mn-MN')}\n` +
+                   `Нийт оюутан: ${filteredStudents.length}\n\n` +
+                   `${'='.repeat(60)}\n\n`;
+    
+    const fullContent = header + content;
+    
+    // Add BOM for UTF-8 encoding
+    const BOM = "\uFEFF";
+    const blob = new Blob([BOM + fullContent], { type: "text/plain;charset=utf-8;" });
+    
+    // Create download link
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    link.href = url;
+    link.download = `${selectedCourseData?.name}_Даалгаврын_жагсаалт_${new Date().toISOString().split('T')[0]}.txt`;
+    
+    // Trigger download
+    document.body.appendChild(link);
+    link.click();
+    
+    // Cleanup
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   };
 
   const handleReviewSubmission = (studentId: string, studentName: string, assignment: string) => {
@@ -245,22 +315,7 @@ export default function TeacherGradesPage() {
                   </div>
                   <div className="flex gap-3">
                     <button 
-                      onClick={() => {
-                        // Simulate file download
-                        alert(`${selectedCourseData?.name} хичээлийн оюутны ирүүлсэн файлууд татагдаж байна...`);
-                        
-                        // In a real app, this would trigger a file download
-                        // For demo, we'll create a mock download
-                        const mockFiles = [
-                          "Бат-Эрдэнэ_Даалгавар1.pdf",
-                          "Ганбат_Даалгавар1.zip",
-                          "Дорж_Даалгавар1.py",
-                          "Энхбаяр_Даалгавар1.docx"
-                        ];
-                        
-                        console.log("Татагдаж буй файлууд:", mockFiles);
-                        alert(`${mockFiles.length} файл татагдаж байна.`);
-                      }}
+                      onClick={handleDownloadSubmissions}
                       className="rounded-xl border border-cyan-400/30 bg-cyan-500/15 px-4 py-2 text-sm font-medium text-cyan-200 transition-colors hover:bg-cyan-500/25"
                     >
                       Файл татах

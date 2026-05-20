@@ -25,13 +25,45 @@ const studentAttendance = [
 export default function TeacherAttendancePage() {
   const [activeMenu, setActiveMenu] = useState("Ирц бүртгэл");
   const [selectedCourse, setSelectedCourse] = useState("python-basics");
-  const [view, setView] = useState<"overview" | "students" | "qr">("overview");
+  const [view, setView] = useState<"overview" | "students" | "qr" | "details">("overview");
   const [qrCode, setQrCode] = useState<string>("");
   const [qrActive, setQrActive] = useState(false);
   const [qrScans, setQrScans] = useState<Array<{id: string, name: string, time: string, status: string}>>([]);
   const [showStudentModal, setShowStudentModal] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState<typeof studentAttendance[0] | null>(null);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+  const [attendanceRecords, setAttendanceRecords] = useState<Array<{
+    date: string;
+    studentId: string;
+    studentName: string;
+    status: string;
+    time: string;
+    locked: boolean;
+  }>>([]);
+
+  // Check if current time is within attendance window (9:00-10:00 on weekdays)
+  const isAttendanceWindow = () => {
+    const now = new Date();
+    const day = now.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+    const hour = now.getHours();
+    
+    // Monday to Friday (1-5) and between 9:00-10:00
+    return day >= 1 && day <= 5 && hour >= 9 && hour < 10;
+  };
+
+  // Check if attendance for a specific date is locked
+  const isAttendanceLocked = (date: string) => {
+    const recordDate = new Date(date);
+    const now = new Date();
+    
+    // If it's the same day and within window, not locked
+    if (recordDate.toDateString() === now.toDateString() && isAttendanceWindow()) {
+      return false;
+    }
+    
+    // Otherwise, locked
+    return true;
+  };
 
   const selectedCourseData = courses.find(c => c.id === selectedCourse);
   const filteredStudents = studentAttendance.filter(s => 
@@ -44,6 +76,13 @@ export default function TeacherAttendancePage() {
   };
 
   const handleMarkAttendanceExtended = (studentId: string, status: "present" | "absent" | "late" | "sick" | "sick-leave" | "excused") => {
+    // Check if attendance window is active
+    if (!isAttendanceWindow()) {
+      alert("Ирц бүртгэх цаг дууссан байна! Ирц зөвхөн ажлын өдрийн 09:00-10:00 цагт бүртгэгдэнэ.");
+      setOpenDropdown(null);
+      return;
+    }
+
     const statusText = {
       present: "Ирсэн",
       late: "Хоцорсон",
@@ -52,6 +91,28 @@ export default function TeacherAttendancePage() {
       excused: "Чөлөөтэй",
       absent: "Тасалсан"
     };
+    
+    const student = filteredStudents.find(s => s.id === studentId);
+    const now = new Date();
+    
+    // Create attendance record
+    const newRecord = {
+      date: now.toISOString(),
+      studentId: studentId,
+      studentName: student?.name || "",
+      status: statusText[status],
+      time: now.toLocaleTimeString("mn-MN", { hour: '2-digit', minute: '2-digit' }),
+      locked: false
+    };
+    
+    // Save to state
+    setAttendanceRecords(prev => [...prev, newRecord]);
+    
+    // Save to localStorage
+    const existingRecords = JSON.parse(localStorage.getItem('attendanceRecords') || '[]');
+    existingRecords.push(newRecord);
+    localStorage.setItem('attendanceRecords', JSON.stringify(existingRecords));
+    
     alert(`${studentId} оюутны ирц "${statusText[status]}" гэж бүртгэгдлээ.`);
     setOpenDropdown(null);
   };
@@ -129,7 +190,7 @@ export default function TeacherAttendancePage() {
               <div className="flex items-center gap-3">
                 {/* View toggle */}
                 <div className="flex gap-1 rounded-2xl border border-white/[0.06] bg-white/[0.03] p-1">
-                  {(["overview", "students", "qr"] as const).map((v) => (
+                  {(["overview", "students", "qr", "details"] as const).map((v) => (
                     <button
                       key={v}
                       onClick={() => setView(v)}
@@ -154,7 +215,7 @@ export default function TeacherAttendancePage() {
                           </svg>
                           Оюутан
                         </>
-                      ) : (
+                      ) : v === "qr" ? (
                         <>
                           <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
                             <rect x="1" y="1" width="4" height="4" rx="0.8" stroke="currentColor" strokeWidth="1.1"/>
@@ -163,6 +224,13 @@ export default function TeacherAttendancePage() {
                             <rect x="7" y="7" width="4" height="4" rx="0.8" stroke="currentColor" strokeWidth="1.1"/>
                           </svg>
                           QR
+                        </>
+                      ) : (
+                        <>
+                          <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                            <path d="M2 3h8M2 6h8M2 9h5" stroke="currentColor" strokeWidth="1.1" strokeLinecap="round"/>
+                          </svg>
+                          Ирцийн дэлгэрэнгүй
                         </>
                       )}
                     </button>
@@ -449,6 +517,102 @@ export default function TeacherAttendancePage() {
                       Хаах
                     </button>
                   </div>
+                </div>
+              </div>
+            )}
+
+            {/* ── ATTENDANCE DETAILS VIEW ── */}
+            {view === "details" && (
+              <div className="rounded-[24px] border border-white/10 bg-[#081120]/70 backdrop-blur-md">
+                <div className="border-b border-white/10 bg-white/[0.03] px-5 py-3">
+                  <p className="text-sm font-medium text-white/80">Ирцийн дэлгэрэнгүй бүртгэл</p>
+                  <p className="mt-0.5 text-xs text-white/40">
+                    {isAttendanceWindow() 
+                      ? "Одоо ирц бүртгэх цаг байна (09:00-10:00)" 
+                      : "Ирц бүртгэх цаг: Ажлын өдрийн 09:00-10:00"}
+                  </p>
+                </div>
+                <div className="overflow-x-auto">
+                  <table className="w-full min-w-[700px] border-collapse">
+                    <thead>
+                      <tr className="border-b border-white/10 bg-white/[0.02]">
+                        {["Огноо", "Цаг", "Оюутны код", "Нэр", "Статус", "Түгжээтэй"].map((h) => (
+                          <th key={h} className="px-4 py-3 text-[11px] font-medium uppercase tracking-[0.22em] text-white/35 text-left whitespace-nowrap">
+                            {h}
+                          </th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {attendanceRecords.length === 0 ? (
+                        <tr>
+                          <td colSpan={6} className="px-4 py-8 text-center">
+                            <div className="mx-auto mb-3 h-12 w-12 rounded-full border-2 border-dashed border-white/10 bg-white/5 p-2">
+                              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" className="text-white/30">
+                                <rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" strokeWidth="2"/>
+                                <path d="M8 12h8M12 8v8" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                              </svg>
+                            </div>
+                            <p className="text-sm text-white/50">Ирцийн бүртгэл байхгүй</p>
+                            <p className="mt-1 text-xs text-white/30">Ирц бүртгэсний дараа энд харагдана</p>
+                          </td>
+                        </tr>
+                      ) : (
+                        attendanceRecords
+                          .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+                          .map((record, i) => {
+                            const recordDate = new Date(record.date);
+                            const isLocked = isAttendanceLocked(record.date);
+                            
+                            return (
+                              <tr key={i} className={`border-b border-white/[0.05] transition-colors hover:bg-white/[0.02] ${i % 2 === 1 ? "bg-white/[0.01]" : ""}`}>
+                                <td className="px-4 py-3 text-sm text-white/70">
+                                  {recordDate.toLocaleDateString('mn-MN', {
+                                    year: 'numeric',
+                                    month: '2-digit',
+                                    day: '2-digit'
+                                  })}
+                                </td>
+                                <td className="px-4 py-3 text-sm text-white/70">{record.time}</td>
+                                <td className="px-4 py-3 text-sm font-mono text-white/60">{record.studentId}</td>
+                                <td className="px-4 py-3 text-sm text-white/80">{record.studentName}</td>
+                                <td className="px-4 py-3">
+                                  <span className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs font-medium ${
+                                    record.status === "Ирсэн" ? "border-emerald-400/20 bg-emerald-500/10 text-emerald-300" :
+                                    record.status === "Хоцорсон" ? "border-amber-400/20 bg-amber-500/10 text-amber-300" :
+                                    record.status === "Өвчтэй" ? "border-blue-400/20 bg-blue-500/10 text-blue-300" :
+                                    record.status === "Тасалсан өвчтэй" ? "border-purple-400/20 bg-purple-500/10 text-purple-300" :
+                                    record.status === "Чөлөөтэй" ? "border-cyan-400/20 bg-cyan-500/10 text-cyan-300" :
+                                    "border-red-400/20 bg-red-500/10 text-red-300"
+                                  }`}>
+                                    {record.status}
+                                  </span>
+                                </td>
+                                <td className="px-4 py-3">
+                                  {isLocked ? (
+                                    <div className="flex items-center gap-1 text-xs text-amber-300">
+                                      <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                                        <rect x="3" y="5" width="6" height="5" rx="1" stroke="currentColor" strokeWidth="1.1"/>
+                                        <path d="M4 5V3.5a2 2 0 0 1 4 0V5" stroke="currentColor" strokeWidth="1.1" strokeLinecap="round"/>
+                                      </svg>
+                                      Түгжээтэй
+                                    </div>
+                                  ) : (
+                                    <div className="flex items-center gap-1 text-xs text-emerald-300">
+                                      <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                                        <rect x="3" y="5" width="6" height="5" rx="1" stroke="currentColor" strokeWidth="1.1"/>
+                                        <path d="M4 5V3.5a2 2 0 0 1 4 0" stroke="currentColor" strokeWidth="1.1" strokeLinecap="round"/>
+                                      </svg>
+                                      Нээлттэй
+                                    </div>
+                                  )}
+                                </td>
+                              </tr>
+                            );
+                          })
+                      )}
+                    </tbody>
+                  </table>
                 </div>
               </div>
             )}

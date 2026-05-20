@@ -2,26 +2,27 @@
 
 import { useState, useEffect } from "react";
 import { withAuth } from '@/contexts/AuthContext';
+import { authApi } from '@/lib/api';
 import Navbar from "@/components/Navbar";
-import { withAuth } from '@/contexts/AuthContext';
 import Sidebar from "@/components/Sidebar";
-import { withAuth } from '@/contexts/AuthContext';
 
 function AdminProfilePage() {
   const [activeMenu, setActiveMenu] = useState("Хувийн мэдээлэл");
   const [userType, setUserType] = useState<"admin" | "training" | "finance" | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [profileData, setProfileData] = useState({
-    name: "Б.Батбаяр",
-    email: "batbayar@indra.edu.mn",
-    phone: "9999-0000",
-    position: "Системийн админ",
-    department: "IT хэлтэс",
-    employeeId: "EMP-2021-001",
-    birthDate: "1990-05-15",
-    address: "УБ, СХД, 3-р хороо",
-    registrationNumber: "УБ90051512345",
+    name: "",
+    email: "",
+    phone: "",
+    position: "",
+    department: "",
+    employeeId: "",
+    birthDate: "",
+    address: "",
+    registrationNumber: "",
   });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -33,13 +34,78 @@ function AdminProfilePage() {
         setUserType("admin");
       }
     }
+    loadProfile();
   }, []);
+
+  const loadProfile = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const result = await authApi.getCurrentUser();
+
+      if (result.error) {
+        setError(result.error);
+        return;
+      }
+
+      if (result.data && result.data.user) {
+        const user = result.data.user;
+        setProfileData({
+          name: `${user.first_name || ''} ${user.last_name || ''}`.trim(),
+          email: user.email || '',
+          phone: user.phone || '',
+          position: user.role || '',
+          department: user.department || 'IT хэлтэс',
+          employeeId: user.username || '',
+          birthDate: user.birth_date || '',
+          address: user.address || '',
+          registrationNumber: user.registration_number || '',
+        });
+      }
+    } catch (err: any) {
+      setError(err.message || 'Профайл ачаалахад алдаа гарлаа');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const getAdminTitle = () => {
     if (userType === "training") return "Сургалтын админ";
     if (userType === "finance") return "Санхүүгийн админ";
     return "Бүрэн эрхт админ";
   };
+
+  // Loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#06030f]">
+        <div className="text-white text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-white mx-auto mb-4"></div>
+          <p className="text-lg">Профайл ачаалж байна...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#06030f]">
+        <div className="text-white text-center max-w-md">
+          <div className="text-6xl mb-4">⚠️</div>
+          <p className="text-red-400 mb-4 text-xl">Алдаа гарлаа</p>
+          <p className="text-white/60 mb-6">{error}</p>
+          <button 
+            onClick={loadProfile}
+            className="px-6 py-3 bg-blue-500 rounded-lg hover:bg-blue-600 transition-colors font-medium"
+          >
+            Дахин оролдох
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen font-sans text-white">

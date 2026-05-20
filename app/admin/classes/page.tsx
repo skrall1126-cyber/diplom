@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { classesApi, studentsApi, teachersApi } from '@/lib/api';
 import Navbar from "@/components/Navbar";
 import Sidebar from "@/components/Sidebar";
 import Link from "next/link";
@@ -8,6 +9,14 @@ import Link from "next/link";
 export default function ClassesAdminPage() {
   const [activeMenu, setActiveMenu] = useState("Анги / Бүлэг");
   const [userType, setUserType] = useState<"admin" | "training" | "finance" | null>(null);
+  
+  // API state
+  const [classes, setClasses] = useState<any[]>([]);
+  const [allStudents, setAllStudents] = useState<any[]>([]);
+  const [availableTeachers, setAvailableTeachers] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  
   const [showAddClassModal, setShowAddClassModal] = useState(false);
   const [newClass, setNewClass] = useState({
     name: "",
@@ -33,35 +42,40 @@ export default function ClassesAdminPage() {
   const [showTeacherDropdown, setShowTeacherDropdown] = useState(false);
   const [showEditTeacherDropdown, setShowEditTeacherDropdown] = useState(false);
 
-  // Багш нарын жагсаалт
-  const availableTeachers = [
-    { id: 1, name: "Б.Бат-Эрдэнэ", department: "Програм хангамж" },
-    { id: 2, name: "Ц.Мөнхбат", department: "Сүлжээний технологи" },
-    { id: 3, name: "Д.Сэржмядаг", department: "Мэдээллийн аюулгүй байдал" },
-    { id: 4, name: "Г.Баярмаа", department: "Мэдээлэл зүй" },
-    { id: 5, name: "Л.Энхтуяа", department: "Мэдээлэл зүй" },
-    { id: 6, name: "Н.Түмэнжаргал", department: "Програм хангамж" },
-    { id: 7, name: "Б.Ганбат", department: "Програм хангамж" },
-    { id: 8, name: "Ц.Энхтуяа", department: "Сүлжээний технологи" },
-    { id: 9, name: "Д.Батжаргал", department: "Мэдээллийн аюулгүй байдал" },
-    { id: 10, name: "Э.Түмэн", department: "Мэдээлэл зүй" },
-    { id: 11, name: "Х.Сүхбат", department: "Дижитал маркетинг" },
-    { id: 12, name: "Л.Эрдэнэ", department: "Системийн инженеринг" },
-  ];
+  // Load data from API
+  useEffect(() => {
+    loadAllData();
+  }, []);
 
-  // All students (not assigned to any class yet)
-  const allStudents = [
-    { id: 1, name: "Л.Лхагва", code: "B211930010", gpa: "3.4", status: "Идэвхтэй", hasClass: false },
-    { id: 2, name: "Н.Нарантуяа", code: "B211930011", gpa: "3.8", status: "Идэвхтэй", hasClass: false },
-    { id: 3, name: "О.Отгонбаяр", code: "B211930012", gpa: "3.6", status: "Идэвхтэй", hasClass: false },
-    { id: 4, name: "П.Пүрэвсүрэн", code: "B211930013", gpa: "3.9", status: "Идэвхтэй", hasClass: false },
-    { id: 5, name: "Р.Ринчин", code: "B211930014", gpa: "3.5", status: "Идэвхтэй", hasClass: false },
-    { id: 6, name: "С.Сайнбаяр", code: "B211930015", gpa: "3.7", status: "Идэвхтэй", hasClass: false },
-    { id: 7, name: "Т.Төмөр", code: "B211930016", gpa: "3.3", status: "Идэвхтэй", hasClass: false },
-    { id: 8, name: "У.Ууганбаяр", code: "B211930017", gpa: "3.8", status: "Идэвхтэй", hasClass: false },
-    { id: 9, name: "Ф.Фүжин", code: "B211930018", gpa: "3.6", status: "Идэвхтэй", hasClass: false },
-    { id: 10, name: "Х.Хулан", code: "B211930019", gpa: "3.4", status: "Идэвхтэй", hasClass: false },
-  ];
+  const loadAllData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      // Load classes, students, and teachers in parallel
+      const [classesResult, studentsResult, teachersResult] = await Promise.all([
+        classesApi.getAll(),
+        studentsApi.getAll({ status: 'ACTIVE' }),
+        teachersApi.getAll()
+      ]);
+      
+      if (classesResult.data) {
+        setClasses(classesResult.data.classes || []);
+      }
+      
+      if (studentsResult.data) {
+        setAllStudents(studentsResult.data.students || []);
+      }
+      
+      if (teachersResult.data) {
+        setAvailableTeachers(teachersResult.data.teachers || []);
+      }
+    } catch (err: any) {
+      setError(err.message || 'Өгөгдөл ачаалахад алдаа гарлаа');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -76,6 +90,37 @@ export default function ClassesAdminPage() {
     }
   }, []);
 
+  // Loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#06030f]">
+        <div className="text-white text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-white mx-auto mb-4"></div>
+          <p className="text-lg">Өгөгдөл ачаалж байна...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#06030f]">
+        <div className="text-white text-center max-w-md">
+          <div className="text-6xl mb-4">⚠️</div>
+          <p className="text-red-400 mb-4 text-xl">Алдаа гарлаа</p>
+          <p className="text-white/60 mb-6">{error}</p>
+          <button 
+            onClick={loadAllData}
+            className="px-6 py-3 bg-blue-500 rounded-lg hover:bg-blue-600 transition-colors font-medium"
+          >
+            Дахин оролдох
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   const getBackLink = () => {
     if (userType === "training") return "/admin/training-dashboard";
     if (userType === "finance") return "/admin/finance-dashboard";
@@ -88,14 +133,7 @@ export default function ClassesAdminPage() {
     return "Бүрэн эрхт админ";
   };
 
-  const classes = [
-    { id: 1, name: "Програм хангамж 1-р анги", code: "PSW-101", year: "1", students: 45, teacher: "Б.Ганбат", room: "301" },
-    { id: 2, name: "Сүлжээний технологи 2-р анги", code: "NET-201", year: "2", students: 38, teacher: "Ц.Энхтуяа", room: "302" },
-    { id: 3, name: "Мэдээллийн аюулгүй байдал 3-р анги", code: "CS-301", year: "3", students: 32, teacher: "Д.Батжаргал", room: "303" },
-    { id: 4, name: "Мэдээлэл зүй 4-р анги", code: "IS-401", year: "4", students: 28, teacher: "Э.Түмэн", room: "304" },
-    { id: 5, name: "Дижитал маркетинг 2-р анги", code: "DM-201", year: "2", students: 36, teacher: "Х.Сүхбат", room: "305" },
-    { id: 6, name: "Системийн инженеринг 3-р анги", code: "SE-301", year: "3", students: 30, teacher: "Л.Эрдэнэ", room: "306" },
-  ];
+  // Use classes from API state (already defined above)
 
   return (
     <div className="min-h-screen font-sans text-white">
@@ -712,21 +750,22 @@ export default function ClassesAdminPage() {
             <div className="p-6">
               {/* Select All */}
               <div className="mb-4 flex items-center justify-between rounded-lg border border-white/10 bg-white/5 p-4">
-                <label className="flex items-center gap-3 cursor-pointer">
+                <div className="flex items-center gap-3">
                   <input
                     type="checkbox"
-                    checked={selectedStudents.length === allStudents.length}
+                    checked={selectedStudents.length === allStudents.length && allStudents.length > 0}
                     onChange={(e) => {
+                      e.stopPropagation();
                       if (e.target.checked) {
                         setSelectedStudents(allStudents.map(s => s.id));
                       } else {
                         setSelectedStudents([]);
                       }
                     }}
-                    className="h-5 w-5 rounded border-white/20 bg-white/10 text-blue-600 focus:ring-2 focus:ring-blue-500"
+                    className="h-5 w-5 rounded border-white/20 bg-white/10 text-blue-600 focus:ring-2 focus:ring-blue-500 cursor-pointer"
                   />
                   <span className="text-sm font-medium text-white">Бүгдийг сонгох</span>
-                </label>
+                </div>
                 <span className="text-sm text-white/50">
                   {allStudents.length} оюутан байна
                 </span>
@@ -735,22 +774,23 @@ export default function ClassesAdminPage() {
               {/* Students List */}
               <div className="space-y-3">
                 {allStudents.map((student) => (
-                  <label
+                  <div
                     key={student.id}
-                    className="flex items-center justify-between rounded-lg border border-white/10 bg-white/5 p-4 hover:bg-white/10 transition-colors cursor-pointer"
+                    className="flex items-center justify-between rounded-lg border border-white/10 bg-white/5 p-4 hover:bg-white/10 transition-colors"
                   >
                     <div className="flex items-center gap-3">
                       <input
                         type="checkbox"
                         checked={selectedStudents.includes(student.id)}
                         onChange={(e) => {
+                          e.stopPropagation();
                           if (e.target.checked) {
                             setSelectedStudents([...selectedStudents, student.id]);
                           } else {
                             setSelectedStudents(selectedStudents.filter(id => id !== student.id));
                           }
                         }}
-                        className="h-5 w-5 rounded border-white/20 bg-white/10 text-blue-600 focus:ring-2 focus:ring-blue-500"
+                        className="h-5 w-5 rounded border-white/20 bg-white/10 text-blue-600 focus:ring-2 focus:ring-blue-500 cursor-pointer"
                       />
                       <div className="h-10 w-10 rounded-full bg-gradient-to-br from-blue-600 to-blue-800 flex items-center justify-center">
                         <span className="text-sm font-semibold text-white">{student.name.charAt(0)}</span>
@@ -769,7 +809,7 @@ export default function ClassesAdminPage() {
                         {student.status}
                       </span>
                     </div>
-                  </label>
+                  </div>
                 ))}
               </div>
             </div>

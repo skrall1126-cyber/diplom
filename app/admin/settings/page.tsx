@@ -3,13 +3,9 @@
 import { useEffect, useState } from "react";
 import { withAuth } from '@/contexts/AuthContext';
 import { useRouter } from "next/navigation";
-import { withAuth } from '@/contexts/AuthContext';
 import Link from "next/link";
-import { withAuth } from '@/contexts/AuthContext';
 import Navbar from "@/components/Navbar";
-import { withAuth } from '@/contexts/AuthContext';
 import Sidebar from "@/components/Sidebar";
-import { withAuth } from '@/contexts/AuthContext';
 
 function SettingsPage() {
   const router = useRouter();

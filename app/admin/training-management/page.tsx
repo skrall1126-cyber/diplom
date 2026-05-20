@@ -1,11 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { withAuth } from '@/contexts/AuthContext';
+import { majorsApi, coursesApi } from '@/lib/api';
 import Navbar from "../../../components/Navbar";
-import { withAuth } from '@/contexts/AuthContext';
 import Sidebar from "../../../components/Sidebar";
-import { withAuth } from '@/contexts/AuthContext';
 
 // Мэргэжлийн төрөл
 interface Major {
@@ -49,23 +48,51 @@ function TrainingManagement() {
   const [newCourseLevel, setNewCourseLevel] = useState("");
   const [newCourseHours, setNewCourseHours] = useState("");
 
-  // Мэргэжлүүд
-  const [majors, setMajors] = useState<Major[]>([
-    { id: "prog", name: "Програм хангамж", description: "Програмчлал, веб хөгжүүлэлт", color: "from-blue-500 to-cyan-600", icon: "💻" },
-    { id: "cyber", name: "Кибер аюулгүй байдал", description: "Сүлжээний аюулгүй байдал, мэдээллийн хамгаалалт", color: "from-red-500 to-orange-600", icon: "🔒" },
-    { id: "data", name: "Өгөгдлийн шинжилгээ", description: "Өгөгдлийн сан, шинжилгээ", color: "from-purple-500 to-pink-600", icon: "📊" },
-    { id: "network", name: "Сүлжээний технологи", description: "Сүлжээний удирдлага, архитектур", color: "from-emerald-500 to-teal-600", icon: "🌐" },
-  ]);
+  // API state
+  const [majors, setMajors] = useState<Major[]>([]);
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // Хичээлүүд
-  const [courses, setCourses] = useState<Course[]>([
-    { id: "C001", name: "Програмчлалын үндэс", majorId: "prog", level: "Анхан", semester: "2026-2027 намар", status: "Баталгаажсан", students: 45, teachers: 3, hours: 120, duration: "12 долоо хоног", startDate: "2026-03-01", endDate: "2026-05-24", instructor: "Б.Батбаяр" },
-    { id: "C002", name: "JavaScript", majorId: "prog", level: "Дунд", semester: "2026-2027 намар", status: "Явж байгаа", students: 20, teachers: 2, hours: 100, duration: "10 долоо хоног", startDate: "2026-03-15", endDate: "2026-05-31", instructor: "Д.Дорж" },
-    { id: "C003", name: "React Development", majorId: "prog", level: "Дунд", semester: "2026-2027 хавар", status: "Төлөвлөгдсөн", students: 18, teachers: 1, hours: 115, duration: "10 долоо хоног", startDate: "2026-05-15", endDate: "2026-07-24", instructor: "А.Ариунаа" },
-    { id: "C004", name: "Сүлжээний аюулгүй байдал", majorId: "cyber", level: "Ахисан", semester: "2026-2027 намар", status: "Хүлээгдэж байна", students: 32, teachers: 2, hours: 90, duration: "10 долоо хоног", startDate: "2026-03-15", endDate: "2026-05-31", instructor: "Д.Дорж" },
-    { id: "C005", name: "Cyber Security", majorId: "cyber", level: "Ахисан", semester: "2026-2027 намар", status: "Явж байгаа", students: 20, teachers: 2, hours: 120, duration: "12 долоо хоног", startDate: "2026-03-20", endDate: "2026-06-12", instructor: "Т.Түмэнбаяр" },
-    { id: "C006", name: "Өгөгдлийн сангийн удирдлага", majorId: "data", level: "Дунд", semester: "2026-2027 хавар", status: "Баталгаажсан", students: 38, teachers: 2, hours: 105, duration: "10 долоо хоног", startDate: "2026-03-10", endDate: "2026-05-19", instructor: "Г.Ганбаяр" },
-  ]);
+  // Load data from API
+  useEffect(() => {
+    loadAllData();
+  }, []);
+
+  const loadAllData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      // Load majors and courses in parallel
+      const [majorsResult, coursesResult] = await Promise.all([
+        majorsApi.getAll(),
+        coursesApi.getAll()
+      ]);
+
+      if (majorsResult.error) {
+        setError(majorsResult.error);
+        return;
+      }
+
+      if (coursesResult.error) {
+        setError(coursesResult.error);
+        return;
+      }
+
+      if (majorsResult.data) {
+        setMajors(majorsResult.data.majors || []);
+      }
+
+      if (coursesResult.data) {
+        setCourses(coursesResult.data.courses || []);
+      }
+    } catch (err: any) {
+      setError(err.message || 'Өгөгдөл ачаалахад алдаа гарлаа');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Шүүлтүүрлэх
   const filteredCourses = courses.filter(course => {
@@ -139,6 +166,37 @@ function TrainingManagement() {
   const ongoingCourses = courses.filter(c => c.status === "Явж байгаа").length;
   const totalStudents = courses.reduce((sum, c) => sum + c.students, 0);
   const selectedCourseMajor = selectedCourse ? majors.find((major) => major.id === selectedCourse.majorId) : null;
+
+  // Loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#06030f]">
+        <div className="text-white text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-white mx-auto mb-4"></div>
+          <p className="text-lg">Өгөгдөл ачаалж байна...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#06030f]">
+        <div className="text-white text-center max-w-md">
+          <div className="text-6xl mb-4">⚠️</div>
+          <p className="text-red-400 mb-4 text-xl">Алдаа гарлаа</p>
+          <p className="text-white/60 mb-6">{error}</p>
+          <button 
+            onClick={loadAllData}
+            className="px-6 py-3 bg-blue-500 rounded-lg hover:bg-blue-600 transition-colors font-medium"
+          >
+            Дахин оролдох
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen font-sans text-white">

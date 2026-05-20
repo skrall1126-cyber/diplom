@@ -3,11 +3,8 @@
 import { useState, useEffect } from "react";
 import { withAuth } from '@/contexts/AuthContext';
 import Navbar from "@/components/Navbar";
-import { withAuth } from '@/contexts/AuthContext';
 import Sidebar from "@/components/Sidebar";
-import { withAuth } from '@/contexts/AuthContext';
 import Link from "next/link";
-import { withAuth } from '@/contexts/AuthContext';
 
 function Inventory() {
   const [activeMenu, setActiveMenu] = useState("Эд хөрөнгийн бүртгэл");
