@@ -11,6 +11,8 @@ export default function StaffSalaries() {
   const [filterStatus, setFilterStatus] = useState("all");
   const [selectedEmployee, setSelectedEmployee] = useState<any>(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
+  const [showCalculationModal, setShowCalculationModal] = useState(false);
+  const [calculationEmployee, setCalculationEmployee] = useState<any>(null);
   
   // Set user type to finance admin in localStorage
   useEffect(() => {
@@ -446,7 +448,13 @@ export default function StaffSalaries() {
                             >
                               Дэлгэрэнгүй
                             </button>
-                            <button className="rounded-lg border border-white/10 bg-white/[0.06] px-3 py-1.5 text-xs text-white/70 hover:text-white">
+                            <button 
+                              onClick={() => {
+                                setCalculationEmployee(salary);
+                                setShowCalculationModal(true);
+                              }}
+                              className="rounded-lg border border-white/10 bg-white/[0.06] px-3 py-1.5 text-xs text-white/70 hover:text-white"
+                            >
                               Тооцоолол
                             </button>
                           </div>
@@ -784,6 +792,146 @@ export default function StaffSalaries() {
                     </div>
                   </div>
                 </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Calculation Modal */}
+      {showCalculationModal && calculationEmployee && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
+          <div className="relative w-full max-w-3xl max-h-[90vh] overflow-hidden rounded-3xl border border-white/20 bg-gradient-to-br from-[#0a1628] via-[#081120] to-[#0a1628] shadow-2xl">
+            
+            {/* Close button */}
+            <div className="absolute right-4 top-4 z-20">
+              <button
+                onClick={() => {
+                  setShowCalculationModal(false);
+                  setCalculationEmployee(null);
+                }}
+                className="group rounded-xl border border-white/20 bg-white/10 p-2.5 text-white/70 hover:text-white hover:bg-white/20 hover:border-white/30 transition-all duration-200"
+              >
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" className="group-hover:rotate-90 transition-transform duration-200">
+                  <path d="M5 5l10 10M15 5l-10 10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                </svg>
+              </button>
+            </div>
+
+            {/* Scrollable content */}
+            <div className="relative max-h-[90vh] overflow-y-auto">
+              {/* Header */}
+              <div className="sticky top-0 z-10 border-b border-white/10 bg-gradient-to-r from-blue-600/20 via-cyan-600/20 to-blue-600/20 backdrop-blur-xl px-8 py-6">
+                <h2 className="text-2xl font-bold text-white mb-1">Цалингийн тооцоолол</h2>
+                <p className="text-sm text-white/60">{calculationEmployee.employee} - {calculationEmployee.position}</p>
+              </div>
+
+              {/* Calculation Details */}
+              <div className="px-8 py-6 space-y-6">
+                
+                {/* Base Salary Calculation */}
+                <div className="rounded-2xl border border-white/10 bg-gradient-to-br from-white/[0.07] to-white/[0.03] p-6">
+                  <h3 className="text-lg font-semibold text-white mb-4">Үндсэн цалин</h3>
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center">
+                      <span className="text-white/70">Албан тушаалын цалин</span>
+                      <span className="text-lg font-bold text-white">₮ {calculationEmployee.baseSalary.toLocaleString()}</span>
+                    </div>
+                    {calculationEmployee.teachingHours > 0 && (
+                      <>
+                        <div className="flex justify-between items-center text-sm">
+                          <span className="text-white/50">Заах цаг</span>
+                          <span className="text-white/70">{calculationEmployee.teachingHours} цаг</span>
+                        </div>
+                        <div className="flex justify-between items-center text-sm">
+                          <span className="text-white/50">Цагийн хөлс</span>
+                          <span className="text-white/70">₮ {Math.round(calculationEmployee.baseSalary / calculationEmployee.teachingHours).toLocaleString()} / цаг</span>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                </div>
+
+                {/* Bonus Calculation */}
+                <div className="rounded-2xl border border-emerald-400/20 bg-gradient-to-br from-emerald-500/10 to-emerald-600/5 p-6">
+                  <h3 className="text-lg font-semibold text-emerald-300 mb-4">Урамшуулал</h3>
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center">
+                      <span className="text-white/70">Нийт урамшуулал</span>
+                      <span className="text-lg font-bold text-emerald-300">₮ {calculationEmployee.bonus.toLocaleString()}</span>
+                    </div>
+                    {calculationEmployee.bonusReason && (
+                      <div className="text-sm">
+                        <span className="text-white/50">Шалтгаан: </span>
+                        <span className="text-white/70">{calculationEmployee.bonusReason}</span>
+                      </div>
+                    )}
+                    {calculationEmployee.overtimeHours > 0 && (
+                      <div className="flex justify-between items-center text-sm">
+                        <span className="text-white/50">Илүү цагийн урамшуулал</span>
+                        <span className="text-emerald-400">₮ {Math.round(calculationEmployee.bonus * 0.3).toLocaleString()}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Deductions Calculation */}
+                <div className="rounded-2xl border border-amber-400/20 bg-gradient-to-br from-amber-500/10 to-amber-600/5 p-6">
+                  <h3 className="text-lg font-semibold text-amber-300 mb-4">Суутгал</h3>
+                  <div className="space-y-3">
+                    {calculationEmployee.socialInsurance && (
+                      <div className="flex justify-between items-center">
+                        <div>
+                          <span className="text-white/70">Нийгмийн даатгал (НДШ)</span>
+                          <p className="text-xs text-white/50">Үндсэн цалингийн 8%</p>
+                        </div>
+                        <span className="text-lg font-bold text-amber-300">₮ {calculationEmployee.socialInsurance.toLocaleString()}</span>
+                      </div>
+                    )}
+                    {calculationEmployee.healthInsurance && (
+                      <div className="flex justify-between items-center">
+                        <div>
+                          <span className="text-white/70">Эрүүл мэндийн даатгал (ЭМД)</span>
+                          <p className="text-xs text-white/50">Үндсэн цалингийн 2%</p>
+                        </div>
+                        <span className="text-lg font-bold text-amber-300">₮ {calculationEmployee.healthInsurance.toLocaleString()}</span>
+                      </div>
+                    )}
+                    <div className="pt-3 border-t border-white/10">
+                      <div className="flex justify-between items-center">
+                        <span className="text-white/70 font-medium">Нийт суутгал</span>
+                        <span className="text-xl font-bold text-amber-300">₮ {calculationEmployee.deductions.toLocaleString()}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Final Calculation */}
+                <div className="rounded-2xl border border-blue-400/30 bg-gradient-to-br from-blue-500/20 to-cyan-600/10 p-6">
+                  <h3 className="text-lg font-semibold text-blue-300 mb-4">Эцсийн тооцоолол</h3>
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center text-sm">
+                      <span className="text-white/70">Үндсэн цалин</span>
+                      <span className="text-white">₮ {calculationEmployee.baseSalary.toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between items-center text-sm">
+                      <span className="text-emerald-400">+ Урамшуулал</span>
+                      <span className="text-emerald-400">₮ {calculationEmployee.bonus.toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between items-center text-sm">
+                      <span className="text-amber-400">- Суутгал</span>
+                      <span className="text-amber-400">₮ {calculationEmployee.deductions.toLocaleString()}</span>
+                    </div>
+                    <div className="pt-4 border-t border-blue-400/30">
+                      <div className="flex justify-between items-center">
+                        <span className="text-xl font-bold text-blue-300">Цэвэр цалин</span>
+                        <span className="text-3xl font-bold text-blue-300">₮ {calculationEmployee.netSalary.toLocaleString()}</span>
+                      </div>
+                      <p className="text-xs text-white/50 mt-2 text-right">Төлбөрийн огноо: {calculationEmployee.paymentDate}</p>
+                    </div>
+                  </div>
+                </div>
+
               </div>
             </div>
           </div>
