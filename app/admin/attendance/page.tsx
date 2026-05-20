@@ -508,10 +508,6 @@ export default function AttendanceAdminPage() {
           )}
         </main>
       </div>
-    </div>
-  );
-}
-
 
       {/* Edit Attendance Modal */}
       {showEditModal && editAttendanceData && (
