@@ -646,7 +646,6 @@ export default function ClassesAdminPage() {
                   </div>
                 )}
               </div>
-              </div>
 
               {/* Room */}
               <div>
