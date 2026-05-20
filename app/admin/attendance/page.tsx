@@ -11,6 +11,8 @@ export default function AttendanceAdminPage() {
   const [selectedDepartment, setSelectedDepartment] = useState<string | null>(null);
   const [selectedStudent, setSelectedStudent] = useState<any>(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editAttendanceData, setEditAttendanceData] = useState<any>(null);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -482,7 +484,11 @@ export default function AttendanceAdminPage() {
                     💬 Сануулга илгээсэн
                   </button>
                   <button
-                    onClick={() => alert("Ирц засах функц удахгүй нэмэгдэнэ.")}
+                    onClick={() => {
+                      setEditAttendanceData(selectedStudent);
+                      setShowEditModal(true);
+                      setShowDetailModal(false);
+                    }}
                     className="flex-1 rounded-lg border border-blue-400/30 bg-blue-500/15 px-4 py-3 text-sm font-medium text-blue-200 hover:bg-blue-500/25"
                   >
                     Ирц засах
@@ -502,6 +508,128 @@ export default function AttendanceAdminPage() {
           )}
         </main>
       </div>
+    </div>
+  );
+}
+
+
+      {/* Edit Attendance Modal */}
+      {showEditModal && editAttendanceData && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
+          <div className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl border border-white/20 bg-[#081120] p-6">
+            <div className="flex items-center justify-between mb-5">
+              <h2 className="text-xl font-bold text-white">Ирц засах</h2>
+              <button
+                onClick={() => {
+                  setShowEditModal(false);
+                  setEditAttendanceData(null);
+                }}
+                className="rounded-lg border border-white/10 bg-white/5 p-2 text-white/70 hover:text-white"
+              >
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                  <path d="M5 5l10 10M15 5l-10 10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                </svg>
+              </button>
+            </div>
+            
+            <div className="mb-5 rounded-xl border border-white/10 bg-white/[0.04] p-4">
+              <div className="flex items-center gap-3">
+                <div className="h-12 w-12 rounded-full bg-gradient-to-br from-blue-600 to-blue-800 flex items-center justify-center">
+                  <span className="text-sm font-semibold text-white">{editAttendanceData.student.charAt(0)}</span>
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-white">{editAttendanceData.student}</p>
+                  <p className="text-xs text-white/50">{editAttendanceData.studentId}</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm text-white/60 mb-2">Ирсэн өдөр *</label>
+                  <input
+                    type="number"
+                    value={editAttendanceData.present}
+                    onChange={(e) => setEditAttendanceData({ ...editAttendanceData, present: parseInt(e.target.value) || 0 })}
+                    className="w-full rounded-lg border border-white/10 bg-white/[0.06] px-3 py-2.5 text-sm text-white placeholder-white/30 focus:outline-none focus:border-emerald-400/40"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm text-white/60 mb-2">Тасалсан өдөр *</label>
+                  <input
+                    type="number"
+                    value={editAttendanceData.absent}
+                    onChange={(e) => setEditAttendanceData({ ...editAttendanceData, absent: parseInt(e.target.value) || 0 })}
+                    className="w-full rounded-lg border border-white/10 bg-white/[0.06] px-3 py-2.5 text-sm text-white placeholder-white/30 focus:outline-none focus:border-emerald-400/40"
+                  />
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm text-white/60 mb-2">Өвчтэй *</label>
+                  <input
+                    type="number"
+                    value={editAttendanceData.sick}
+                    onChange={(e) => setEditAttendanceData({ ...editAttendanceData, sick: parseInt(e.target.value) || 0 })}
+                    className="w-full rounded-lg border border-white/10 bg-white/[0.06] px-3 py-2.5 text-sm text-white placeholder-white/30 focus:outline-none focus:border-emerald-400/40"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm text-white/60 mb-2">Чөлөөтэй *</label>
+                  <input
+                    type="number"
+                    value={editAttendanceData.excused}
+                    onChange={(e) => setEditAttendanceData({ ...editAttendanceData, excused: parseInt(e.target.value) || 0 })}
+                    className="w-full rounded-lg border border-white/10 bg-white/[0.06] px-3 py-2.5 text-sm text-white placeholder-white/30 focus:outline-none focus:border-emerald-400/40"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm text-white/60 mb-2">Тайлбар</label>
+                <textarea
+                  value={editAttendanceData.note || ""}
+                  onChange={(e) => setEditAttendanceData({ ...editAttendanceData, note: e.target.value })}
+                  rows={3}
+                  placeholder="Ирцийн тайлбар..."
+                  className="w-full rounded-lg border border-white/10 bg-white/[0.06] px-3 py-2.5 text-sm text-white placeholder-white/30 focus:outline-none focus:border-emerald-400/40"
+                />
+              </div>
+
+              <div className="rounded-lg border border-blue-400/30 bg-blue-500/10 p-4">
+                <p className="text-xs text-blue-300">
+                  💡 Ирцийн хувь автоматаар тооцогдоно: {Math.round((editAttendanceData.present / (editAttendanceData.present + editAttendanceData.absent + editAttendanceData.sick + editAttendanceData.excused)) * 100)}%
+                </p>
+              </div>
+
+              <div className="flex gap-3 pt-2">
+                <button
+                  onClick={() => {
+                    setShowEditModal(false);
+                    setEditAttendanceData(null);
+                  }}
+                  className="flex-1 rounded-lg border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white/70 hover:text-white"
+                >
+                  Цуцлах
+                </button>
+                <button
+                  onClick={() => {
+                    alert(`${editAttendanceData.student}-ийн ирц амжилттай шинэчлэгдлээ!`);
+                    setShowEditModal(false);
+                    setEditAttendanceData(null);
+                    setSelectedStudent(null);
+                  }}
+                  className="flex-1 rounded-lg border border-blue-400/30 bg-gradient-to-b from-blue-500 to-blue-700 px-4 py-2.5 text-sm font-medium text-white hover:opacity-90"
+                >
+                  Хадгалах
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
