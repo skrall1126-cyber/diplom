@@ -474,7 +474,7 @@ export default function StaffSalaries() {
             </div>
 
             {/* Salary Distribution */}
-            <div className="grid gap-6 md:grid-cols-2">
+            <div className="grid gap-6 lg:grid-cols-2">
               <div className="rounded-2xl border border-white/10 bg-[#081120]/70 p-5 backdrop-blur-md">
                 <h2 className="text-lg font-semibold text-white mb-4">Алба, тэнхимийн цалингийн тархалт</h2>
                 <div className="space-y-4">
@@ -485,20 +485,20 @@ export default function StaffSalaries() {
                     { department: "Хүний нөөцийн алба", amount: "₮ 3,050,000", percentage: 10, color: "bg-amber-500" },
                     { department: "Багш нар", amount: "₮ 14,820,000", percentage: 49, color: "bg-purple-500" },
                   ].map((item, index) => (
-                    <div key={index} className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
+                    <div key={index} className="flex items-center gap-4">
+                      <div className="flex items-center gap-3 w-48">
                         <div className={`h-3 w-3 rounded-full ${item.color}`}></div>
                         <span className="text-sm text-white/70">{item.department}</span>
                       </div>
-                      <div className="flex items-center gap-3">
-                        <div className="h-2 w-32 rounded-full bg-white/[0.06] overflow-hidden">
+                      <div className="flex-1">
+                        <div className="h-3 w-full rounded-full bg-white/[0.06] overflow-hidden">
                           <div 
                             className={`h-full ${item.color} rounded-full`}
                             style={{ width: `${item.percentage}%` }}
                           ></div>
                         </div>
-                        <span className="text-sm text-white/50 w-24 text-right">{item.amount}</span>
                       </div>
+                      <span className="text-sm text-white/50 w-32 text-right">{item.amount}</span>
                     </div>
                   ))}
                 </div>
@@ -513,18 +513,21 @@ export default function StaffSalaries() {
                     { component: "Суутгал", amount: "₮ 2,840,000", percentage: 9, color: "bg-amber-500" },
                     { component: "Цэвэр цалин", amount: "₮ 30,290,000", percentage: 100, color: "bg-purple-500" },
                   ].map((item, index) => (
-                    <div key={index} className="rounded-xl border border-white/10 bg-white/[0.06] p-4">
-                      <div className="mb-3">
-                        <p className="font-medium text-white">{item.component}</p>
-                        <p className="text-2xl font-bold text-white">{item.amount}</p>
+                    <div key={index} className="flex items-center gap-4">
+                      <div className="w-32">
+                        <p className="text-sm font-medium text-white">{item.component}</p>
                       </div>
-                      <div className="h-2 w-full rounded-full bg-white/[0.06] overflow-hidden">
-                        <div 
-                          className={`h-full ${item.color} rounded-full`}
-                          style={{ width: `${item.percentage}%` }}
-                        ></div>
+                      <div className="flex-1">
+                        <div className="h-3 w-full rounded-full bg-white/[0.06] overflow-hidden">
+                          <div 
+                            className={`h-full ${item.color} rounded-full`}
+                            style={{ width: `${item.percentage}%` }}
+                          ></div>
+                        </div>
                       </div>
-                      <p className="mt-2 text-sm text-white/50">{item.percentage}%</p>
+                      <div className="w-32 text-right">
+                        <p className="text-sm font-bold text-white">{item.amount}</p>
+                      </div>
                     </div>
                   ))}
                 </div>
