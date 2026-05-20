@@ -479,7 +479,7 @@ export default function AttendanceAdminPage() {
                     }}
                     className="flex-1 rounded-lg border border-emerald-400/30 bg-emerald-500/15 px-4 py-3 text-sm font-medium text-emerald-200 hover:bg-emerald-500/25"
                   >
-                    💬 Сануулга илгээх
+                    💬 Сануулга илгээсэн
                   </button>
                   <button
                     onClick={() => alert("Ирц засах функц удахгүй нэмэгдэнэ.")}
