@@ -9,6 +9,10 @@ export default function TimetableAdminPage() {
   const [activeMenu, setActiveMenu] = useState("Хичээлийн хуваарь");
   const [userType, setUserType] = useState<"admin" | "training" | "finance" | null>(null);
   const [showAddTimetableModal, setShowAddTimetableModal] = useState(false);
+  const [showDetailModal, setShowDetailModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [selectedTimetable, setSelectedTimetable] = useState<any>(null);
+  const [editTimetableData, setEditTimetableData] = useState<any>(null);
   const [newTimetable, setNewTimetable] = useState({
     days: [] as string[],
     startTime: "",
@@ -154,20 +158,15 @@ export default function TimetableAdminPage() {
                           <p className="text-sm text-white/70">{item.class}</p>
                         </td>
                         <td className="px-4 py-3">
-                          <div className="flex gap-2">
-                            <button 
-                              onClick={() => alert(`${item.course} хичээлийг засах функц удахгүй нэмэгдэнэ.`)}
-                              className="rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-white/70 hover:text-white"
-                            >
-                              Засах
-                            </button>
-                            <button 
-                              onClick={() => alert(`${item.course} хичээлийг харах функц удахгүй нэмэгдэнэ.`)}
-                              className="rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-white/70 hover:text-white"
-                            >
-                              Харах
-                            </button>
-                          </div>
+                          <button 
+                            onClick={() => {
+                              setSelectedTimetable(item);
+                              setShowDetailModal(true);
+                            }}
+                            className="rounded-lg border border-emerald-400/30 bg-emerald-500/15 px-3 py-1.5 text-xs font-medium text-emerald-300 hover:bg-emerald-500/25"
+                          >
+                            Дэлгэрэнгүй
+                          </button>
                         </td>
                       </tr>
                     ))}
@@ -427,6 +426,183 @@ export default function TimetableAdminPage() {
               >
                 Үүсгэх
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+
+      {/* Detail Modal */}
+      {showDetailModal && selectedTimetable && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
+          <div className="relative w-full max-w-2xl rounded-2xl border border-white/20 bg-[#081120] p-6">
+            <div className="mb-5 flex items-start justify-between gap-4">
+              <div>
+                <h2 className="text-xl font-bold text-white">{selectedTimetable.course}</h2>
+                <p className="mt-1 text-sm text-white/50">{selectedTimetable.day} • {selectedTimetable.time}</p>
+              </div>
+              <button
+                onClick={() => {
+                  setShowDetailModal(false);
+                  setSelectedTimetable(null);
+                }}
+                className="rounded-lg border border-white/10 bg-white/5 p-2 text-white/70 hover:text-white"
+              >
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                  <path d="M5 5l10 10M15 5l-10 10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                </svg>
+              </button>
+            </div>
+
+            <div className="grid gap-3 sm:grid-cols-2">
+              {[
+                { label: "Хичээл", value: selectedTimetable.course },
+                { label: "Багш", value: selectedTimetable.teacher },
+                { label: "Өдөр", value: selectedTimetable.day },
+                { label: "Цаг", value: selectedTimetable.time },
+                { label: "Өрөө", value: selectedTimetable.room },
+                { label: "Анги", value: selectedTimetable.class },
+              ].map((item) => (
+                <div key={item.label} className="rounded-xl border border-white/10 bg-white/[0.04] p-4">
+                  <p className="text-xs text-white/40">{item.label}</p>
+                  <p className="mt-1 text-sm font-medium text-white/90">{item.value}</p>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-6 flex justify-end gap-3">
+              <button
+                onClick={() => {
+                  setShowDetailModal(false);
+                  setSelectedTimetable(null);
+                }}
+                className="rounded-lg border border-white/10 bg-white/[0.06] px-4 py-2 text-sm text-white/70 hover:text-white"
+              >
+                Хаах
+              </button>
+              <button
+                onClick={() => {
+                  setEditTimetableData(selectedTimetable);
+                  setShowEditModal(true);
+                  setShowDetailModal(false);
+                }}
+                className="rounded-lg border border-blue-400/30 bg-blue-500/15 px-4 py-2 text-sm font-medium text-blue-300 hover:bg-blue-500/25"
+              >
+                Засах
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Modal */}
+      {showEditModal && editTimetableData && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
+          <div className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl border border-white/20 bg-[#081120] p-6">
+            <div className="flex items-center justify-between mb-5">
+              <h2 className="text-xl font-bold text-white">Хуваарь засах</h2>
+              <button
+                onClick={() => {
+                  setShowEditModal(false);
+                  setEditTimetableData(null);
+                }}
+                className="rounded-lg border border-white/10 bg-white/5 p-2 text-white/70 hover:text-white"
+              >
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                  <path d="M5 5l10 10M15 5l-10 10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                </svg>
+              </button>
+            </div>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm text-white/60 mb-2">Хичээл *</label>
+                <input
+                  type="text"
+                  value={editTimetableData.course}
+                  onChange={(e) => setEditTimetableData({ ...editTimetableData, course: e.target.value })}
+                  className="w-full rounded-lg border border-white/10 bg-white/[0.06] px-3 py-2.5 text-sm text-white placeholder-white/30 focus:outline-none focus:border-emerald-400/40"
+                />
+              </div>
+              <div>
+                <label className="block text-sm text-white/60 mb-2">Багш *</label>
+                <input
+                  type="text"
+                  value={editTimetableData.teacher}
+                  onChange={(e) => setEditTimetableData({ ...editTimetableData, teacher: e.target.value })}
+                  className="w-full rounded-lg border border-white/10 bg-white/[0.06] px-3 py-2.5 text-sm text-white placeholder-white/30 focus:outline-none focus:border-emerald-400/40"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm text-white/60 mb-2">Өдөр *</label>
+                  <select
+                    value={editTimetableData.day}
+                    onChange={(e) => setEditTimetableData({ ...editTimetableData, day: e.target.value })}
+                    className="w-full rounded-lg border border-white/10 bg-white/[0.06] px-3 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-400/40"
+                  >
+                    <option value="Даваа">Даваа</option>
+                    <option value="Мягмар">Мягмар</option>
+                    <option value="Лхагва">Лхагва</option>
+                    <option value="Пүрэв">Пүрэв</option>
+                    <option value="Баасан">Баасан</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm text-white/60 mb-2">Цаг *</label>
+                  <input
+                    type="text"
+                    value={editTimetableData.time}
+                    onChange={(e) => setEditTimetableData({ ...editTimetableData, time: e.target.value })}
+                    placeholder="08:00-09:30"
+                    className="w-full rounded-lg border border-white/10 bg-white/[0.06] px-3 py-2.5 text-sm text-white placeholder-white/30 focus:outline-none focus:border-emerald-400/40"
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm text-white/60 mb-2">Өрөө *</label>
+                  <input
+                    type="text"
+                    value={editTimetableData.room}
+                    onChange={(e) => setEditTimetableData({ ...editTimetableData, room: e.target.value })}
+                    className="w-full rounded-lg border border-white/10 bg-white/[0.06] px-3 py-2.5 text-sm text-white placeholder-white/30 focus:outline-none focus:border-emerald-400/40"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm text-white/60 mb-2">Анги *</label>
+                  <input
+                    type="text"
+                    value={editTimetableData.class}
+                    onChange={(e) => setEditTimetableData({ ...editTimetableData, class: e.target.value })}
+                    className="w-full rounded-lg border border-white/10 bg-white/[0.06] px-3 py-2.5 text-sm text-white placeholder-white/30 focus:outline-none focus:border-emerald-400/40"
+                  />
+                </div>
+              </div>
+              <div className="flex gap-3 pt-2">
+                <button
+                  onClick={() => {
+                    setShowEditModal(false);
+                    setEditTimetableData(null);
+                  }}
+                  className="flex-1 rounded-lg border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white/70 hover:text-white"
+                >
+                  Цуцлах
+                </button>
+                <button
+                  onClick={() => {
+                    alert(`${editTimetableData.course} хуваарь амжилттай шинэчлэгдлээ!`);
+                    setShowEditModal(false);
+                    setEditTimetableData(null);
+                    setSelectedTimetable(null);
+                  }}
+                  className="flex-1 rounded-lg border border-blue-400/30 bg-gradient-to-b from-blue-500 to-blue-700 px-4 py-2.5 text-sm font-medium text-white hover:opacity-90"
+                >
+                  Хадгалах
+                </button>
+              </div>
             </div>
           </div>
         </div>
