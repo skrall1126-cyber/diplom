@@ -395,17 +395,6 @@ export default function TeachersPage() {
                       <p className="text-2xl font-bold text-blue-400">{selectedTeacher.experience} жил</p>
                     </div>
                     <div className="group">
-                      <p className="text-xs font-medium text-white/40 mb-2 uppercase tracking-wide">Үнэлгээ</p>
-                      <div className="flex items-center gap-2">
-                        <p className="text-2xl font-bold text-amber-400">{selectedTeacher.rating}</p>
-                        <span className="text-lg">⭐</span>
-                      </div>
-                    </div>
-                    <div className="group">
-                      <p className="text-xs font-medium text-white/40 mb-2 uppercase tracking-wide">Нийт оюутан</p>
-                      <p className="text-2xl font-bold text-emerald-400">{selectedTeacher.students}</p>
-                    </div>
-                    <div className="group">
                       <p className="text-xs font-medium text-white/40 mb-2 uppercase tracking-wide">Төлөв</p>
                       <span className="inline-block rounded-xl border border-emerald-400/40 bg-emerald-500/20 px-4 py-1.5 text-sm font-medium text-emerald-300">
                         {selectedTeacher.status}
