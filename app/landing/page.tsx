@@ -96,9 +96,16 @@ export default function LandingPage() {
           </a>
         </div>
 
-        <a href="/login" style={{ display: "flex", alignItems: "center", gap: "6px", padding: "9px 20px", borderRadius: "10px", background: "linear-gradient(135deg,#d946ef,#7c3aed)", color: "#fff", fontSize: "13px", fontWeight: 700, textDecoration: "none", boxShadow: "0 0 24px rgba(217,70,239,0.3)" }}>
-          Нэвтрэх <span style={{ fontSize: "15px" }}>→</span>
-        </a>
+        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+          <a href="/register" style={{ display: "flex", alignItems: "center", gap: "6px", padding: "9px 20px", borderRadius: "10px", border: "0.5px solid rgba(217,70,239,0.4)", color: "#d946ef", fontSize: "13px", fontWeight: 700, textDecoration: "none", background: "rgba(217,70,239,0.08)", transition: "all 0.2s" }}
+            onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.background="rgba(217,70,239,0.18)"; }}
+            onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.background="rgba(217,70,239,0.08)"; }}>
+            Бүртгүүлэх
+          </a>
+          <a href="/login" style={{ display: "flex", alignItems: "center", gap: "6px", padding: "9px 20px", borderRadius: "10px", background: "linear-gradient(135deg,#d946ef,#7c3aed)", color: "#fff", fontSize: "13px", fontWeight: 700, textDecoration: "none", boxShadow: "0 0 24px rgba(217,70,239,0.3)" }}>
+            Нэвтрэх <span style={{ fontSize: "15px" }}>→</span>
+          </a>
+        </div>
       </nav>
 
       {/* ── HERO ── */}
