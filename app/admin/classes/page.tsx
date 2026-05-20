@@ -157,10 +157,6 @@ export default function ClassesAdminPage() {
                         <span className="text-xs text-white/50">Өрөө:</span>
                         <span className="text-xs text-white/80">{cls.room}</span>
                       </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs text-white/50">Анги:</span>
-                        <span className="rounded-full border px-2 py-0.5 text-xs bg-blue-500/10 text-blue-400">{cls.year}-р анги</span>
-                      </div>
                     </div>
 
                     <div className="border-t border-white/10 pt-3 mb-3">
