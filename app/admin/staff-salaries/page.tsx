@@ -410,10 +410,7 @@ export default function StaffSalaries() {
                     {filteredSalaries.map(salary => (
                       <tr key={salary.id} className="border-b border-white/5 hover:bg-white/[0.02]">
                         <td className="py-4">
-                          <div>
-                            <p className="font-medium text-white">{salary.id}</p>
-                            <p className="text-xs text-white/50">{salary.department}</p>
-                          </div>
+                          <p className="font-medium text-white">{salary.id}</p>
                         </td>
                         <td className="py-4">
                           <p className="text-white">{salary.employee}</p>
