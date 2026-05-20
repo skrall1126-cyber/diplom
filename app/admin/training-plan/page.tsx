@@ -458,10 +458,8 @@ export default function TrainingPlanPage() {
               {[
                 { label: "Түвшин", value: selectedCourse.level },
                 { label: "Төлөв", value: selectedCourse.status },
-                { label: "Семестр", value: selectedCourse.semester },
                 { label: "Багш", value: selectedCourse.instructor },
                 { label: "Оюутан", value: `${selectedCourse.students} оюутан` },
-                { label: "Багшийн тоо", value: `${selectedCourse.teachers} багш` },
                 { label: "Нийт цаг", value: `${selectedCourse.hours} цаг` },
                 { label: "Үргэлжлэх хугацаа", value: selectedCourse.duration },
                 { label: "Эхлэх огноо", value: selectedCourse.startDate },
